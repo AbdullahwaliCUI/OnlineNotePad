@@ -1,0 +1,4 @@
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key-here
+NEXT_PUBLIC_APP_NAME=NotepadX
+NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY=AIzaSyC-your-google-api-key-here

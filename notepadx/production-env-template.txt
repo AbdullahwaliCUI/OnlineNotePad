@@ -1,0 +1,30 @@
+# ===== PRODUCTION ENVIRONMENT TEMPLATE =====
+# Copy this to Vercel Dashboard → Settings → Environment Variables
+
+# ===== REQUIRED - SUPABASE (GET FROM YOUR PROJECT) =====
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-actual-anon-key
+
+# ===== OPTIONAL - APP BRANDING =====
+NEXT_PUBLIC_APP_NAME=NotepadX
+
+# ===== OPTIONAL - PREMIUM TRANSLATION =====
+# Leave empty to use FREE MyMemory API (1000 translations/day)
+NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY=
+
+# ===== HOW TO GET SUPABASE CREDENTIALS =====
+# 1. Go to https://supabase.com
+# 2. Create new project (free tier available)
+# 3. Go to Settings → API
+# 4. Copy Project URL → use as NEXT_PUBLIC_SUPABASE_URL
+# 5. Copy anon public key → use as NEXT_PUBLIC_SUPABASE_ANON_KEY
+# 6. Run database schema from supabase/schema.sql
+
+# ===== WHAT WORKS WITHOUT SETUP =====
+# ✅ Voice input (browser Web Speech API)
+# ✅ FREE translation (MyMemory API - no key needed)
+# ✅ Rich text editing (all formatting features)
+# ✅ Local storage (notes saved in browser)
+# ❌ User authentication (needs Supabase)
+# ❌ Cloud sync (needs Supabase)
+# ❌ Note sharing (needs Supabase)

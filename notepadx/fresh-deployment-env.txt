@@ -1,0 +1,54 @@
+# ===== VERCEL ENVIRONMENT VARIABLES =====
+# Copy these to Vercel Dashboard when creating new project
+
+# REQUIRED - Supabase Database Connection
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key-here
+
+# OPTIONAL - App Configuration
+NEXT_PUBLIC_APP_NAME=NotepadX
+
+# OPTIONAL - Premium Translation (FREE MyMemory works without this)
+NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY=AIzaSyC-your-google-api-key-here
+
+# ===== QUICK SETUP INSTRUCTIONS =====
+# 1. Get Supabase credentials:
+#    - Go to https://supabase.com/dashboard
+#    - Select your project
+#    - Settings → API
+#    - Copy Project URL and anon public key
+#
+# 2. Replace placeholder values above
+#
+# 3. In Vercel (when creating new project):
+#    - Import from GitHub
+#    - Add environment variables during setup
+#    - OR add them later in Settings → Environment Variables
+#
+# 4. Deploy and test!
+
+# ===== WHAT WORKS WITHOUT GOOGLE API =====
+# ✅ Voice input (Urdu speech recognition)
+# ✅ FREE translation (1000/day via MyMemory)
+# ✅ All editor features
+# ✅ Note sharing and authentication
+# ✅ Mobile responsive design
+
+# ===== COPY-PASTE FORMAT FOR VERCEL =====
+# Use this format when adding variables one by one:
+
+# Variable 1:
+# Key: NEXT_PUBLIC_SUPABASE_URL
+# Value: https://your-project-id.supabase.co
+
+# Variable 2:
+# Key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-key-here
+
+# Variable 3:
+# Key: NEXT_PUBLIC_APP_NAME
+# Value: NotepadX
+
+# Variable 4 (Optional):
+# Key: NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY
+# Value: AIzaSyC-your-google-api-key-here

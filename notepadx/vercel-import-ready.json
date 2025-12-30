@@ -1,0 +1,22 @@
+[
+  {
+    "key": "NEXT_PUBLIC_SUPABASE_URL",
+    "value": "https://your-project-id.supabase.co",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY", 
+    "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key-here",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_APP_NAME",
+    "value": "NotepadX",
+    "target": ["production", "preview", "development"]
+  },
+  {
+    "key": "NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY",
+    "value": "AIzaSyC-your-google-api-key-here",
+    "target": ["production", "preview", "development"]
+  }
+]
