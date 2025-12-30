@@ -1,0 +1,44 @@
+# ===== COPY THESE TO VERCEL DASHBOARD =====
+# Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+# Add each variable individually with the format below:
+
+# REQUIRED - Supabase Database Connection
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.your-anon-key-here
+
+# OPTIONAL - App Configuration  
+NEXT_PUBLIC_APP_NAME=NotepadX
+
+# OPTIONAL - Premium Translation (MyMemory is FREE without this)
+NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY=AIzaSyC-your-google-api-key-here
+
+# ===== INSTRUCTIONS =====
+# 1. Get Supabase credentials:
+#    - Go to https://supabase.com/dashboard
+#    - Select your project → Settings → API
+#    - Copy Project URL and anon public key
+#
+# 2. Replace placeholder values above with your actual credentials
+#
+# 3. In Vercel Dashboard:
+#    - Go to Settings → Environment Variables
+#    - Click "Add New"
+#    - Enter Key and Value
+#    - Select: Production ✅ Preview ✅ Development ✅
+#    - Click "Save"
+#    - Repeat for each variable
+#
+# 4. Redeploy your project after adding variables
+
+# ===== WHAT WORKS WITHOUT GOOGLE API KEY =====
+# ✅ Voice input (Urdu speech recognition)
+# ✅ FREE translation (1000/day via MyMemory API)
+# ✅ Urdu → English translation
+# ✅ All editor features
+# ✅ Note sharing and authentication
+
+# ===== WHAT GOOGLE API KEY ADDS =====
+# ✅ Higher translation accuracy
+# ✅ More language pairs
+# ✅ Unlimited translations (paid)
+# ✅ Fallback for better quality
