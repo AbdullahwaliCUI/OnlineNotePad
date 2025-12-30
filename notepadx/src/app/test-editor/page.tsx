@@ -7,7 +7,7 @@ import { sanitizeHtml } from '@/lib/utils';
 
 export default function TestEditorPage() {
   const [richContent, setRichContent] = useState('<p>Test your <strong>rich text editor</strong> here!</p><p>Try adding a <a href="https://example.com">link</a> using the link button.</p>');
-  const [simpleContent, setSimpleContent] = useState('🎯 **VOICE INPUT + TRANSLATION TEST** 🎯\n\n✅ **NEW FEATURE:** Voice input with auto-translation!\n\n🎤 **Voice Input Steps:**\n1. Click the 🎤 Voice button in toolbar\n2. Allow microphone permissions\n3. Speak in Urdu: "یہ ایک ٹیسٹ ہے"\n4. Watch it get translated to English!\n5. Text appears at cursor position\n\n📝 **Text Selection Test:**\n• Select this text and click B for bold\n• Select text and try color buttons\n• Use Ctrl+B, Ctrl+I, Ctrl+U shortcuts\n\n🌍 **Translation Features:**\n• Urdu → English (default)\n• Multiple language support\n• Live transcript display\n• Auto-insert at cursor\n• Settings panel for customization\n\n🚀 **This is like having Google Translate + Microsoft Word combined!** 🎉');
+  const [simpleContent, setSimpleContent] = useState('🎯 **FREE VOICE TRANSLATION TEST** 🎯\n\n✅ **NEW FEATURE:** Voice input with FREE auto-translation!\n\n🎤 **Voice Input Steps:**\n1. Click the 🎤 Voice button in toolbar\n2. Allow microphone permissions\n3. Speak in Urdu: "یہ ایک ٹیسٹ ہے"\n4. Watch it get translated to English for FREE!\n5. Text appears at cursor position\n\n📝 **Text Selection Test:**\n• Select this text and click B for bold\n• Select text and try color buttons\n• Use Ctrl+B, Ctrl+I, Ctrl+U shortcuts\n\n🌍 **FREE Translation Features:**\n• Urdu → English (default)\n• 1000 translations per day FREE\n• No credit card required\n• MyMemory API integration\n• Live transcript display\n• Auto-insert at cursor\n• Settings panel for customization\n\n🚀 **This is like having Google Translate + Microsoft Word combined - FOR FREE!** 🎉');
   const [sanitizedOutput, setSanitizedOutput] = useState('');
 
   const handleSanitize = () => {
@@ -84,13 +84,14 @@ export default function TestEditorPage() {
               </div>
             </div>
             <div className="mt-4 p-3 bg-green-100 rounded">
-              <p className="font-semibold text-green-900">🎤 Voice Input Testing:</p>
+              <p className="font-semibold text-green-900">🎤 FREE Voice Translation Testing:</p>
               <ul className="text-green-800 text-sm mt-1 space-y-1">
                 <li>• <strong>Step 1:</strong> Click the 🎤 Voice button in the toolbar</li>
                 <li>• <strong>Step 2:</strong> Allow microphone permissions when prompted</li>
-                <li>• <strong>Step 3:</strong> Speak in Urdu (or your selected language)</li>
+                <li>• <strong>Step 3:</strong> Speak in Urdu: "یہ ایک ٹیسٹ ہے"</li>
                 <li>• <strong>Step 4:</strong> Watch live transcript appear</li>
                 <li>• <strong>Step 5:</strong> Text gets auto-translated to English and inserted!</li>
+                <li>• <strong>FREE:</strong> 1000 translations per day, no credit card needed!</li>
                 <li>• <strong>Settings:</strong> Click ⚙️ to change languages and toggle translation</li>
               </ul>
             </div>

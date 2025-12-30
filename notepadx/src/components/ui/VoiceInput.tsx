@@ -12,8 +12,8 @@ interface VoiceInputProps {
 
 export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputProps) {
   const [isTranslating, setIsTranslating] = useState(false);
-  const [sourceLanguage, setSourceLanguage] = useState(SPEECH_LANGUAGES.URDU_PAKISTAN);
-  const [targetLanguage, setTargetLanguage] = useState(LANGUAGE_CODES.ENGLISH);
+  const [sourceLanguage, setSourceLanguage] = useState<string>(SPEECH_LANGUAGES.URDU_PAKISTAN);
+  const [targetLanguage, setTargetLanguage] = useState<string>(LANGUAGE_CODES.ENGLISH);
   const [showSettings, setShowSettings] = useState(false);
   const [autoTranslate, setAutoTranslate] = useState(true);
 
@@ -238,9 +238,9 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
           {/* Translation Status */}
           <div className="text-xs text-gray-500">
             {translationService.isAvailable() ? (
-              <span className="text-green-600">✅ Translation available</span>
+              <span className="text-green-600">✅ Free Translation Available (MyMemory API)</span>
             ) : (
-              <span className="text-orange-600">⚠️ Translation API not configured</span>
+              <span className="text-orange-600">⚠️ Translation service unavailable</span>
             )}
           </div>
         </div>
