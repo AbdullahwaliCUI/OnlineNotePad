@@ -190,8 +190,8 @@ export default function NewNotePage() {
           </div>
         </div>
 
-        {/* Note Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        {/* Maximized Note Form */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
           {/* Title Input */}
           <div className="mb-6">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
@@ -256,15 +256,21 @@ export default function NewNotePage() {
               <p className="mt-1 text-sm text-red-600">{errors.content}</p>
             )}
           </div>
+        </div>
 
-          {/* Save Instructions */}
-          <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Writing Tips:</h4>
-            <ul className="space-y-1 text-blue-800">
-              <li>• Use the toolbar above to format your text</li>
-              <li>• Select text and click the link button to add hyperlinks</li>
-              <li>• Your content is automatically saved as you type</li>
-              <li>• All content is sanitized for security</li>
+        {/* Bottom Tips Section */}
+        <div className="bg-blue-50 rounded-lg p-4 mb-6">
+          <h4 className="font-medium text-blue-900 mb-2">✨ Writing Tips:</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+            <ul className="space-y-1">
+              <li>• <strong>Mouse Selection:</strong> Select text with mouse, then click toolbar buttons</li>
+              <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</li>
+              <li>• <strong>Colors:</strong> Select text and choose colors from toolbar</li>
+            </ul>
+            <ul className="space-y-1">
+              <li>• <strong>Alignment:</strong> Ctrl+L (left), Ctrl+E (center), Ctrl+R (right)</li>
+              <li>• <strong>Lists:</strong> Use bullet and numbered list buttons</li>
+              <li>• <strong>Auto-save:</strong> Content is automatically saved</li>
             </ul>
           </div>
         </div>

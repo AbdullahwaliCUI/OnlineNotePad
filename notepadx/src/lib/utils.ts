@@ -107,6 +107,41 @@ export function parsePhoneToE164(phoneNumber: string, country: string = 'US'): s
 }
 
 /**
+ * Convert HTML content back to simple text format for editing
+ */
+export function htmlToSimpleText(html: string): string {
+  if (!html) return '';
+  
+  return html
+    .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+    .replace(/<b>(.*?)<\/b>/g, '**$1**')
+    .replace(/<em>(.*?)<\/em>/g, '*$1*')
+    .replace(/<i>(.*?)<\/i>/g, '*$1*')
+    .replace(/<br\s*\/?>/g, '\n')
+    .replace(/<\/p><p>/g, '\n\n')
+    .replace(/<p>/g, '')
+    .replace(/<\/p>/g, '\n')
+    .replace(/<ul><li>(.*?)<\/li><\/ul>/g, '• $1')
+    .replace(/<ol><li>(.*?)<\/li><\/ol>/g, '1. $1')
+    .replace(/<li>(.*?)<\/li>/g, '• $1')
+    .replace(/<ul>/g, '')
+    .replace(/<\/ul>/g, '')
+    .replace(/<ol>/g, '')
+    .replace(/<\/ol>/g, '')
+    .replace(/<[^>]*>/g, '') // Remove any remaining HTML tags
+    .replace(/\n\s*\n/g, '\n') // Remove extra blank lines
+    .trim();
+}
+
+/**
+ * Strip HTML tags and get plain text
+ */
+export function stripHtmlTags(html: string): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+}
+
+/**
  * Truncate text to specified length
  */
 export function truncateText(text: string, maxLength: number): string {
