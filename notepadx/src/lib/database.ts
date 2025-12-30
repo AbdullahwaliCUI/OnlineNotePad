@@ -163,6 +163,22 @@ export const noteService = {
     return data;
   },
 
+  async getPublicNote(shareId: string): Promise<Note | null> {
+    const { data, error } = await supabase
+      .from('notes')
+      .select('*')
+      .eq('share_id', shareId)
+      .eq('is_shared', true)
+      .single();
+
+    if (error) {
+      console.error('Error fetching public note:', error);
+      return null;
+    }
+
+    return data;
+  },
+
   async createNote(note: NoteInsert): Promise<Note | null> {
     const { data, error } = await supabase
       .from('notes')

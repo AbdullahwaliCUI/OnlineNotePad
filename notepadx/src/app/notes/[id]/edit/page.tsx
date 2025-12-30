@@ -7,6 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RichTextEditor from '@/components/ui/RichTextEditor';
+import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
 import type { Note } from '@/types/database';
@@ -23,7 +24,10 @@ export default function EditNotePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [useSimpleEditor, setUseSimpleEditor] = useState(true);
+  const [isShared, setIsShared] = useState(false);
 
   useEffect(() => {
     if (user && noteId) {
@@ -41,9 +45,10 @@ export default function EditNotePage() {
       const noteData = await noteService.getNote(noteId, user.id);
       
       if (noteData) {
-        setNote(noteData);
+        setNote(noteData as any); // Type assertion for compatibility
         setTitle(noteData.title);
         setContent(noteData.content_html || noteData.content);
+        setIsShared((noteData as any).is_shared || false);
       } else {
         setError('Note not found or you do not have permission to edit it');
       }
@@ -69,23 +74,44 @@ export default function EditNotePage() {
     setIsSaving(true);
 
     try {
+      let htmlContent = content;
+      let plainTextContent = content;
+
+      // If using simple editor, convert markdown-like syntax to HTML
+      if (useSimpleEditor) {
+        htmlContent = content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/^• (.+)$/gm, '<li>$1</li>')
+          .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+          .replace(/\n/g, '<br>');
+        
+        // Wrap lists in proper tags
+        htmlContent = htmlContent
+          .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
+          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
+        
+        plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+      } else {
+        // For rich editor, extract plain text
+        plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+      }
+
       // Sanitize HTML content
-      const sanitizedContent = sanitizeHtml(content);
-      
-      // Create plain text version for excerpt and word count
-      const plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+      const sanitizedContent = sanitizeHtml(htmlContent);
 
       const updates = {
         title: title.trim(),
         content: plainTextContent,
         content_html: sanitizedContent,
+        is_shared: isShared,
       };
 
       const updatedNote = await noteService.updateNote(note.id, updates);
 
       if (updatedNote) {
         toast.success('Note updated successfully!');
-        router.push(`/notes/${note.id}`);
+        setNote({ ...note, ...updatedNote } as any);
       } else {
         toast.error('Failed to update note');
       }
@@ -97,17 +123,104 @@ export default function EditNotePage() {
     }
   };
 
-  const handleCancel = () => {
+  const handleDelete = async () => {
+    if (!note) return;
+
+    if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
+      setIsDeleting(true);
+      
+      try {
+        const success = await noteService.deleteNote(note.id);
+        
+        if (success) {
+          toast.success('Note deleted successfully');
+          router.push('/dashboard');
+        } else {
+          toast.error('Failed to delete note');
+        }
+      } catch (error) {
+        console.error('Error deleting note:', error);
+        toast.error('An error occurred while deleting the note');
+      } finally {
+        setIsDeleting(false);
+      }
+    }
+  };
+
+  const handleShareToggle = async () => {
+    if (!note) return;
+
+    const newSharedState = !isShared;
+    setIsShared(newSharedState);
+
+    try {
+      const updates = { is_shared: newSharedState };
+      const updatedNote = await noteService.updateNote(note.id, updates);
+      
+      if (updatedNote) {
+        setNote({ ...note, ...updatedNote } as any);
+        toast.success(newSharedState ? 'Note is now public!' : 'Note is now private');
+      } else {
+        // Revert on failure
+        setIsShared(!newSharedState);
+        toast.error('Failed to update sharing settings');
+      }
+    } catch (error) {
+      console.error('Error updating share settings:', error);
+      setIsShared(!newSharedState);
+      toast.error('An error occurred while updating sharing settings');
+    }
+  };
+
+  const getPublicUrl = () => {
+    if (!(note as any)?.share_id) return '';
+    return `${window.location.origin}/s/${(note as any).share_id}`;
+  };
+
+  const handleWhatsAppShare = () => {
     if (!note) return;
     
-    const hasChanges = title !== note.title || content !== (note.content_html || note.content);
-    
-    if (hasChanges) {
-      if (confirm('Are you sure you want to discard your changes?')) {
-        router.push(`/notes/${note.id}`);
+    const publicUrl = getPublicUrl();
+    const text = `${title} - ${publicUrl}`;
+    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const handleNativeShare = async () => {
+    if (!note) return;
+
+    const publicUrl = getPublicUrl();
+    const shareData = {
+      title: title,
+      text: `Check out this note: ${title}`,
+      url: publicUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback to copying to clipboard
+        await navigator.clipboard.writeText(`${title} - ${publicUrl}`);
+        toast.success('Link copied to clipboard!');
       }
-    } else {
-      router.push(`/notes/${note.id}`);
+    } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to WhatsApp
+      handleWhatsAppShare();
+    }
+  };
+
+  const copyPublicUrl = async () => {
+    if (!note) return;
+    
+    try {
+      const publicUrl = getPublicUrl();
+      await navigator.clipboard.writeText(publicUrl);
+      toast.success('Public URL copied to clipboard!');
+    } catch (error) {
+      console.error('Error copying URL:', error);
+      toast.error('Failed to copy URL');
     }
   };
 
@@ -151,12 +264,22 @@ export default function EditNotePage() {
             <p className="text-gray-600 mt-1">Make changes to your note</p>
           </div>
           <div className="flex items-center space-x-4">
-            <button
-              onClick={handleCancel}
+            <Link
+              href="/dashboard"
               className="btn-secondary"
-              disabled={isSaving}
             >
-              Cancel
+              Back to Dashboard
+            </Link>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className={`px-4 py-2 border rounded-lg font-medium transition-colors ${
+                isDeleting
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'text-red-600 hover:text-red-700 border-red-300 hover:border-red-400'
+              }`}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
             <button
               onClick={handleSave}
@@ -167,55 +290,143 @@ export default function EditNotePage() {
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
 
-        {/* Note Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          {/* Title Input */}
-          <div className="mb-6">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter note title..."
-              className="w-full px-4 py-3 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={isSaving}
-            />
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              {/* Title Input */}
+              <div className="mb-6">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter note title..."
+                  className="w-full px-4 py-3 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isSaving}
+                />
+              </div>
+
+              {/* Content Editor */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Content
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setUseSimpleEditor(!useSimpleEditor)}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
+                  </button>
+                </div>
+                
+                {useSimpleEditor ? (
+                  <SimpleTextEditor
+                    value={content}
+                    onChange={setContent}
+                    placeholder="Start writing your note..."
+                  />
+                ) : (
+                  <RichTextEditor
+                    value={content}
+                    onChange={setContent}
+                    placeholder="Start writing your note..."
+                  />
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Content Editor */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content
-            </label>
-            <RichTextEditor
-              value={content}
-              onChange={setContent}
-              placeholder="Start writing your note..."
-            />
-          </div>
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Share Settings</h3>
+              
+              {/* Share Toggle */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">Public Sharing</label>
+                    <p className="text-xs text-gray-500">Make this note publicly accessible</p>
+                  </div>
+                  <button
+                    onClick={handleShareToggle}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      isShared ? 'bg-blue-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isShared ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
 
-          {/* Save Instructions */}
-          <div className="text-sm text-gray-500">
-            <p>
-              <strong>Tip:</strong> Use the toolbar above to format your text. 
-              Changes are saved when you click "Save Changes".
-            </p>
-          </div>
-        </div>
+              {/* Public URL */}
+              {isShared && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Public URL
+                  </label>
+                  <div className="flex">
+                    <input
+                      type="text"
+                      value={getPublicUrl()}
+                      readOnly
+                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-l-lg bg-gray-50"
+                    />
+                    <button
+                      onClick={copyPublicUrl}
+                      className="px-3 py-2 text-sm bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
 
-        {/* Back Link */}
-        <div className="mt-6">
-          <Link href={`/notes/${note.id}`} className="text-blue-600 hover:text-blue-700">
-            ← Back to Note
-          </Link>
+              {/* Share Buttons */}
+              {isShared && (
+                <div className="space-y-3">
+                  <button
+                    onClick={handleNativeShare}
+                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    📱 Share
+                  </button>
+                  <button
+                    onClick={handleWhatsAppShare}
+                    className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    📱 Share on WhatsApp
+                  </button>
+                </div>
+              )}
+
+              {/* Note Info */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h4 className="text-sm font-medium text-gray-700 mb-3">Note Info</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div>Created: {new Date(note.created_at).toLocaleDateString()}</div>
+                  <div>Updated: {new Date(note.updated_at).toLocaleDateString()}</div>
+                  {note.word_count > 0 && <div>Words: {note.word_count}</div>}
+                  {note.reading_time > 0 && <div>Reading time: {note.reading_time} min</div>}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </ProtectedRoute>

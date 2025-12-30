@@ -121,16 +121,10 @@ export default function NotePage() {
           <div className="flex items-center space-x-4 ml-6">
             <Link
               href={`/notes/${note.id}/edit`}
-              className="btn-secondary"
+              className="btn-primary"
             >
-              Edit
+              Edit Note
             </Link>
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2 text-red-600 hover:text-red-700 border border-red-300 hover:border-red-400 rounded-lg transition-colors"
-            >
-              Delete
-            </button>
           </div>
         </div>
 
