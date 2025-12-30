@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify';
-import { formatPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
+import { formatNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 /**
  * Sanitize HTML content to prevent XSS attacks
@@ -24,7 +24,7 @@ export function sanitizeHtml(html: string): string {
  */
 export function formatPhone(phoneNumber: string, country: string = 'US'): string {
   try {
-    return formatPhoneNumber(phoneNumber, country as any) || phoneNumber;
+    return formatNumber(phoneNumber, country as any) || phoneNumber;
   } catch {
     return phoneNumber;
   }

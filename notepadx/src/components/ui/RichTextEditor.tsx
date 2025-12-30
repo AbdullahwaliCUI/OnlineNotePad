@@ -32,21 +32,17 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const modules = useMemo(() => ({
     toolbar: readOnly ? false : [
-      [{ 'header': [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      ['blockquote', 'code-block'],
-      ['link'],
       ['clean']
     ],
   }), [readOnly]);
 
   const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'blockquote', 'code-block',
-    'link'
+    'size',
+    'bold', 'italic',
+    'list', 'bullet'
   ];
 
   return (
@@ -66,9 +62,10 @@ export default function RichTextEditor({
       
       <style jsx global>{`
         .rich-text-editor .ql-editor {
-          min-height: 200px;
-          font-size: 14px;
+          min-height: 300px;
+          font-size: 16px;
           line-height: 1.6;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         .rich-text-editor .ql-toolbar {
@@ -78,6 +75,7 @@ export default function RichTextEditor({
           border-bottom: none;
           border-top-left-radius: 0.5rem;
           border-top-right-radius: 0.5rem;
+          background: #fafafa;
         }
         
         .rich-text-editor .ql-container {
@@ -92,6 +90,23 @@ export default function RichTextEditor({
         .rich-text-editor .ql-editor.ql-blank::before {
           color: #9ca3af;
           font-style: normal;
+        }
+
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
+          content: 'Normal';
+        }
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+          content: 'Small';
+        }
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+          content: 'Large';
+        }
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,
+        .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+          content: 'Huge';
         }
       `}</style>
     </div>

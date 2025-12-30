@@ -43,7 +43,7 @@ export default function HomePage() {
 
         {!loading && !isAuthenticated && (
           <p className="text-sm text-gray-500 mt-4">
-            <Link href="/signin" className="text-blue-600 hover:text-blue-700 underline">
+            <Link href="/auth/sign-in" className="text-blue-600 hover:text-blue-700 underline">
               Sign in
             </Link>{' '}
             to access your dashboard

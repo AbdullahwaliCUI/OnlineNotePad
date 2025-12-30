@@ -9,12 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.89.0",
     "dompurify": "^3.3.1",
     "libphonenumber-js": "^1.12.33",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-hook-form": "^7.69.0",
     "react-hot-toast": "^2.6.0",
     "react-phone-number-input": "^3.4.14",
     "react-quill": "^2.0.0",

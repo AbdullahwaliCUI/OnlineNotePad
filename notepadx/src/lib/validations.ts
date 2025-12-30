@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isValidPhoneNumber } from 'libphonenumber-js';
+import { isValidPhoneNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 // Auth validation schemas
 export const signInSchema = z.object({
@@ -8,23 +8,24 @@ export const signInSchema = z.object({
 });
 
 export const signUpSchema = z.object({
+  fullName: z.string().min(2, 'Full name must be at least 2 characters').max(100, 'Full name must be less than 100 characters'),
   email: z.string().email('Please enter a valid email address'),
   password: z
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
-  confirmPassword: z.string(),
-  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
-  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
   phone: z
     .string()
-    .optional()
-    .refine((phone) => !phone || isValidPhoneNumber(phone), {
+    .min(1, 'Phone number is required')
+    .refine((phone) => {
+      try {
+        return isValidPhoneNumber(phone);
+      } catch {
+        return false;
+      }
+    }, {
       message: 'Please enter a valid phone number',
     }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
 });
 
 // Profile validation schema
@@ -48,6 +49,16 @@ export const noteSchema = z.object({
 });
 
 export const noteUpdateSchema = noteSchema.partial();
+
+// Helper function to convert phone to E.164 format
+export const phoneToE164 = (phone: string, defaultCountry: string = 'US'): string | null => {
+  try {
+    const phoneNumber = parsePhoneNumber(phone, defaultCountry as any);
+    return phoneNumber?.format('E.164') || null;
+  } catch {
+    return null;
+  }
+};
 
 // Type exports
 export type SignInFormData = z.infer<typeof signInSchema>;

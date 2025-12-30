@@ -71,4 +71,73 @@
     border-radius: 0.5rem;
     cursor: not-allowed;
   }
+
+  /* Prose styling for note content */
+  .prose {
+    color: rgb(55 65 81);
+    max-width: none;
+  }
+  
+  .prose h1 {
+    color: rgb(17 24 39);
+    font-weight: 800;
+    font-size: 2.25rem;
+    margin-top: 0;
+    margin-bottom: 0.8888889em;
+    line-height: 1.1111111;
+  }
+  
+  .prose h2 {
+    color: rgb(17 24 39);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    line-height: 1.3333333;
+  }
+  
+  .prose h3 {
+    color: rgb(17 24 39);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+    line-height: 1.6;
+  }
+  
+  .prose p {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+  }
+  
+  .prose strong {
+    color: rgb(17 24 39);
+    font-weight: 600;
+  }
+  
+  .prose ol {
+    counter-reset: list-counter;
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+  }
+  
+  .prose ul {
+    margin-top: 1.25em;
+    margin-bottom: 1.25em;
+    padding-left: 1.625em;
+  }
+  
+  .prose li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  /* Line clamp utility */
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
 }
