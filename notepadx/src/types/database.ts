@@ -49,6 +49,8 @@ export interface Database {
           content_html: string;
           excerpt: string;
           is_public: boolean;
+          is_shared: boolean;
+          share_id: string;
           is_archived: boolean;
           is_pinned: boolean;
           folder_id: string | null;
@@ -65,6 +67,8 @@ export interface Database {
           content?: string;
           content_html?: string;
           is_public?: boolean;
+          is_shared?: boolean;
+          share_id?: string;
           is_archived?: boolean;
           is_pinned?: boolean;
           folder_id?: string | null;
@@ -81,6 +85,8 @@ export interface Database {
           content?: string;
           content_html?: string;
           is_public?: boolean;
+          is_shared?: boolean;
+          share_id?: string;
           is_archived?: boolean;
           is_pinned?: boolean;
           folder_id?: string | null;

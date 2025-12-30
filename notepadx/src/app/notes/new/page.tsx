@@ -6,6 +6,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RichTextEditor from '@/components/ui/RichTextEditor';
+import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
 import { sanitizeHtml } from '@/lib/utils';
@@ -16,6 +17,7 @@ export default function NewNotePage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [useSimpleEditor, setUseSimpleEditor] = useState(true); // Default to simple editor
 
   const handleSave = async () => {
     if (!user) {
@@ -31,11 +33,31 @@ export default function NewNotePage() {
     setIsSaving(true);
 
     try {
+      let htmlContent = content;
+      let plainTextContent = content;
+
+      // If using simple editor, convert markdown-like syntax to HTML
+      if (useSimpleEditor) {
+        htmlContent = content
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/^• (.+)$/gm, '<li>$1</li>')
+          .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+          .replace(/\n/g, '<br>');
+        
+        // Wrap lists in proper tags
+        htmlContent = htmlContent
+          .replace(/(<li>(?:(?!<li>).)*<\/li>)/gs, '<ul>$1</ul>')
+          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/gs, '<ol>$1</ol>');
+        
+        plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+      } else {
+        // For rich editor, extract plain text
+        plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+      }
+
       // Sanitize HTML content
-      const sanitizedContent = sanitizeHtml(content);
-      
-      // Create plain text version for excerpt and word count
-      const plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+      const sanitizedContent = sanitizeHtml(htmlContent);
 
       const noteData = {
         user_id: user.id,
@@ -121,14 +143,32 @@ export default function NewNotePage() {
 
           {/* Content Editor */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Content
-            </label>
-            <RichTextEditor
-              value={content}
-              onChange={setContent}
-              placeholder="Start writing your note..."
-            />
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Content
+              </label>
+              <button
+                type="button"
+                onClick={() => setUseSimpleEditor(!useSimpleEditor)}
+                className="text-xs text-blue-600 hover:text-blue-700"
+              >
+                {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
+              </button>
+            </div>
+            
+            {useSimpleEditor ? (
+              <SimpleTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Start writing your note..."
+              />
+            ) : (
+              <RichTextEditor
+                value={content}
+                onChange={setContent}
+                placeholder="Start writing your note..."
+              />
+            )}
           </div>
 
           {/* Save Instructions */}

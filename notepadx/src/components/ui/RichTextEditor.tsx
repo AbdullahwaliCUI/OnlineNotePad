@@ -2,18 +2,23 @@
 
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
+import 'react-quill/dist/quill.snow.css';
 
-// Dynamically import ReactQuill with no SSR
-const ReactQuill = dynamic(() => import('react-quill'), { 
-  ssr: false,
-  loading: () => (
-    <div className="border border-gray-300 rounded-lg p-4 min-h-[200px] bg-gray-50 animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-    </div>
-  )
-});
+// Create a wrapper component for ReactQuill
+const QuillWrapper = dynamic(
+  () => import('react-quill'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="border border-gray-300 rounded-lg p-4 min-h-[300px] bg-gray-50 animate-pulse">
+        <div className="h-10 bg-gray-200 rounded mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+      </div>
+    )
+  }
+);
 
 interface RichTextEditorProps {
   value: string;
@@ -47,7 +52,7 @@ export default function RichTextEditor({
 
   return (
     <div className={`rich-text-editor ${className}`}>
-      <ReactQuill
+      <QuillWrapper
         theme="snow"
         value={value}
         onChange={onChange}

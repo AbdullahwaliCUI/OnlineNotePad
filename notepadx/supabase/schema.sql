@@ -39,6 +39,8 @@ CREATE TABLE public.notes (
         END
     ) STORED,
     is_public BOOLEAN DEFAULT FALSE,
+    is_shared BOOLEAN DEFAULT FALSE,
+    share_id UUID DEFAULT uuid_generate_v4(),
     is_archived BOOLEAN DEFAULT FALSE,
     is_pinned BOOLEAN DEFAULT FALSE,
     folder_id UUID REFERENCES public.folders(id) ON DELETE SET NULL,
