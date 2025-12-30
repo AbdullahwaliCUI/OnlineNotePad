@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function HomePage() {
-  // Placeholder for authentication state
-  const [isSignedIn] = useState(false);
+  const { isAuthenticated, loading, user } = useAuth();
 
   return (
     <div className="container-custom py-16">
@@ -23,7 +22,11 @@ export default function HomePage() {
 
         {/* CTA Button */}
         <div className="flex justify-center">
-          {isSignedIn ? (
+          {loading ? (
+            <button disabled className="btn-disabled text-lg px-8 py-3">
+              Loading...
+            </button>
+          ) : isAuthenticated ? (
             <Link href="/dashboard" className="btn-primary text-lg px-8 py-3">
               Go to Dashboard
             </Link>
@@ -38,12 +41,18 @@ export default function HomePage() {
           )}
         </div>
 
-        {!isSignedIn && (
+        {!loading && !isAuthenticated && (
           <p className="text-sm text-gray-500 mt-4">
             <Link href="/signin" className="text-blue-600 hover:text-blue-700 underline">
               Sign in
             </Link>{' '}
             to access your dashboard
+          </p>
+        )}
+
+        {!loading && isAuthenticated && user && (
+          <p className="text-sm text-gray-600 mt-4">
+            Welcome back, {user.email}!
           </p>
         )}
 

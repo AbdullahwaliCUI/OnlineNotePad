@@ -1,0 +1,99 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import { useMemo } from 'react';
+
+// Dynamically import ReactQuill with no SSR
+const ReactQuill = dynamic(() => import('react-quill'), { 
+  ssr: false,
+  loading: () => (
+    <div className="border border-gray-300 rounded-lg p-4 min-h-[200px] bg-gray-50 animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+      <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+    </div>
+  )
+});
+
+interface RichTextEditorProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  readOnly?: boolean;
+  className?: string;
+}
+
+export default function RichTextEditor({
+  value,
+  onChange,
+  placeholder = 'Start writing...',
+  readOnly = false,
+  className = '',
+}: RichTextEditorProps) {
+  const modules = useMemo(() => ({
+    toolbar: readOnly ? false : [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['blockquote', 'code-block'],
+      ['link'],
+      ['clean']
+    ],
+  }), [readOnly]);
+
+  const formats = [
+    'header',
+    'bold', 'italic', 'underline', 'strike',
+    'list', 'bullet',
+    'blockquote', 'code-block',
+    'link'
+  ];
+
+  return (
+    <div className={`rich-text-editor ${className}`}>
+      <ReactQuill
+        theme="snow"
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        modules={modules}
+        formats={formats}
+        style={{
+          backgroundColor: readOnly ? '#f9fafb' : '#ffffff',
+        }}
+      />
+      
+      <style jsx global>{`
+        .rich-text-editor .ql-editor {
+          min-height: 200px;
+          font-size: 14px;
+          line-height: 1.6;
+        }
+        
+        .rich-text-editor .ql-toolbar {
+          border-top: 1px solid #e5e7eb;
+          border-left: 1px solid #e5e7eb;
+          border-right: 1px solid #e5e7eb;
+          border-bottom: none;
+          border-top-left-radius: 0.5rem;
+          border-top-right-radius: 0.5rem;
+        }
+        
+        .rich-text-editor .ql-container {
+          border-bottom: 1px solid #e5e7eb;
+          border-left: 1px solid #e5e7eb;
+          border-right: 1px solid #e5e7eb;
+          border-top: none;
+          border-bottom-left-radius: 0.5rem;
+          border-bottom-right-radius: 0.5rem;
+        }
+        
+        .rich-text-editor .ql-editor.ql-blank::before {
+          color: #9ca3af;
+          font-style: normal;
+        }
+      `}</style>
+    </div>
+  );
+}
