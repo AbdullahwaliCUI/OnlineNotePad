@@ -8,7 +8,10 @@ export interface Database {
           email: string;
           first_name: string;
           last_name: string;
+          full_name: string | null;
           phone: string | null;
+          phone_e164: string | null;
+          whatsapp_opt_in: boolean;
           avatar_url: string | null;
           bio: string | null;
           preferences: Record<string, any>;
@@ -20,7 +23,10 @@ export interface Database {
           email: string;
           first_name: string;
           last_name: string;
+          full_name?: string | null;
           phone?: string | null;
+          phone_e164?: string | null;
+          whatsapp_opt_in?: boolean;
           avatar_url?: string | null;
           bio?: string | null;
           preferences?: Record<string, any>;
@@ -32,7 +38,10 @@ export interface Database {
           email?: string;
           first_name?: string;
           last_name?: string;
+          full_name?: string | null;
           phone?: string | null;
+          phone_e164?: string | null;
+          whatsapp_opt_in?: boolean;
           avatar_url?: string | null;
           bio?: string | null;
           preferences?: Record<string, any>;

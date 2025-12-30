@@ -3,6 +3,7 @@ import { formatNumber, parsePhoneNumber } from 'libphonenumber-js';
 
 /**
  * Sanitize HTML content to prevent XSS attacks
+ * Enhanced for React Quill content with link support
  */
 export function sanitizeHtml(html: string): string {
   if (typeof window === 'undefined') {
@@ -10,13 +11,76 @@ export function sanitizeHtml(html: string): string {
     return html;
   }
   
-  return DOMPurify.sanitize(html, {
+  const cleanHtml = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'em', 'u', 's', 'ol', 'ul', 'li', 
-      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre'
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre',
+      'a', 'span', 'div'
     ],
-    ALLOWED_ATTR: ['class'],
+    ALLOWED_ATTR: [
+      'class', 'href', 'target', 'rel', 'style'
+    ],
+    ALLOW_DATA_ATTR: false
   });
+
+  // Post-process to add security attributes to links
+  if (typeof window !== 'undefined') {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = cleanHtml;
+    
+    const links = tempDiv.querySelectorAll('a[href]');
+    links.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  }
+  
+  return cleanHtml;
+}
+
+/**
+ * Sanitize pasted content specifically for React Quill
+ * Removes potentially dangerous elements while preserving formatting
+ */
+export function sanitizePastedContent(html: string): string {
+  if (typeof window === 'undefined') {
+    return html;
+  }
+
+  const cleanHtml = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'ol', 'ul', 'li', 
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'a', 'span'
+    ],
+    ALLOWED_ATTR: ['href', 'class'],
+    FORBID_TAGS: ['script', 'object', 'embed', 'iframe', 'form', 'input', 'img', 'video', 'audio'],
+    FORBID_ATTR: ['style', 'onclick', 'onload', 'onerror', 'src'],
+    ALLOW_DATA_ATTR: false
+  });
+
+  // Post-process to add security attributes to links
+  if (typeof window !== 'undefined') {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = cleanHtml;
+    
+    const links = tempDiv.querySelectorAll('a[href]');
+    links.forEach((link) => {
+      const href = link.getAttribute('href');
+      if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+    
+    return tempDiv.innerHTML;
+  }
+  
+  return cleanHtml;
 }
 
 /**

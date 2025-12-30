@@ -10,6 +10,8 @@ import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
 import { sanitizeHtml } from '@/lib/utils';
+import { noteSchema, validateNoteContent } from '@/lib/validations';
+import { z } from 'zod';
 
 export default function NewNotePage() {
   const { user } = useAuth();
@@ -17,7 +19,47 @@ export default function NewNotePage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [useSimpleEditor, setUseSimpleEditor] = useState(true); // Default to simple editor
+  const [useSimpleEditor, setUseSimpleEditor] = useState(true);
+  const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
+
+  const validateForm = (): boolean => {
+    try {
+      // Validate using Zod schema
+      noteSchema.parse({
+        title: title.trim(),
+        content: content,
+      });
+
+      // Additional content validation
+      const contentValidation = validateNoteContent(content);
+      if (!contentValidation.isValid) {
+        setErrors({ content: contentValidation.error });
+        toast.error(contentValidation.error || 'Content validation failed');
+        return false;
+      }
+
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: { title?: string; content?: string } = {};
+        error.issues.forEach((err: any) => {
+          if (err.path[0] === 'title') {
+            fieldErrors.title = err.message;
+          } else if (err.path[0] === 'content') {
+            fieldErrors.content = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        
+        // Show the first error as toast
+        const firstError = error.issues[0];
+        toast.error(firstError.message);
+        return false;
+      }
+      return false;
+    }
+  };
 
   const handleSave = async () => {
     if (!user) {
@@ -25,8 +67,7 @@ export default function NewNotePage() {
       return;
     }
 
-    if (!title.trim()) {
-      toast.error('Please enter a title for your note');
+    if (!validateForm()) {
       return;
     }
 
@@ -47,8 +88,8 @@ export default function NewNotePage() {
         
         // Wrap lists in proper tags
         htmlContent = htmlContent
-          .replace(/(<li>(?:(?!<li>).)*<\/li>)/gs, '<ul>$1</ul>')
-          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/gs, '<ol>$1</ol>');
+          .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
+          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
         
         plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
       } else {
@@ -72,7 +113,7 @@ export default function NewNotePage() {
         toast.success('Note created successfully!');
         router.push(`/notes/${newNote.id}`);
       } else {
-        toast.error('Failed to create note');
+        toast.error('Failed to create note. Please try again.');
       }
     } catch (error) {
       console.error('Error creating note:', error);
@@ -84,11 +125,30 @@ export default function NewNotePage() {
 
   const handleCancel = () => {
     if (title.trim() || content.trim()) {
-      if (confirm('Are you sure you want to discard this note?')) {
+      if (confirm('Are you sure you want to discard this note? All changes will be lost.')) {
         router.push('/dashboard');
       }
     } else {
       router.push('/dashboard');
+    }
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
+    
+    // Clear title error when user starts typing
+    if (errors.title && newTitle.trim()) {
+      setErrors(prev => ({ ...prev, title: undefined }));
+    }
+  };
+
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
+    
+    // Clear content error when user starts typing
+    if (errors.content && newContent.trim()) {
+      setErrors(prev => ({ ...prev, content: undefined }));
     }
   };
 
@@ -118,7 +178,14 @@ export default function NewNotePage() {
                   : 'bg-blue-600 hover:bg-blue-700 text-white'
               }`}
             >
-              {isSaving ? 'Saving...' : 'Save Note'}
+              {isSaving ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </div>
+              ) : (
+                'Save Note'
+              )}
             </button>
           </div>
         </div>
@@ -128,55 +195,77 @@ export default function NewNotePage() {
           {/* Title Input */}
           <div className="mb-6">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title
+              Title <span className="text-red-500">*</span>
+              <span className="text-xs text-gray-500 ml-2">(max 200 characters)</span>
             </label>
             <input
               type="text"
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={handleTitleChange}
               placeholder="Enter note title..."
-              className="w-full px-4 py-3 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              maxLength={200}
+              className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
+                errors.title 
+                  ? 'border-red-300 focus:ring-red-500' 
+                  : 'border-gray-300 focus:ring-blue-500'
+              }`}
               disabled={isSaving}
             />
+            {errors.title && (
+              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+            )}
+            <div className="mt-1 text-xs text-gray-500 text-right">
+              {title.length}/200 characters
+            </div>
           </div>
 
           {/* Content Editor */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-2">
               <label className="block text-sm font-medium text-gray-700">
-                Content
+                Content <span className="text-red-500">*</span>
               </label>
               <button
                 type="button"
                 onClick={() => setUseSimpleEditor(!useSimpleEditor)}
                 className="text-xs text-blue-600 hover:text-blue-700"
+                disabled={isSaving}
               >
                 {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
               </button>
             </div>
             
-            {useSimpleEditor ? (
-              <SimpleTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Start writing your note..."
-              />
-            ) : (
-              <RichTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Start writing your note..."
-              />
+            <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
+              {useSimpleEditor ? (
+                <SimpleTextEditor
+                  value={content}
+                  onChange={handleContentChange}
+                  placeholder="Start writing your note..."
+                />
+              ) : (
+                <RichTextEditor
+                  value={content}
+                  onChange={handleContentChange}
+                  placeholder="Start writing your note..."
+                />
+              )}
+            </div>
+            
+            {errors.content && (
+              <p className="mt-1 text-sm text-red-600">{errors.content}</p>
             )}
           </div>
 
           {/* Save Instructions */}
-          <div className="text-sm text-gray-500">
-            <p>
-              <strong>Tip:</strong> Use the toolbar above to format your text. 
-              You can make text <strong>bold</strong>, <em>italic</em>, create lists, and more.
-            </p>
+          <div className="text-sm text-gray-500 bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-900 mb-2">Writing Tips:</h4>
+            <ul className="space-y-1 text-blue-800">
+              <li>• Use the toolbar above to format your text</li>
+              <li>• Select text and click the link button to add hyperlinks</li>
+              <li>• Your content is automatically saved as you type</li>
+              <li>• All content is sanitized for security</li>
+            </ul>
           </div>
         </div>
 

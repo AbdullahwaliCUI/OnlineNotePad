@@ -7,11 +7,12 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import RichTextEditor from '@/components/ui/RichTextEditor';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
 import type { Note } from '@/types/database';
-import { sanitizeHtml } from '@/lib/utils';
+import { sanitizeHtml, sanitizePastedContent } from '@/lib/utils';
 
 export default function EditNotePage() {
   const { user } = useAuth();
@@ -28,6 +29,8 @@ export default function EditNotePage() {
   const [error, setError] = useState<string | null>(null);
   const [useSimpleEditor, setUseSimpleEditor] = useState(true);
   const [isShared, setIsShared] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isTogglingShare, setIsTogglingShare] = useState(false);
 
   useEffect(() => {
     if (user && noteId) {
@@ -126,24 +129,29 @@ export default function EditNotePage() {
   const handleDelete = async () => {
     if (!note) return;
 
-    if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
-      setIsDeleting(true);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!note) return;
+
+    setIsDeleting(true);
+    
+    try {
+      const success = await noteService.deleteNote(note.id);
       
-      try {
-        const success = await noteService.deleteNote(note.id);
-        
-        if (success) {
-          toast.success('Note deleted successfully');
-          router.push('/dashboard');
-        } else {
-          toast.error('Failed to delete note');
-        }
-      } catch (error) {
-        console.error('Error deleting note:', error);
-        toast.error('An error occurred while deleting the note');
-      } finally {
-        setIsDeleting(false);
+      if (success) {
+        toast.success('Note deleted successfully');
+        router.push('/dashboard');
+      } else {
+        toast.error('Failed to delete note');
       }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast.error('An error occurred while deleting the note');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -151,7 +159,7 @@ export default function EditNotePage() {
     if (!note) return;
 
     const newSharedState = !isShared;
-    setIsShared(newSharedState);
+    setIsTogglingShare(true);
 
     try {
       const updates = { is_shared: newSharedState };
@@ -159,16 +167,16 @@ export default function EditNotePage() {
       
       if (updatedNote) {
         setNote({ ...note, ...updatedNote } as any);
+        setIsShared(newSharedState);
         toast.success(newSharedState ? 'Note is now public!' : 'Note is now private');
       } else {
-        // Revert on failure
-        setIsShared(!newSharedState);
         toast.error('Failed to update sharing settings');
       }
     } catch (error) {
       console.error('Error updating share settings:', error);
-      setIsShared(!newSharedState);
       toast.error('An error occurred while updating sharing settings');
+    } finally {
+      setIsTogglingShare(false);
     }
   };
 
@@ -361,9 +369,10 @@ export default function EditNotePage() {
                   </div>
                   <button
                     onClick={handleShareToggle}
+                    disabled={isTogglingShare}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                       isShared ? 'bg-blue-600' : 'bg-gray-200'
-                    }`}
+                    } ${isTogglingShare ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     <span
                       className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -429,6 +438,19 @@ export default function EditNotePage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+        title="Delete Note"
+        message="Are you sure you want to delete this note? This action cannot be undone and all content will be permanently lost."
+        confirmText="Delete Note"
+        cancelText="Cancel"
+        type="danger"
+        loading={isDeleting}
+      />
     </ProtectedRoute>
   );
 }

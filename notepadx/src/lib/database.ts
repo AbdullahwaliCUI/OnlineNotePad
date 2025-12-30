@@ -25,6 +25,8 @@ import type {
 
 export const profileService = {
   async getProfile(userId: string): Promise<Profile | null> {
+    console.log('Fetching profile for user:', userId);
+    
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -33,13 +35,22 @@ export const profileService = {
 
     if (error) {
       console.error('Error fetching profile:', error);
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return null;
     }
 
+    console.log('Profile fetched successfully:', data);
     return data;
   },
 
   async updateProfile(userId: string, updates: ProfileUpdate): Promise<Profile | null> {
+    console.log('Updating profile for user:', userId, 'with updates:', updates);
+    
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -49,9 +60,16 @@ export const profileService = {
 
     if (error) {
       console.error('Error updating profile:', error);
+      console.error('Error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return null;
     }
 
+    console.log('Profile updated successfully:', data);
     return data;
   },
 
@@ -68,6 +86,26 @@ export const profileService = {
     }
 
     return data;
+  },
+
+  async getCurrentUserProfile(): Promise<Profile | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return null;
+    }
+
+    return this.getProfile(user.id);
+  },
+
+  async updateCurrentUserProfile(updates: ProfileUpdate): Promise<Profile | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return null;
+    }
+
+    return this.updateProfile(user.id, updates);
   },
 };
 
