@@ -61,9 +61,8 @@ export const authService = {
         .upsert({
           id: authData.user.id,
           email: data.email,
-          first_name: firstName,
-          last_name: lastName,
-          phone: phoneE164,
+          full_name: data.fullName,
+          phone_e164: phoneE164,
         });
 
       if (profileError) {

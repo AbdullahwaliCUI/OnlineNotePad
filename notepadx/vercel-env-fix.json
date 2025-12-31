@@ -1,0 +1,23 @@
+{
+  "type": "env",
+  "target": ["production", "preview", "development"],
+  "gitBranch": null,
+  "key": "NEXT_PUBLIC_SUPABASE_URL",
+  "value": "https://jssqcylbtlccwfauttnr.supabase.co"
+}
+
+{
+  "type": "env", 
+  "target": ["production", "preview", "development"],
+  "gitBranch": null,
+  "key": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impzc3FjeWxidGxjY3dmYXV0dG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwODgyMTIsImV4cCI6MjA4MjY2NDIxMn0.n3rJpMHsi6w5K5O543V6SozLlgYCcKWeCtu7eURLZTw"
+}
+
+{
+  "type": "env",
+  "target": ["production", "preview", "development"], 
+  "gitBranch": null,
+  "key": "NEXT_PUBLIC_APP_NAME",
+  "value": "NotepadX"
+}
