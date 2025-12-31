@@ -117,26 +117,39 @@ export default function NotePage() {
               {note.reading_time > 0 && <span>{note.reading_time} min read</span>}
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center space-x-4 ml-6">
+        {/* Action Bar */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center space-x-2">
             <Link
               href={`/notes/${note.id}/edit`}
-              className="btn-primary"
+              className="btn-primary flex items-center"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
               Edit Note
             </Link>
           </div>
+          <span className="text-xs text-gray-500 hidden sm:block">
+            Tip: Double-click note to edit
+          </span>
         </div>
 
         {/* Note Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <div
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-text hover:shadow-md transition-shadow duration-200"
+          onDoubleClick={() => router.push(`/notes/${note.id}/edit`)}
+          title="Double-click to edit"
+        >
           <div
             className="prose prose-lg max-w-none"
             dangerouslySetInnerHTML={{ __html: note.content_html || note.content }}
           />
 
           {(!note.content_html && !note.content) && (
-            <p className="text-gray-500 italic">This note is empty.</p>
+            <p className="text-gray-500 italic">This note is empty. Double-click to start writing.</p>
           )}
         </div>
 
