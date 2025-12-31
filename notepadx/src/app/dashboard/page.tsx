@@ -27,13 +27,13 @@ export default function DashboardPage() {
 
   const loadNotes = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const result = await noteService.getNotes(user.id, {}, { field: 'updated_at', direction: 'desc' });
-      setNotes(result.data);
+      setNotes(result.data as unknown as Note[]);
     } catch (error) {
       console.error('Error loading notes:', error);
       setError('Failed to load notes. Please try again.');

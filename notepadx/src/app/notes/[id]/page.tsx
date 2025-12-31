@@ -16,7 +16,7 @@ export default function NotePage() {
   const router = useRouter();
   const params = useParams();
   const noteId = params.id as string;
-  
+
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +35,9 @@ export default function NotePage() {
 
     try {
       const noteData = await noteService.getNote(noteId, user.id);
-      
+
       if (noteData) {
-        setNote(noteData);
+        setNote(noteData as unknown as Note);
         // Update last viewed timestamp
         await noteService.updateLastViewed(noteId);
       } else {
@@ -57,7 +57,7 @@ export default function NotePage() {
     if (confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
       try {
         const success = await noteService.deleteNote(note.id);
-        
+
         if (success) {
           toast.success('Note deleted successfully');
           router.push('/dashboard');
@@ -117,7 +117,7 @@ export default function NotePage() {
               {note.reading_time > 0 && <span>{note.reading_time} min read</span>}
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4 ml-6">
             <Link
               href={`/notes/${note.id}/edit`}
@@ -130,11 +130,11 @@ export default function NotePage() {
 
         {/* Note Content */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <div 
+          <div
             className="prose prose-lg max-w-none"
             dangerouslySetInnerHTML={{ __html: note.content_html || note.content }}
           />
-          
+
           {(!note.content_html && !note.content) && (
             <p className="text-gray-500 italic">This note is empty.</p>
           )}
@@ -159,7 +159,7 @@ export default function NotePage() {
               </span>
             )}
           </div>
-          
+
           <Link href="/dashboard" className="text-blue-600 hover:text-blue-700">
             ← Back to Dashboard
           </Link>

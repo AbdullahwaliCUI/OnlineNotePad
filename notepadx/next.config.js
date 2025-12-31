@@ -2,19 +2,18 @@
 const nextConfig = {
   // Enable static exports for better Vercel compatibility
   output: 'standalone',
-  
+
   // Optimize images
   images: {
     domains: [],
     unoptimized: true
   },
-  
+
+  // Enable experimental features
   // Enable experimental features
   experimental: {
-    // Enable app directory (already using it)
-    appDir: true,
   },
-  
+
   // Environment variables validation
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -22,8 +21,10 @@ const nextConfig = {
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'NotepadX',
     NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_TRANSLATE_API_KEY,
   },
-  
+
   // Webpack configuration for better compatibility
+  // Webpack configuration for better compatibility
+  /*
   webpack: (config, { isServer }) => {
     // Handle client-side modules
     if (!isServer) {
@@ -37,7 +38,8 @@ const nextConfig = {
     
     return config;
   },
-  
+  */
+
   // Headers for security and CORS
   async headers() {
     return [
@@ -64,7 +66,7 @@ const nextConfig = {
       },
     ];
   },
-  
+
   // Redirects for better UX
   async redirects() {
     return [
