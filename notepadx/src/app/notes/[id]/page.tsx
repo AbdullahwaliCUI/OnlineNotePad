@@ -27,6 +27,19 @@ export default function NotePage() {
     }
   }, [user, noteId]);
 
+  // Add keyboard shortcut for editing (Ctrl+E or Cmd+E)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'e' && note) {
+        e.preventDefault();
+        router.push(`/notes/${note.id}/edit`);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [note, router]);
+
   const loadNote = async () => {
     if (!user || !noteId) return;
 
@@ -68,6 +81,21 @@ export default function NotePage() {
         console.error('Error deleting note:', error);
         toast.error('An error occurred while deleting the note');
       }
+    }
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Double-click detected, navigating to edit page');
+    router.push(`/notes/${note?.id}/edit`);
+  };
+
+  const handleSingleClick = (e: React.MouseEvent) => {
+    // Only handle single click if it's not part of a double-click
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'A' || target.closest('a')) {
+      return; // Don't interfere with links
     }
   };
 
@@ -132,24 +160,31 @@ export default function NotePage() {
               Edit Note
             </Link>
           </div>
-          <span className="text-xs text-gray-500 hidden sm:block">
-            Tip: Double-click note to edit
-          </span>
+          <div className="text-right">
+            <span className="text-xs text-gray-500 block">
+              💡 Tip: Double-click note content to edit
+            </span>
+            <span className="text-xs text-blue-600 block">
+              Or press Ctrl+E (Cmd+E on Mac)
+            </span>
+          </div>
         </div>
 
         {/* Note Content */}
         <div
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-text hover:shadow-md transition-shadow duration-200"
-          onDoubleClick={() => router.push(`/notes/${note.id}/edit`)}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all duration-200 select-none"
+          onDoubleClick={handleDoubleClick}
+          onClick={handleSingleClick}
           title="Double-click to edit"
+          style={{ userSelect: 'none' }}
         >
           <div
-            className="prose prose-lg max-w-none"
+            className="prose prose-lg max-w-none pointer-events-none"
             dangerouslySetInnerHTML={{ __html: note.content_html || note.content }}
           />
 
           {(!note.content_html && !note.content) && (
-            <p className="text-gray-500 italic">This note is empty. Double-click to start writing.</p>
+            <p className="text-gray-500 italic pointer-events-none">This note is empty. Double-click to start writing.</p>
           )}
         </div>
 
