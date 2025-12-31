@@ -61,8 +61,9 @@ export const authService = {
         .upsert({
           id: authData.user.id,
           email: data.email,
-          full_name: data.fullName,
-          phone_e164: phoneE164,
+          first_name: firstName,
+          last_name: lastName,
+          phone: phoneE164,
         });
 
       if (profileError) {
@@ -136,7 +137,7 @@ export const authService = {
   async getCurrentUser() {
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
-      
+
       if (error) {
         console.error('Get user error:', error);
         return null;
