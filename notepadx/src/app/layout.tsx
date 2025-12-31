@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/providers/ToastProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -59,11 +60,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
-        <Navbar />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <ToastProvider />
+        <AuthProvider>
+          <Navbar />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <ToastProvider />
+        </AuthProvider>
       </body>
     </html>
   );
