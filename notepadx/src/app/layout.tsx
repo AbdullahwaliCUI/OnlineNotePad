@@ -58,7 +58,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <Navbar />
         <main className="min-h-screen">
           {children}
