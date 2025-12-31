@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable static exports for better Vercel compatibility
-  output: 'standalone',
+  // Remove standalone output for Vercel deployment
+  // output: 'standalone',
 
   // Optimize images
   images: {
@@ -9,7 +9,6 @@ const nextConfig = {
     unoptimized: true
   },
 
-  // Enable experimental features
   // Enable experimental features
   experimental: {
   },
