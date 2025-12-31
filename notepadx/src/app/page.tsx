@@ -16,8 +16,9 @@ export default function HomePage() {
         </h1>
         
         <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-          Your modern, intuitive note-taking companion. Capture ideas, organize thoughts, 
-          and boost your productivity with our clean and powerful interface.
+          Transform your ideas into reality with the ultimate note-taking experience. 
+          Unleash your creativity, organize your brilliance, and supercharge your productivity 
+          with our beautifully crafted, lightning-fast interface that adapts to your workflow.
         </p>
 
         {/* CTA Button */}
@@ -64,8 +65,8 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Quick Notes</h3>
-            <p className="text-gray-600">Capture ideas instantly with our fast and intuitive editor.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Lightning Fast Notes</h3>
+            <p className="text-gray-600">Never lose a brilliant idea again. Capture thoughts at the speed of inspiration with our instant, distraction-free editor.</p>
           </div>
 
           <div className="text-center p-6">
@@ -74,8 +75,8 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Organize</h3>
-            <p className="text-gray-600">Keep your notes structured with folders and tags.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Master Organization</h3>
+            <p className="text-gray-600">Turn chaos into clarity. Build your personal knowledge empire with smart folders, tags, and seamless organization.</p>
           </div>
 
           <div className="text-center p-6">
@@ -84,8 +85,8 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Search</h3>
-            <p className="text-gray-600">Find any note instantly with powerful search capabilities.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Instant Discovery</h3>
+            <p className="text-gray-600">Rediscover your genius moments. Find any note, idea, or insight in milliseconds with our intelligent search engine.</p>
           </div>
         </div>
       </div>
