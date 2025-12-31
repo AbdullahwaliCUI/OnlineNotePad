@@ -55,7 +55,8 @@ export const authService = {
       }
 
       // The profile will be created automatically by the database trigger
-      // But let's also manually ensure it exists with the correct data
+      // We don't need to manually create it here as it causes RLS duplications/errors
+      /* 
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({
@@ -70,6 +71,7 @@ export const authService = {
         console.error('Profile creation error:', profileError);
         // Don't fail the signup if profile creation fails, as the trigger should handle it
       }
+      */
 
       return {
         success: true,
