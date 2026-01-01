@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import TiptapEditor from '@/components/TiptapEditor';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
@@ -51,7 +51,7 @@ export default function NewNotePage() {
           }
         });
         setErrors(fieldErrors);
-        
+
         // Show the first error as toast
         const firstError = error.issues[0];
         toast.error(firstError.message);
@@ -85,12 +85,12 @@ export default function NewNotePage() {
           .replace(/^• (.+)$/gm, '<li>$1</li>')
           .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
           .replace(/\n/g, '<br>');
-        
+
         // Wrap lists in proper tags
         htmlContent = htmlContent
           .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
           .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
-        
+
         plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
       } else {
         // For rich editor, extract plain text
@@ -136,7 +136,7 @@ export default function NewNotePage() {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    
+
     // Clear title error when user starts typing
     if (errors.title && newTitle.trim()) {
       setErrors(prev => ({ ...prev, title: undefined }));
@@ -145,7 +145,7 @@ export default function NewNotePage() {
 
   const handleContentChange = (newContent: string) => {
     setContent(newContent);
-    
+
     // Clear content error when user starts typing
     if (errors.content && newContent.trim()) {
       setErrors(prev => ({ ...prev, content: undefined }));
@@ -172,11 +172,10 @@ export default function NewNotePage() {
             <button
               onClick={handleSave}
               disabled={isSaving || !title.trim()}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                isSaving || !title.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
             >
               {isSaving ? (
                 <div className="flex items-center">
@@ -205,11 +204,10 @@ export default function NewNotePage() {
               onChange={handleTitleChange}
               placeholder="Enter note title..."
               maxLength={200}
-              className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${
-                errors.title 
-                  ? 'border-red-300 focus:ring-red-500' 
-                  : 'border-gray-300 focus:ring-blue-500'
-              }`}
+              className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.title
+                ? 'border-red-300 focus:ring-red-500'
+                : 'border-gray-300 focus:ring-blue-500'
+                }`}
               disabled={isSaving}
             />
             {errors.title && (
@@ -235,7 +233,7 @@ export default function NewNotePage() {
                 {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
               </button>
             </div>
-            
+
             <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
               {useSimpleEditor ? (
                 <SimpleTextEditor
@@ -244,14 +242,14 @@ export default function NewNotePage() {
                   placeholder="Start writing your note..."
                 />
               ) : (
-                <RichTextEditor
-                  value={content}
+                <TiptapEditor
+                  content={content}
                   onChange={handleContentChange}
                   placeholder="Start writing your note..."
                 />
               )}
             </div>
-            
+
             {errors.content && (
               <p className="mt-1 text-sm text-red-600">{errors.content}</p>
             )}

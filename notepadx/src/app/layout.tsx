@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/providers/ToastProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",

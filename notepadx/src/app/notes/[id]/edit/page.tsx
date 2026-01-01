@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import TiptapEditor from '@/components/TiptapEditor';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +19,7 @@ export default function EditNotePage() {
   const router = useRouter();
   const params = useParams();
   const noteId = params.id as string;
-  
+
   const [note, setNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -46,14 +46,14 @@ export default function EditNotePage() {
 
     try {
       const noteData = await noteService.getNote(noteId, user.id);
-      
+
       if (noteData) {
         setNote(noteData as any); // Type assertion for compatibility
         setTitle(noteData.title);
-        
+
         // Convert HTML content back to simple format for editing
         let editableContent = noteData.content_html || noteData.content;
-        
+
         // If using simple editor, convert HTML back to markdown-like format
         if (useSimpleEditor && noteData.content_html) {
           editableContent = htmlToSimpleText(noteData.content_html);
@@ -64,7 +64,7 @@ export default function EditNotePage() {
           // For simple editor with no HTML, use plain content
           editableContent = noteData.content;
         }
-        
+
         setContent(editableContent);
         setIsShared((noteData as any).is_shared || false);
       } else {
@@ -103,12 +103,12 @@ export default function EditNotePage() {
           .replace(/^• (.+)$/gm, '<li>$1</li>')
           .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
           .replace(/\n/g, '<br>');
-        
+
         // Wrap lists in proper tags
         htmlContent = htmlContent
           .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
           .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
-        
+
         plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
       } else {
         // For rich editor, extract plain text
@@ -150,10 +150,10 @@ export default function EditNotePage() {
     if (!note) return;
 
     setIsDeleting(true);
-    
+
     try {
       const success = await noteService.deleteNote(note.id);
-      
+
       if (success) {
         toast.success('Note deleted successfully');
         router.push('/dashboard');
@@ -172,11 +172,11 @@ export default function EditNotePage() {
   const handleEditorSwitch = () => {
     const newEditorType = !useSimpleEditor;
     setUseSimpleEditor(newEditorType);
-    
+
     // Convert content format when switching editors
     if (note) {
       let convertedContent = content;
-      
+
       if (newEditorType) {
         // Switching to simple editor - convert HTML to markdown-like format
         if (note.content_html) {
@@ -186,7 +186,7 @@ export default function EditNotePage() {
         // Switching to rich editor - use HTML content
         convertedContent = note.content_html || note.content;
       }
-      
+
       setContent(convertedContent);
     }
   };
@@ -200,7 +200,7 @@ export default function EditNotePage() {
     try {
       const updates = { is_shared: newSharedState };
       const updatedNote = await noteService.updateNote(note.id, updates);
-      
+
       if (updatedNote) {
         setNote({ ...note, ...updatedNote } as any);
         setIsShared(newSharedState);
@@ -223,7 +223,7 @@ export default function EditNotePage() {
 
   const handleWhatsAppShare = () => {
     if (!note) return;
-    
+
     const publicUrl = getPublicUrl();
     const text = `${title} - ${publicUrl}`;
     const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
@@ -257,7 +257,7 @@ export default function EditNotePage() {
 
   const copyPublicUrl = async () => {
     if (!note) return;
-    
+
     try {
       const publicUrl = getPublicUrl();
       await navigator.clipboard.writeText(publicUrl);
@@ -314,7 +314,7 @@ export default function EditNotePage() {
             >
               Back to Dashboard
             </Link>
-            
+
             {/* Share Toggle */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -322,18 +322,16 @@ export default function EditNotePage() {
                 <button
                   onClick={handleShareToggle}
                   disabled={isTogglingShare}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    isShared ? 'bg-blue-600' : 'bg-gray-200'
-                  } ${isTogglingShare ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isShared ? 'bg-blue-600' : 'bg-gray-200'
+                    } ${isTogglingShare ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      isShared ? 'translate-x-6' : 'translate-x-1'
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isShared ? 'translate-x-6' : 'translate-x-1'
+                      }`}
                   />
                 </button>
               </div>
-              
+
               {/* Share Buttons */}
               {isShared && (
                 <>
@@ -352,26 +350,24 @@ export default function EditNotePage() {
                 </>
               )}
             </div>
-            
+
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className={`px-4 py-2 border rounded-lg font-medium transition-colors ${
-                isDeleting
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'text-red-600 hover:text-red-700 border-red-300 hover:border-red-400'
-              }`}
+              className={`px-4 py-2 border rounded-lg font-medium transition-colors ${isDeleting
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'text-red-600 hover:text-red-700 border-red-300 hover:border-red-400'
+                }`}
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving || !title.trim()}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                isSaving || !title.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
             >
               {isSaving ? 'Saving...' : 'Save'}
             </button>
@@ -410,7 +406,7 @@ export default function EditNotePage() {
                 {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
               </button>
             </div>
-            
+
             {useSimpleEditor ? (
               <SimpleTextEditor
                 value={content}
@@ -418,8 +414,8 @@ export default function EditNotePage() {
                 placeholder="Start writing your note..."
               />
             ) : (
-              <RichTextEditor
-                value={content}
+              <TiptapEditor
+                content={content}
                 onChange={setContent}
                 placeholder="Start writing your note..."
               />

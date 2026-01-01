@@ -2,12 +2,27 @@
 
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const { user, isAuthenticated, loading, signOut } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // precise check or startsWith check
+  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/notes/')) {
+    return null;
+  }
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
@@ -93,14 +108,14 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link 
-                  href="/auth/sign-in" 
+                <Link
+                  href="/auth/sign-in"
                   className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
                 >
                   Sign In
                 </Link>
-                <Link 
-                  href="/auth/sign-up" 
+                <Link
+                  href="/auth/sign-up"
                   className="btn-primary"
                 >
                   Sign Up
