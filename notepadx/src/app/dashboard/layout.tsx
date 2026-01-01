@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import { Menu } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import AIAssistant from '@/components/AIAssistant';
+import ErrorBoundary from '@/components/ErrorBoundary';
 
 export default function DashboardLayout({
     children,
@@ -33,11 +34,13 @@ export default function DashboardLayout({
     return (
         <ProtectedRoute>
             <div className="flex h-screen bg-background overflow-hidden relative">
-                <Sidebar
-                    isOpen={sidebarOpen}
-                    setIsOpen={setSidebarOpen}
-                    isMobile={isMobile}
-                />
+                <ErrorBoundary name="Sidebar">
+                    <Sidebar
+                        isOpen={sidebarOpen}
+                        setIsOpen={setSidebarOpen}
+                        isMobile={isMobile}
+                    />
+                </ErrorBoundary>
 
                 <main className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!isMobile && sidebarOpen ? 'ml-[240px]' : !isMobile ? 'ml-[80px]' : ''
                     }`}>
@@ -54,10 +57,15 @@ export default function DashboardLayout({
                         </div>
                     )}
 
-                    <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 scroll-smooth">
-                        {children}
-                    </div>
-                    <AIAssistant />
+                    <ErrorBoundary name="Dashboard Content">
+                        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 scroll-smooth">
+                            {children}
+                        </div>
+                    </ErrorBoundary>
+
+                    <ErrorBoundary name="AI Assistant">
+                        <AIAssistant />
+                    </ErrorBoundary>
                 </main>
             </div>
         </ProtectedRoute>

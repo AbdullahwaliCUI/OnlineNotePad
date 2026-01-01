@@ -31,15 +31,19 @@ const MenuBar = ({ editor }: { editor: any }) => {
         return null;
     }
 
+    const buttonClass = (isActive: boolean) => cn(
+        "p-2 rounded transition-colors",
+        isActive
+            ? 'bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
+            : 'text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+    );
+
     return (
-        <div className="border-b border-gray-200 dark:border-gray-700 p-2 flex flex-wrap gap-1 bg-gray-50 dark:bg-gray-900 rounded-t-lg">
+        <div className="border-b border-gray-200 dark:border-gray-700 p-2 flex flex-wrap gap-1 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
             <button
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('bold') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('bold'))}
                 title="Bold"
             >
                 <Bold size={18} />
@@ -47,10 +51,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <button
                 onClick={() => editor.chain().focus().toggleItalic().run()}
                 disabled={!editor.can().chain().focus().toggleItalic().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('italic') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('italic'))}
                 title="Italic"
             >
                 <Italic size={18} />
@@ -58,82 +59,61 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <button
                 onClick={() => editor.chain().focus().toggleStrike().run()}
                 disabled={!editor.can().chain().focus().toggleStrike().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('strike') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('strike'))}
                 title="Strikethrough"
             >
                 <Strikethrough size={18} />
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('heading', { level: 1 }) ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('heading', { level: 1 }))}
                 title="Heading 1"
             >
                 <Heading1 size={18} />
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('heading', { level: 2 }) ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('heading', { level: 2 }))}
                 title="Heading 2"
             >
                 <Heading2 size={18} />
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('bulletList') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('bulletList'))}
                 title="Bullet List"
             >
                 <List size={18} />
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('orderedList') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('orderedList'))}
                 title="Ordered List"
             >
                 <ListOrdered size={18} />
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('blockquote') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('blockquote'))}
                 title="Quote"
             >
                 <Quote size={18} />
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                className={cn(
-                    "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors",
-                    editor.isActive('codeBlock') ? 'bg-gray-200 dark:bg-gray-800 text-blue-600' : 'text-gray-600 dark:text-gray-400'
-                )}
+                className={buttonClass(editor.isActive('codeBlock'))}
                 title="Code Block"
             >
                 <Code size={18} />
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1 self-center" />
+            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().chain().focus().undo().run()}
-                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50 transition-colors"
+                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-200 disabled:opacity-50 transition-colors"
                 title="Undo"
             >
                 <Undo size={18} />
@@ -141,7 +121,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <button
                 onClick={() => editor.chain().focus().redo().run()}
                 disabled={!editor.can().chain().focus().redo().run()}
-                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 disabled:opacity-50 transition-colors"
+                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-200 disabled:opacity-50 transition-colors"
                 title="Redo"
             >
                 <Redo size={18} />
