@@ -32,11 +32,11 @@ export default function PhoneInput({
         disabled={disabled}
         className={`phone-input ${error ? 'phone-input-error' : ''}`}
       />
-      
+
       {error && (
         <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
-      
+
       <style jsx global>{`
         .phone-input .PhoneInputInput {
           border: 1px solid #d1d5db;
@@ -45,6 +45,7 @@ export default function PhoneInput({
           font-size: 14px;
           width: 100%;
           transition: border-color 0.2s, box-shadow 0.2s;
+          color: #111827;
         }
         
         .phone-input .PhoneInputInput:focus {

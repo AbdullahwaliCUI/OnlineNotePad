@@ -66,7 +66,7 @@ export default function SignUpPage() {
                 {...register('fullName')}
                 type="text"
                 id="fullName"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.fullName ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.fullName ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your full name"
                 disabled={isLoading}
@@ -85,7 +85,7 @@ export default function SignUpPage() {
                 {...register('email')}
                 type="email"
                 id="email"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your email"
                 disabled={isLoading}
@@ -105,7 +105,7 @@ export default function SignUpPage() {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Create a strong password"
                   disabled={isLoading}

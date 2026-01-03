@@ -61,7 +61,7 @@ export default function SignInPage() {
                 {...register('email')}
                 type="email"
                 id="email"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your email"
                 disabled={isLoading}
@@ -81,7 +81,7 @@ export default function SignInPage() {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter your password"
                   disabled={isLoading}
