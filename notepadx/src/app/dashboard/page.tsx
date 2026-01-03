@@ -49,8 +49,8 @@ export default function DashboardPage() {
 
   // Filter notes based on search query
   const filteredNotes = notes.filter(note =>
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+    (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (note.content || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const totalWords = notes.reduce((total, note) => total + (note.word_count || 0), 0);
