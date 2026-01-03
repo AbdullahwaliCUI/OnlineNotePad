@@ -13,7 +13,7 @@ export default function AIAssistant() {
             id: 'welcome',
             role: 'assistant',
             content: 'Hi! I can help you summarize notes, fix grammar, or brainstorm ideas.',
-            timestamp: Date.now(),
+            timestamp: 0,
         },
     ]);
     const [inputText, setInputText] = useState('');
