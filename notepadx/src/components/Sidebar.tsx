@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   onClose?: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export default function Sidebar({ onClose }: SidebarProps) {
+export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
 
@@ -24,7 +27,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
     },
     {
       name: 'All Notes',
-      href: '/notes',
+      href: '/dashboard',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -82,16 +85,39 @@ export default function Sidebar({ onClose }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 bg-white shadow-sm border-r border-gray-200 h-full flex flex-col">
+    <div className={`bg-white shadow-sm border-r border-gray-200 h-full flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       {/* Logo */}
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-        <Link 
-          href="/" 
-          className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
-          onClick={handleLinkClick}
-        >
-          📝 NotepadX
-        </Link>
+      <div className={`p-6 border-b border-gray-200 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+        {!isCollapsed ? (
+          <Link
+            href="/"
+            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            onClick={handleLinkClick}
+          >
+            📝 NotepadX
+          </Link>
+        ) : (
+          <Link
+            href="/"
+            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            onClick={handleLinkClick}
+            title="NotepadX"
+          >
+            📝
+          </Link>
+        )}
+
+        {/* Desktop Toggle Button */}
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className={`hidden lg:flex items-center justify-center p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ${!isCollapsed ? 'ml-auto' : ''}`}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        )}
+
         {/* Close button for mobile */}
         <button
           onClick={onClose}
@@ -112,10 +138,11 @@ export default function Sidebar({ onClose }: SidebarProps) {
               <Link
                 href={item.href}
                 onClick={handleLinkClick}
-                className={`${isActive(item.href) ? 'sidebar-nav-item sidebar-nav-item-active' : 'sidebar-nav-item sidebar-nav-item-inactive'}`}
+                title={isCollapsed ? item.name : ''}
+                className={`${isActive(item.href) ? 'sidebar-nav-item sidebar-nav-item-active' : 'sidebar-nav-item sidebar-nav-item-inactive'} ${isCollapsed ? 'justify-center px-2' : ''}`}
               >
                 {item.icon}
-                <span className="ml-3">{item.name}</span>
+                {!isCollapsed && <span className="ml-3 transition-opacity duration-300 opacity-100">{item.name}</span>}
               </Link>
             </li>
           ))}
@@ -123,28 +150,40 @@ export default function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-gray-200">
+      <div className={`p-4 border-t border-gray-200 ${isCollapsed ? 'flex justify-center' : ''}`}>
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0" title={user?.email || 'User'}>
             <span className="text-blue-600 font-medium text-sm">
               {user?.email?.charAt(0).toUpperCase()}
             </span>
           </div>
-          <div className="ml-3 flex-1">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {user?.email}
-            </p>
-          </div>
+          {!isCollapsed && (
+            <div className="ml-3 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-gray-900 truncate">
+                {user?.email}
+              </p>
+            </div>
+          )}
+          {!isCollapsed && (
+            <button
+              onClick={handleSignOut}
+              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100 ml-2"
+              title="Sign Out"
+            >
+              <LogOut size={20} />
+            </button>
+          )}
+        </div>
+        {/* Sign out button for collapsed state */}
+        {isCollapsed && (
           <button
             onClick={handleSignOut}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+            className="mt-4 w-full flex justify-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
             title="Sign Out"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <LogOut size={20} />
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

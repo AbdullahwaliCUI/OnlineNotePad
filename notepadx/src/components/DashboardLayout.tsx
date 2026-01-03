@@ -9,6 +9,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // Handle hydration
@@ -47,6 +48,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [sidebarOpen, mounted]);
 
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   if (!mounted) {
     return (
       <div className="flex h-screen bg-gray-50">
@@ -64,24 +69,27 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar - Fixed on desktop, overlay on mobile */}
-      <div 
+      <div
         id="sidebar"
-        className={`${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 transition-transform duration-300 ease-in-out`}
+        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 ${isCollapsed ? 'w-20' : 'w-64'} transition-all duration-300 ease-in-out flex-shrink-0`}
       >
-        <Sidebar onClose={() => setSidebarOpen(false)} />
+        <Sidebar
+          onClose={() => setSidebarOpen(false)}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={toggleCollapse}
+        />
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
         {/* Mobile header with hamburger menu */}
         <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
           <div className="flex items-center justify-between">
@@ -102,36 +110,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Page content with modern header and cards */}
         <main className="flex-1 overflow-y-auto">
           <div className="container-custom py-6">
-            <div className="flex items-start justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900">Welcome back, admin! <span className="text-yellow-400">👋</span></h2>
-                <p className="text-sm text-gray-500 mt-1">Quick overview of your notes and activity.</p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:block text-sm text-gray-600">View:</div>
-                <button className="btn-primary">+ New Note</button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              <div className="stat-card">
-                <div className="text-sm text-gray-500">Total Notes</div>
-                <div className="text-2xl font-bold text-blue-600">0</div>
-              </div>
-              <div className="stat-card">
-                <div className="text-sm text-gray-500">Total Words</div>
-                <div className="text-2xl font-bold text-green-600">0</div>
-              </div>
-              <div className="stat-card">
-                <div className="text-sm text-gray-500">Reading Time</div>
-                <div className="text-2xl font-bold text-purple-600">0 min</div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              {children}
-            </div>
+            {children}
           </div>
         </main>
       </div>

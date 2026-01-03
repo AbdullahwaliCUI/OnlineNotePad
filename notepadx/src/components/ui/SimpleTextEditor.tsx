@@ -93,7 +93,7 @@ export default function SimpleTextEditor({
     if (editorRef.current) {
       const htmlContent = editorRef.current.innerHTML;
       const markdownContent = htmlToMarkdown(htmlContent);
-      
+
       // Debounce the onChange call
       setTimeout(() => {
         onChange(markdownContent);
@@ -106,24 +106,24 @@ export default function SimpleTextEditor({
     if (!editorRef.current) return;
 
     editorRef.current.focus();
-    
+
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
-      
+
       // Delete any selected content first
       range.deleteContents();
-      
+
       // Create text node and insert
       const textNode = document.createTextNode(text);
       range.insertNode(textNode);
-      
+
       // Move cursor to end of inserted text
       range.setStartAfter(textNode);
       range.setEndAfter(textNode);
       selection.removeAllRanges();
       selection.addRange(range);
-      
+
       // Trigger content change
       handleInput();
     } else {
@@ -138,7 +138,7 @@ export default function SimpleTextEditor({
   useEffect(() => {
     const handleSelectionChange = () => {
       if (!editorRef.current) return;
-      
+
       const selection = window.getSelection();
       if (selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
@@ -229,7 +229,7 @@ export default function SimpleTextEditor({
     try {
       // Ensure editor is focused
       editorRef.current.focus();
-      
+
       // Restore selection
       restoreSelection(currentRange);
 
@@ -305,7 +305,7 @@ export default function SimpleTextEditor({
 
       // Trigger content change
       handleInput();
-      
+
     } catch (error) {
       console.error('Format command failed:', error);
     }
@@ -324,7 +324,7 @@ export default function SimpleTextEditor({
       const wrapper = document.createElement(tagName);
       wrapper.appendChild(selectedContent);
       range.insertNode(wrapper);
-      
+
       // Clear selection and place cursor after the inserted element
       selection.removeAllRanges();
       const newRange = document.createRange();
@@ -338,7 +338,7 @@ export default function SimpleTextEditor({
 
   const changeFontSize = (size: string) => {
     if (!editorRef.current || readOnly) return;
-    
+
     setFontSize(size);
     editorRef.current.style.fontSize = `${size}px`;
     editorRef.current.focus();
@@ -346,32 +346,32 @@ export default function SimpleTextEditor({
 
   const changeTextColor = (color: string) => {
     if (!editorRef.current || readOnly) return;
-    
+
     // Save selection before color change
     const currentRange = saveSelection();
-    
+
     setTextColor(color);
     editorRef.current.focus();
-    
+
     if (currentRange) {
       restoreSelection(currentRange);
       if (document.queryCommandSupported('foreColor')) {
         document.execCommand('foreColor', false, color);
       }
     }
-    
+
     setShowColorPicker(false);
   };
 
   const changeBackgroundColor = (color: string) => {
     if (!editorRef.current || readOnly) return;
-    
+
     // Save selection before color change
     const currentRange = saveSelection();
-    
+
     setBackgroundColor(color);
     editorRef.current.focus();
-    
+
     if (currentRange) {
       restoreSelection(currentRange);
       if (document.queryCommandSupported('hiliteColor')) {
@@ -380,13 +380,13 @@ export default function SimpleTextEditor({
         document.execCommand('backColor', false, color);
       }
     }
-    
+
     setShowBgColorPicker(false);
   };
 
   const changeLineHeight = (height: string) => {
     if (!editorRef.current || readOnly) return;
-    
+
     setLineHeight(height);
     editorRef.current.style.lineHeight = height;
     editorRef.current.focus();
@@ -394,7 +394,7 @@ export default function SimpleTextEditor({
 
   const getButtonState = (format: string) => {
     if (!editorRef.current) return false;
-    
+
     try {
       switch (format) {
         case 'bold':
@@ -426,11 +426,11 @@ export default function SimpleTextEditor({
             <div className="flex flex-wrap gap-2 items-center">
               {/* Font Size */}
               <div className="flex items-center gap-1">
-                <label className="text-xs text-gray-600">Size:</label>
+                <label className="text-xs text-gray-700 font-medium">Size:</label>
                 <select
                   value={fontSize}
                   onChange={(e) => changeFontSize(e.target.value)}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16"
+                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16 text-gray-900 bg-white"
                 >
                   <option value="12">12</option>
                   <option value="14">14</option>
@@ -445,11 +445,11 @@ export default function SimpleTextEditor({
 
               {/* Line Height */}
               <div className="flex items-center gap-1">
-                <label className="text-xs text-gray-600">Line:</label>
+                <label className="text-xs text-gray-700 font-medium">Line:</label>
                 <select
                   value={lineHeight}
                   onChange={(e) => changeLineHeight(e.target.value)}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16"
+                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16 text-gray-900 bg-white"
                 >
                   <option value="1.0">1.0</option>
                   <option value="1.2">1.2</option>
@@ -473,9 +473,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('bold');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 font-bold transition-colors ${
-                  getButtonState('bold') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 font-bold transition-colors ${getButtonState('bold') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Bold (Ctrl+B)"
               >
                 B
@@ -490,9 +489,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('italic');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 italic transition-colors ${
-                  getButtonState('italic') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 italic transition-colors ${getButtonState('italic') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Italic (Ctrl+I)"
               >
                 I
@@ -507,9 +505,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('underline');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 underline transition-colors ${
-                  getButtonState('underline') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 underline transition-colors ${getButtonState('underline') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Underline (Ctrl+U)"
               >
                 U
@@ -524,9 +521,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('strikethrough');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 line-through transition-colors ${
-                  getButtonState('strikethrough') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 line-through transition-colors ${getButtonState('strikethrough') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Strikethrough"
               >
                 S
@@ -551,7 +547,7 @@ export default function SimpleTextEditor({
                   title="Text Color"
                 >
                   A
-                  <div 
+                  <div
                     className="w-3 h-2 border border-gray-300 rounded-sm"
                     style={{ backgroundColor: textColor }}
                   ></div>
@@ -559,20 +555,20 @@ export default function SimpleTextEditor({
                 {showColorPicker && (
                   <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-300 rounded shadow-lg z-10 color-picker-dropdown">
                     <div className="grid grid-cols-6 gap-1 mb-2">
-                      {['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', 
+                      {['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF',
                         '#00FFFF', '#FFA500', '#800080', '#008000', '#800000', '#000080'].map(color => (
-                        <button
-                          key={color}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            changeTextColor(color);
-                          }}
-                          className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
+                          <button
+                            key={color}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              changeTextColor(color);
+                            }}
+                            className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
                     </div>
                     <input
                       type="color"
@@ -601,7 +597,7 @@ export default function SimpleTextEditor({
                   title="Background Color"
                 >
                   🎨
-                  <div 
+                  <div
                     className="w-3 h-2 border border-gray-300 rounded-sm"
                     style={{ backgroundColor: backgroundColor }}
                   ></div>
@@ -611,18 +607,18 @@ export default function SimpleTextEditor({
                     <div className="grid grid-cols-6 gap-1 mb-2">
                       {['#FFFFFF', '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF', '#FFA500',
                         '#FFE4E1', '#E6E6FA', '#F0F8FF', '#F5F5DC', '#FFF8DC', '#F0FFF0'].map(color => (
-                        <button
-                          key={color}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            changeBackgroundColor(color);
-                          }}
-                          className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
-                          style={{ backgroundColor: color }}
-                          title={color}
-                        />
-                      ))}
+                          <button
+                            key={color}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              changeBackgroundColor(color);
+                            }}
+                            className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          />
+                        ))}
                     </div>
                     <input
                       type="color"
@@ -647,9 +643,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('superscript');
                 }}
-                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${
-                  getButtonState('superscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${getButtonState('superscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Superscript"
               >
                 X²
@@ -664,9 +659,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('subscript');
                 }}
-                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${
-                  getButtonState('subscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${getButtonState('subscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Subscript"
               >
                 X₂
@@ -780,9 +774,8 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   setShowVoiceInput(!showVoiceInput);
                 }}
-                className={`px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors ${
-                  showVoiceInput ? 'bg-blue-100 border-blue-300 text-blue-700' : ''
-                }`}
+                className={`px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors ${showVoiceInput ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                  }`}
                 title="Voice Input with Translation"
               >
                 🎤 Voice
@@ -817,7 +810,7 @@ export default function SimpleTextEditor({
               </button>
             </div>
           </div>
-          
+
           {/* Voice Input Panel */}
           {showVoiceInput && (
             <div className="border-x border-gray-300 bg-gray-50 p-3">
@@ -829,14 +822,13 @@ export default function SimpleTextEditor({
           )}
         </>
       )}
-      
+
       <div
         ref={editorRef}
         contentEditable={!readOnly}
         onInput={handleInput}
-        className={`w-full min-h-[300px] p-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical overflow-y-auto ${
-          readOnly ? 'bg-gray-50 rounded-lg' : 'rounded-b-lg bg-white'
-        } ${!readOnly ? 'rounded-t-none' : 'rounded-t-lg'}`}
+        className={`w-full min-h-[300px] p-4 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical overflow-y-auto text-gray-900 ${readOnly ? 'bg-gray-50 rounded-lg' : 'rounded-b-lg bg-white'
+          } ${!readOnly ? 'rounded-t-none' : 'rounded-t-lg'}`}
         style={{
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           fontSize: `${fontSize}px`,
@@ -845,12 +837,12 @@ export default function SimpleTextEditor({
         data-placeholder={placeholder}
         suppressContentEditableWarning={true}
       />
-      
+
       <div className="text-xs text-gray-500 mt-2">
         <p>
-          <strong>Mouse Selection:</strong> Select text with mouse, then click toolbar buttons to apply formatting | 
-          <strong> Keyboard shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline), Ctrl+L (left), Ctrl+E (center), Ctrl+R (right), Ctrl+J (justify) | 
-          <strong> Voice Input:</strong> Click 🎤 Voice to speak in Urdu and get English text with auto-translation | 
+          <strong>Mouse Selection:</strong> Select text with mouse, then click toolbar buttons to apply formatting |
+          <strong> Keyboard shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline), Ctrl+L (left), Ctrl+E (center), Ctrl+R (right), Ctrl+J (justify) |
+          <strong> Voice Input:</strong> Click 🎤 Voice to speak in Urdu and get English text with auto-translation |
           <strong> WYSIWYG:</strong> Full Microsoft Word-like experience with proper text selection handling
         </p>
       </div>

@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
-import DashboardLayout from '@/components/DashboardLayout';
 import DashboardHeader from '@/components/DashboardHeader';
 import NoteCard from '@/components/NoteCard';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,10 +12,10 @@ import { noteService } from '@/lib/database';
 import type { Note } from '@/types/database';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [notesLoading, setNotesLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [error, setError] = useState<string | null>(null);
@@ -27,16 +26,24 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
+  // Handle authentication and notes loading
   useEffect(() => {
-    if (user && mounted) {
+    if (!mounted) return;
+
+    if (!authLoading && !user) {
+      router.push('/auth/sign-in');
+      return;
+    }
+
+    if (user) {
       loadNotes();
     }
-  }, [user, mounted]);
+  }, [user, authLoading, mounted, router]);
 
   const loadNotes = async () => {
     if (!user) return;
 
-    setLoading(true);
+    setNotesLoading(true);
     setError(null);
 
     try {
@@ -47,7 +54,7 @@ export default function DashboardPage() {
       setError('Failed to load notes. Please try again.');
       toast.error('Failed to load notes');
     } finally {
-      setLoading(false);
+      setNotesLoading(false);
     }
   };
 
@@ -64,126 +71,145 @@ export default function DashboardPage() {
   const totalWords = notes.reduce((total, note) => total + (note.word_count || 0), 0);
   const totalReadingTime = notes.reduce((total, note) => total + (note.reading_time || 0), 0);
 
+  const handleDeleteNote = async (note: Note) => {
+    try {
+      const success = await noteService.deleteNote(note.id);
+      if (success) {
+        setNotes(notes.filter((n) => n.id !== note.id));
+        toast.success('Note moved to trash');
+      } else {
+        toast.error('Failed to delete note');
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast.error('An error occurred');
+    }
+  };
+
+  const handleShareNote = async (note: Note) => {
+    // For now, we'll just show a toast since sharing logic might require a modal
+    // In a real implementation, this would open a share dialog
+    const url = `${window.location.origin}/notes/${note.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success('Note link copied to clipboard!');
+    } catch (err) {
+      toast.error('Failed to copy link');
+    }
+  };
+
   // Show loading during hydration
   if (!mounted) {
     return (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
-            </div>
-          </div>
-        </DashboardLayout>
-      </ProtectedRoute>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
     );
   }
 
-  if (loading) {
+  if (authLoading || (notesLoading && user)) {
     return (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading your notes...</p>
-            </div>
-          </div>
-        </DashboardLayout>
-      </ProtectedRoute>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">{authLoading ? 'Checking authentication...' : 'Loading your notes...'}</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="text-red-500 mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Something went wrong</h3>
-              <p className="text-gray-600 mb-4">{error}</p>
-              <button onClick={handleRetry} className="btn-primary">
-                Try Again
-              </button>
-            </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">
+            <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-        </DashboardLayout>
-      </ProtectedRoute>
+          <h3 className="text-lg font-medium text-foreground mb-2">Something went wrong</h3>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button onClick={handleRetry} className="btn-primary">
+            Try Again
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <ProtectedRoute>
-      <DashboardLayout>
-        <DashboardHeader
-          totalNotes={notes.length}
-          totalWords={totalWords}
-          totalReadingTime={totalReadingTime}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
+    <div className="space-y-6">
+      <DashboardHeader
+        totalNotes={notes.length}
+        totalWords={totalWords}
+        totalReadingTime={totalReadingTime}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
-        <div className="p-6">
-          {notes.length === 0 ? (
-            <EmptyState
-              title="No notes yet"
-              description="Create your first note to get started with your digital notebook."
-              actionText="Create Note"
-              actionHref="/notes/new"
-            />
-          ) : filteredNotes.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No notes found</h3>
-              <p className="text-gray-600 mb-4">
-                No notes match your search for "{searchQuery}"
-              </p>
-              <button
-                onClick={() => setSearchQuery('')}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Clear search
-              </button>
+      <div className="mt-6">
+        {notes.length === 0 ? (
+          <EmptyState
+            title="No notes yet"
+            description="Create your first note to get started with your digital notebook."
+            actionText="Create Note"
+            actionHref="/notes/new"
+          />
+        ) : filteredNotes.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-muted-foreground mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
-          ) : (
-            <div className={
-              viewMode === 'grid' 
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                : 'space-y-4'
-            }>
-              {filteredNotes.map((note) => (
-                <NoteCard key={note.id} note={note} view={viewMode} />
-              ))}
-            </div>
-          )}
+            <h3 className="text-lg font-medium text-foreground mb-2">No notes found</h3>
+            <p className="text-muted-foreground mb-4">
+              No notes match your search for "{searchQuery}"
+            </p>
+            <button
+              onClick={() => setSearchQuery('')}
+              className="text-primary hover:text-primary/90 font-medium"
+            >
+              Clear search
+            </button>
+          </div>
+        ) : (
+          <div className={
+            viewMode === 'grid'
+              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+              : 'space-y-4'
+          }>
+            {filteredNotes.map((note) => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                view={viewMode}
+                onDelete={handleDeleteNote}
+                onShare={handleShareNote}
+              />
+            ))}
+          </div>
+        )}
 
-          {/* Quick Stats Footer */}
-          {filteredNotes.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="text-center text-sm text-gray-500">
-                Showing {filteredNotes.length} of {notes.length} notes
-                {searchQuery && (
-                  <span className="ml-2">
-                    • Filtered by "{searchQuery}"
-                  </span>
-                )}
-              </div>
+        {/* Quick Stats Footer */}
+        {filteredNotes.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-border">
+            <div className="text-center text-sm text-muted-foreground">
+              Showing {filteredNotes.length} of {notes.length} notes
+              {searchQuery && (
+                <span className="ml-2">
+                  • Filtered by "{searchQuery}"
+                </span>
+              )}
             </div>
-          )}
-        </div>
-      </DashboardLayout>
-    </ProtectedRoute>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

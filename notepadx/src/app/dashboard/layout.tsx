@@ -13,6 +13,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export default function DashboardLayout({
             setIsMobile(mobile);
             if (mobile) {
                 setSidebarOpen(false);
+                setIsCollapsed(false); // Always expand sidebar on mobile when opened
             } else {
                 setSidebarOpen(true);
             }
@@ -31,19 +33,35 @@ export default function DashboardLayout({
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    const toggleCollapse = () => {
+        setIsCollapsed(!isCollapsed);
+    };
+
     return (
         <ProtectedRoute>
             <div className="flex h-screen bg-background overflow-hidden relative">
-                <ErrorBoundary name="Sidebar">
-                    <Sidebar
-                        isOpen={sidebarOpen}
-                        setIsOpen={setSidebarOpen}
-                        isMobile={isMobile}
+                {/* Mobile sidebar overlay */}
+                {isMobile && sidebarOpen && (
+                    <div
+                        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+                        onClick={() => setSidebarOpen(false)}
                     />
+                )}
+
+                <ErrorBoundary name="Sidebar">
+                    <div
+                        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                            } lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 ${isCollapsed ? 'w-20' : 'w-64'} h-full bg-background transition-all duration-300 ease-in-out border-r border-border flex-shrink-0`}
+                    >
+                        <Sidebar
+                            onClose={() => setSidebarOpen(false)}
+                            isCollapsed={isCollapsed}
+                            onToggleCollapse={toggleCollapse}
+                        />
+                    </div>
                 </ErrorBoundary>
 
-                <main className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${!isMobile && sidebarOpen ? 'ml-[240px]' : !isMobile ? 'ml-[80px]' : ''
-                    }`}>
+                <main className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
                     {/* Mobile Header */}
                     {isMobile && (
                         <div className="h-16 px-4 border-b border-border flex items-center bg-card flex-shrink-0">

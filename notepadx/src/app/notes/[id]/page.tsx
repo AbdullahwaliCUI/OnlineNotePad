@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
 import type { Note } from '@/types/database';
 import { formatDateTime } from '@/lib/utils';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function NotePage() {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ export default function NotePage() {
   const [showShareOptions, setShowShareOptions] = useState(false);
 
   useEffect(() => {
-    if (user && noteId) {
+    if (noteId) {
       loadNote();
     }
   }, [user, noteId]);
@@ -47,7 +48,32 @@ export default function NotePage() {
   }, [note, router]);
 
   const loadNote = async () => {
-    if (!user || !noteId) return;
+    if (!noteId) return;
+
+    // Handle authentication check inside loadNote to support public redirection
+    if (!user) {
+      // If no user, check if the note is public to redirect
+      try {
+        const { data } = await supabase
+          .from('notes')
+          .select('share_id, is_shared')
+          .eq('id', noteId)
+          .eq('is_shared', true) // Only find if shared
+          .single();
+
+        if (data && data.is_shared && data.share_id) {
+          // It's public, redirect to public view
+          router.replace(`/s/${data.share_id}`);
+          return;
+        }
+      } catch (e) {
+        // Ignore error, proceed to login redirect
+      }
+
+      // Not public or not found, force login
+      router.push('/auth/sign-in');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -164,40 +190,36 @@ export default function NotePage() {
 
   if (loading) {
     return (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading note...</p>
-            </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading note...</p>
           </div>
-        </DashboardLayout>
-      </ProtectedRoute>
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (error || !note) {
     return (
-      <ProtectedRoute>
-        <DashboardLayout>
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                {error || 'Note not found'}
-              </h1>
-              <Link href="/dashboard" className="btn-primary">
-                Back to Dashboard
-              </Link>
-            </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              {error || 'Note not found'}
+            </h1>
+            <Link href="/dashboard" className="btn-primary">
+              Back to Dashboard
+            </Link>
           </div>
-        </DashboardLayout>
-      </ProtectedRoute>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <ProtectedRoute>
+    <div className="min-h-screen bg-gray-50">
       <DashboardLayout>
         <div className="p-6">
           {/* Header */}
@@ -216,19 +238,37 @@ export default function NotePage() {
           </div>
 
           {/* Action Bar */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+            <div className="flex items-center space-x-3">
               <Link
                 href={`/notes/${note.id}/edit`}
-                className="btn-primary flex items-center"
+                className="btn-primary flex items-center px-4 py-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+                <Edit size={16} className="mr-2" />
                 Edit Note
               </Link>
+
+              <button
+                onClick={() => setShowShareOptions(!showShareOptions)}
+                className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${isShared || showShareOptions
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+              >
+                {isShared ? <Globe size={16} className="mr-2" /> : <Share2 size={16} className="mr-2" />}
+                {isShared ? 'Shared' : 'Share'}
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className="flex items-center px-4 py-2 text-red-600 border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+              >
+                <Trash2 size={16} className="mr-2" />
+                Delete
+              </button>
             </div>
-            <div className="text-right">
+
+            <div className="text-right hidden md:block">
               <span className="text-xs text-gray-500 block">
                 💡 Tip: Double-click note content to edit
               </span>
@@ -237,6 +277,81 @@ export default function NotePage() {
               </span>
             </div>
           </div>
+
+          {/* Share Options Panel */}
+          {showShareOptions && (
+            <div className="mb-6 bg-white rounded-lg border border-blue-100 shadow-sm p-4 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className={`p-2 rounded-full mr-3 ${isShared ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                    <Globe size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-900">
+                      {isShared ? 'Public Link Active' : 'Public Sharing'}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {isShared
+                        ? 'Anyone with the link can view this note.'
+                        : 'Enable public sharing to generate a view-only link.'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={isShared}
+                      onChange={handleShareToggle}
+                      disabled={isTogglingShare}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              {isShared && (
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
+                      <Globe size={14} className="text-gray-400 mr-2 flex-shrink-0" />
+                      <input
+                        type="text"
+                        readOnly
+                        value={getPublicUrl()}
+                        className="bg-transparent border-none focus:ring-0 w-full text-sm text-gray-600 truncate"
+                      />
+                    </div>
+                    <button
+                      onClick={copyPublicUrl}
+                      className="p-2 text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-300 hover:border-blue-200 rounded-lg transition-colors"
+                      title="Copy Link"
+                    >
+                      <Copy size={18} />
+                    </button>
+                    <a
+                      href={getPublicUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-300 hover:border-blue-200 rounded-lg transition-colors"
+                      title="Open Link"
+                    >
+                      <ExternalLink size={18} />
+                    </a>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={handleWhatsAppShare}
+                      className="text-xs flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors"
+                    >
+                      Share on WhatsApp
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Note Content */}
           <div
@@ -282,179 +397,6 @@ export default function NotePage() {
           </div>
         </div>
       </DashboardLayout>
-    </ProtectedRoute>
-  );
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {note.title || 'Untitled Note'}
-            </h1>
-            <div className="flex items-center text-sm text-gray-500 space-x-4">
-              <span>Created {formatDateTime(note.created_at)}</span>
-              <span>Updated {formatDateTime(note.updated_at)}</span>
-              {note.word_count > 0 && <span>{note.word_count} words</span>}
-              {note.reading_time > 0 && <span>{note.reading_time} min read</span>}
-            </div>
-          </div>
-        </div>
-
-        {/* Action Bar */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <div className="flex items-center space-x-3">
-            <Link
-              href={`/notes/${note.id}/edit`}
-              className="btn-primary flex items-center px-4 py-2"
-            >
-              <Edit size={16} className="mr-2" />
-              Edit Note
-            </Link>
-
-            <button
-              onClick={() => setShowShareOptions(!showShareOptions)}
-              className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${isShared || showShareOptions
-                ? 'bg-blue-50 text-blue-700 border-blue-200'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-            >
-              {isShared ? <Globe size={16} className="mr-2" /> : <Share2 size={16} className="mr-2" />}
-              {isShared ? 'Shared' : 'Share'}
-            </button>
-
-            <button
-              onClick={handleDelete}
-              className="flex items-center px-4 py-2 text-red-600 border border-red-200 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-            >
-              <Trash2 size={16} className="mr-2" />
-              Delete
-            </button>
-          </div>
-
-          <div className="text-right hidden md:block">
-            <span className="text-xs text-gray-500 block">
-              💡 Tip: Double-click note content to edit
-            </span>
-            <span className="text-xs text-blue-600 block">
-              Or press Ctrl+E (Cmd+E on Mac)
-            </span>
-          </div>
-        </div>
-
-        {/* Share Options Panel */}
-        {showShareOptions && (
-          <div className="mb-6 bg-white rounded-lg border border-blue-100 shadow-sm p-4 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <div className={`p-2 rounded-full mr-3 ${isShared ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                  <Globe size={20} />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">
-                    {isShared ? 'Public Link Active' : 'Public Sharing'}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {isShared
-                      ? 'Anyone with the link can view this note.'
-                      : 'Enable public sharing to generate a view-only link.'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="sr-only peer"
-                    checked={isShared}
-                    onChange={handleShareToggle}
-                    disabled={isTogglingShare}
-                  />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-            </div>
-
-            {isShared && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 flex items-center bg-gray-50 border border-gray-300 rounded-lg px-3 py-2">
-                    <Globe size={14} className="text-gray-400 mr-2 flex-shrink-0" />
-                    <input
-                      type="text"
-                      readOnly
-                      value={getPublicUrl()}
-                      className="bg-transparent border-none focus:ring-0 w-full text-sm text-gray-600 truncate"
-                    />
-                  </div>
-                  <button
-                    onClick={copyPublicUrl}
-                    className="p-2 text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-300 hover:border-blue-200 rounded-lg transition-colors"
-                    title="Copy Link"
-                  >
-                    <Copy size={18} />
-                  </button>
-                  <a
-                    href={getPublicUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-2 text-gray-600 hover:text-blue-600 bg-gray-50 hover:bg-blue-50 border border-gray-300 hover:border-blue-200 rounded-lg transition-colors"
-                    title="Open Link"
-                  >
-                    <ExternalLink size={18} />
-                  </a>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <button
-                    onClick={handleWhatsAppShare}
-                    className="text-xs flex items-center px-3 py-1.5 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors"
-                  >
-                    Share on WhatsApp
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Note Content */}
-        <div
-          className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all duration-200 select-none"
-          onDoubleClick={handleDoubleClick}
-          onClick={handleSingleClick}
-          title="Double-click to edit"
-          style={{ userSelect: 'none' }}
-        >
-          <div
-            className="prose prose-lg max-w-none pointer-events-none"
-            dangerouslySetInnerHTML={{ __html: note.content_html || note.content }}
-          />
-
-          {(!note.content_html && !note.content) && (
-            <p className="text-gray-500 italic pointer-events-none">This note is empty. Double-click to start writing.</p>
-          )}
-        </div>
-
-        {/* Note Metadata */}
-        <div className="mt-6 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            {note.is_pinned && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                📌 Pinned
-              </span>
-            )}
-            {note.is_public && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                🌐 Public
-              </span>
-            )}
-            {note.is_archived && (
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                📦 Archived
-              </span>
-            )}
-          </div>
-
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-700">
-            ← Back to Dashboard
-          </Link>
-        </div>
-      </div>
-    </ProtectedRoute>
+    </div>
   );
 }
