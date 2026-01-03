@@ -1,207 +1,151 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    LayoutDashboard,
-    FileText,
-    PlusCircle,
-    Settings,
-    LogOut,
-    ChevronLeft,
-    ChevronRight,
-    Menu,
-    Moon,
-    Sun,
-    Search
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 
 interface SidebarProps {
-    className?: string;
-    isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
-    isMobile: boolean;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ className, isOpen, setIsOpen, isMobile }: SidebarProps) {
-    const pathname = usePathname();
-    const { theme, setTheme } = useTheme();
-    const { signOut, user } = useAuth();
-    const [mounted, setMounted] = useState(false);
+export default function Sidebar({ onClose }: SidebarProps) {
+  const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
-    useEffect(() => setMounted(true), []);
+  const navigation = [
+    {
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'All Notes',
+      href: '/notes',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'New Note',
+      href: '/notes/new',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Favorites',
+      href: '/dashboard?filter=pinned',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+        </svg>
+      ),
+    },
+    {
+      name: 'Archive',
+      href: '/dashboard?filter=archived',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6" />
+        </svg>
+      ),
+    },
+  ];
 
-    const links = [
-        { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-        { href: '/notes/new', label: 'New Note', icon: PlusCircle },
-        // { href: '/settings', label: 'Settings', icon: Settings }, // Future
-    ];
+  const isActive = (href: string) => {
+    if (href === '/dashboard') {
+      return pathname === '/dashboard' && (typeof window === 'undefined' || !window.location.search);
+    }
+    return pathname === href || pathname.startsWith(href);
+  };
 
-    const handleSignOut = async () => {
-        try {
-            await signOut();
-        } catch (error) {
-            console.error('Error signing out:', error);
-        }
-    };
+  const handleLinkClick = () => {
+    // Close sidebar on mobile when link is clicked
+    if (onClose && window.innerWidth < 1024) {
+      onClose();
+    }
+  };
 
-    const toggleTheme = () => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
-    };
+  const handleSignOut = async () => {
+    await signOut();
+    if (onClose) {
+      onClose();
+    }
+  };
 
-    // On mobile, close sidebar when clicking a link
-    const handleLinkClick = () => {
-        if (isMobile) setIsOpen(false);
-    };
+  return (
+    <div className="w-64 bg-white shadow-sm border-r border-gray-200 h-full flex flex-col">
+      {/* Logo */}
+      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+        <Link 
+          href="/" 
+          className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+          onClick={handleLinkClick}
+        >
+          📝 NotepadX
+        </Link>
+        {/* Close button for mobile */}
+        <button
+          onClick={onClose}
+          className="lg:hidden text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
+          aria-label="Close sidebar"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-    return (
-        <>
-            <AnimatePresence>
-                {(isOpen || !isMobile) && (
-                    <motion.div
-                        initial={isMobile ? { x: -300 } : { width: isOpen ? 240 : 80 }}
-                        animate={isMobile ? { x: 0 } : { width: isOpen ? 240 : 80 }}
-                        exit={isMobile ? { x: -300 } : undefined}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        className={cn(
-                            "fixed inset-y-0 left-0 z-50 flex flex-col bg-card border-r border-border shadow-xl h-full",
-                            isMobile ? "w-[280px]" : "",
-                            className
-                        )}
-                    >
-                        {/* Header */}
-                        <div className="flex items-center justify-between h-16 px-4 border-b border-border">
-                            <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden" onClick={handleLinkClick}>
-                                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl flex-shrink-0">
-                                    N
-                                </div>
-                                {(isOpen || isMobile) && (
-                                    <motion.span
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        className="font-bold text-xl whitespace-nowrap"
-                                    >
-                                        NotepadX
-                                    </motion.span>
-                                )}
-                            </Link>
-                            {!isMobile && (
-                                <button
-                                    onClick={() => setIsOpen(!isOpen)}
-                                    className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors"
-                                >
-                                    {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-                                </button>
-                            )}
-                            {isMobile && (
-                                <button
-                                    onClick={() => setIsOpen(false)}
-                                    className="p-1.5 rounded-md hover:bg-accent text-muted-foreground"
-                                >
-                                    <ChevronLeft size={24} />
-                                </button>
-                            )}
-                        </div>
+      {/* Navigation */}
+      <nav className="flex-1 p-4" aria-label="Main navigation">
+        <ul className="space-y-2">
+          {navigation.map((item) => (
+            <li key={item.name}>
+              <Link
+                href={item.href}
+                onClick={handleLinkClick}
+                className={`${isActive(item.href) ? 'sidebar-nav-item sidebar-nav-item-active' : 'sidebar-nav-item sidebar-nav-item-inactive'}`}
+              >
+                {item.icon}
+                <span className="ml-3">{item.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-                        {/* Navigation */}
-                        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-                            {links.map((link) => {
-                                const isActive = pathname === link.href;
-                                return (
-                                    <Link
-                                        key={link.href}
-                                        href={link.href}
-                                        onClick={handleLinkClick}
-                                        className={cn(
-                                            "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
-                                            isActive
-                                                ? "bg-primary/10 text-primary font-medium"
-                                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                                        )}
-                                    >
-                                        <link.icon
-                                            size={20}
-                                            className={cn(
-                                                "flex-shrink-0 transition-colors",
-                                                isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                                            )}
-                                        />
-                                        {(isOpen || isMobile) && (
-                                            <motion.span
-                                                initial={{ opacity: 0 }}
-                                                animate={{ opacity: 1 }}
-                                                className="whitespace-nowrap"
-                                            >
-                                                {link.label}
-                                            </motion.span>
-                                        )}
-                                        {!isOpen && !isMobile && (
-                                            <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
-                                                {link.label}
-                                            </div>
-                                        )}
-                                    </Link>
-                                );
-                            })}
-                        </nav>
-
-                        {/* User & Settings */}
-                        <div className="border-t border-border p-3 space-y-2">
-                            <button
-                                onClick={toggleTheme}
-                                className={cn(
-                                    "flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors",
-                                    !isOpen && !isMobile && "justify-center"
-                                )}
-                            >
-                                {mounted && theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                                {(isOpen || isMobile) && <span>Toggle Theme</span>}
-                            </button>
-
-                            <button
-                                onClick={handleSignOut}
-                                className={cn(
-                                    "flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors",
-                                    !isOpen && !isMobile && "justify-center"
-                                )}
-                            >
-                                <LogOut size={20} />
-                                {(isOpen || isMobile) && <span>Sign Out</span>}
-                            </button>
-                        </div>
-
-                        {(isOpen || isMobile) && user && (
-                            <div className="px-4 py-3 border-t border-border mt-auto">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs ring-2 ring-background">
-                                        {user.email?.[0].toUpperCase() || 'U'}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">{user.email}</p>
-                                        <p className="text-xs text-muted-foreground truncate">Pro Plan</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Overlay for mobile */}
-            {isMobile && isOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.5 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setIsOpen(false)}
-                    className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-                />
-            )}
-        </>
-    );
+      {/* User Profile */}
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+            <span className="text-blue-600 font-medium text-sm">
+              {user?.email?.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user?.email}
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+            title="Sign Out"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

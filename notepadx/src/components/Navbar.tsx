@@ -14,16 +14,11 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [showDropdown, setShowDropdown] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // precise check or startsWith check
-  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/notes/')) {
-    return null;
-  }
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleSignOut = async () => {
     const success = await signOut();
@@ -46,6 +41,11 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Hide navbar on dashboard and notes pages since we have sidebar
+  if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/notes/')) {
+    return null;
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">

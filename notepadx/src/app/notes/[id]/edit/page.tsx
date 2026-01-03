@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import DashboardLayout from '@/components/DashboardLayout';
 import TiptapEditor from '@/components/TiptapEditor';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';

@@ -37,7 +37,7 @@ export default function HomePage() {
                 </Link>
               ) : (
                 <>
-                  <Link href="/auth/signup" className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  <Link href="/auth/sign-up" className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
                     Get Started Free
                   </Link>
                   <Link href="#features" className="bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 text-lg font-semibold px-8 py-4 rounded-xl shadow-sm hover:shadow-md transition-all">
