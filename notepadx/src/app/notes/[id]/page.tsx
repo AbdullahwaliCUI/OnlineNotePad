@@ -55,7 +55,7 @@ export default function NotePage() {
 
       if (noteData) {
         setNote(noteData as unknown as Note);
-        setIsShared(noteData.is_shared);
+        setIsShared((noteData as any).is_shared);
         // Update last viewed timestamp
         await noteService.updateLastViewed(noteId);
       } else {
@@ -222,8 +222,8 @@ export default function NotePage() {
             <button
               onClick={() => setShowShareOptions(!showShareOptions)}
               className={`flex items-center px-4 py-2 rounded-lg border transition-colors ${isShared || showShareOptions
-                  ? 'bg-blue-50 text-blue-700 border-blue-200'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                 }`}
             >
               {isShared ? <Globe size={16} className="mr-2" /> : <Share2 size={16} className="mr-2" />}
