@@ -85,13 +85,13 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
   };
 
   return (
-    <div className={`bg-white shadow-sm border-r border-gray-200 h-full flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+    <div className={`bg-blue-600 shadow-sm border-r border-blue-700 h-full flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       {/* Logo */}
-      <div className={`p-6 border-b border-gray-200 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={`p-6 border-b border-blue-700 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!isCollapsed ? (
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="text-xl font-bold text-white hover:text-blue-200 transition-colors"
             onClick={handleLinkClick}
           >
             📝 NotepadX
@@ -99,7 +99,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         ) : (
           <Link
             href="/"
-            className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            className="text-xl font-bold text-white hover:text-blue-200 transition-colors"
             onClick={handleLinkClick}
             title="NotepadX"
           >
@@ -111,7 +111,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className={`hidden lg:flex items-center justify-center p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors ${!isCollapsed ? 'ml-auto' : ''}`}
+            className={`hidden lg:flex items-center justify-center p-1 rounded-md text-blue-200 hover:text-white hover:bg-blue-700 transition-colors ${!isCollapsed ? 'ml-auto' : ''}`}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -121,7 +121,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {/* Close button for mobile */}
         <button
           onClick={onClose}
-          className="lg:hidden text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors"
+          className="lg:hidden text-blue-200 hover:text-white p-1 rounded-md hover:bg-blue-700 transition-colors"
           aria-label="Close sidebar"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -150,16 +150,16 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
       </nav>
 
       {/* User Profile */}
-      <div className={`p-4 border-t border-gray-200 ${isCollapsed ? 'flex justify-center' : ''}`}>
+      <div className={`p-4 border-t border-blue-700 ${isCollapsed ? 'flex justify-center' : ''}`}>
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0" title={user?.email || 'User'}>
-            <span className="text-blue-600 font-medium text-sm">
+          <div className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0" title={user?.email || 'User'}>
+            <span className="text-blue-200 font-medium text-sm">
               {user?.email?.charAt(0).toUpperCase()}
             </span>
           </div>
           {!isCollapsed && (
             <div className="ml-3 flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-white truncate">
                 {user?.email}
               </p>
             </div>
@@ -167,7 +167,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
           {!isCollapsed && (
             <button
               onClick={handleSignOut}
-              className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100 ml-2"
+              className="text-blue-200 hover:text-white transition-colors p-1 rounded-md hover:bg-blue-700 ml-2"
               title="Sign Out"
             >
               <LogOut size={20} />
@@ -178,7 +178,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {isCollapsed && (
           <button
             onClick={handleSignOut}
-            className="mt-4 w-full flex justify-center text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100"
+            className="mt-4 w-full flex justify-center text-blue-200 hover:text-white transition-colors p-1 rounded-md hover:bg-blue-700"
             title="Sign Out"
           >
             <LogOut size={20} />

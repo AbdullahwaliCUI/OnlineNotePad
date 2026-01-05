@@ -32,21 +32,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
     }
 
     const buttonClass = (isActive: boolean) => cn(
-        "p-2 rounded transition-colors",
+        "p-1 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 border-2",
         isActive
-            ? 'bg-gray-200 dark:bg-gray-700 text-blue-600 dark:text-blue-400'
-            : 'text-gray-600 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
+            ? 'bg-blue-600 border-blue-600 text-white shadow-lg'
+            : 'text-black bg-white border-blue-200 hover:bg-blue-50 hover:border-blue-300'
     );
 
     return (
-        <div className="border-b border-gray-200 dark:border-gray-700 p-2 flex flex-wrap gap-1 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+        <div className="border-b border-blue-200 p-3 flex flex-wrap gap-1 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg shadow-sm">
             <button
                 onClick={() => editor.chain().focus().toggleBold().run()}
                 disabled={!editor.can().chain().focus().toggleBold().run()}
                 className={buttonClass(editor.isActive('bold'))}
                 title="Bold"
             >
-                <Bold size={18} />
+                <span className="font-bold text-xs">B</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleItalic().run()}
@@ -54,7 +54,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
                 className={buttonClass(editor.isActive('italic'))}
                 title="Italic"
             >
-                <Italic size={18} />
+                <span className="italic text-xs">I</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleStrike().run()}
@@ -62,69 +62,69 @@ const MenuBar = ({ editor }: { editor: any }) => {
                 className={buttonClass(editor.isActive('strike'))}
                 title="Strikethrough"
             >
-                <Strikethrough size={18} />
+                <span className="line-through text-xs">S</span>
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
+            <div className="w-px h-6 bg-blue-300 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                 className={buttonClass(editor.isActive('heading', { level: 1 }))}
                 title="Heading 1"
             >
-                <Heading1 size={18} />
+                <span className="font-bold text-xs">H1</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                 className={buttonClass(editor.isActive('heading', { level: 2 }))}
                 title="Heading 2"
             >
-                <Heading2 size={18} />
+                <span className="font-bold text-xs">H2</span>
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
+            <div className="w-px h-6 bg-blue-300 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
                 className={buttonClass(editor.isActive('bulletList'))}
                 title="Bullet List"
             >
-                <List size={18} />
+                <span className="text-xs font-semibold">• List</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
                 className={buttonClass(editor.isActive('orderedList'))}
                 title="Ordered List"
             >
-                <ListOrdered size={18} />
+                <span className="text-xs font-semibold">1. List</span>
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
+            <div className="w-px h-6 bg-blue-300 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
                 className={buttonClass(editor.isActive('blockquote'))}
                 title="Quote"
             >
-                <Quote size={18} />
+                <span className="text-xs font-semibold">Quote</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                 className={buttonClass(editor.isActive('codeBlock'))}
                 title="Code Block"
             >
-                <Code size={18} />
+                <span className="text-xs font-mono font-semibold">Code</span>
             </button>
-            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1 self-center" />
+            <div className="w-px h-6 bg-blue-300 mx-1 self-center" />
             <button
                 onClick={() => editor.chain().focus().undo().run()}
                 disabled={!editor.can().chain().focus().undo().run()}
-                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-200 disabled:opacity-50 transition-colors"
+                className="p-1 rounded hover:bg-blue-50 border-2 border-blue-200 text-black bg-white disabled:opacity-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 hover:border-blue-300"
                 title="Undo"
             >
-                <Undo size={18} />
+                <span className="text-xs font-semibold">Undo</span>
             </button>
             <button
                 onClick={() => editor.chain().focus().redo().run()}
                 disabled={!editor.can().chain().focus().redo().run()}
-                className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-200 disabled:opacity-50 transition-colors"
+                className="p-1 rounded hover:bg-blue-50 border-2 border-blue-200 text-black bg-white disabled:opacity-50 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 hover:border-blue-300"
                 title="Redo"
             >
-                <Redo size={18} />
+                <span className="text-xs font-semibold">Redo</span>
             </button>
         </div>
     );
@@ -169,7 +169,7 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Start w
     }, [content, editor]);
 
     return (
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-card">
+        <div className="border-2 border-blue-200 rounded-lg overflow-hidden bg-white shadow-sm">
             {editable && <MenuBar editor={editor} />}
             <EditorContent editor={editor} />
         </div>

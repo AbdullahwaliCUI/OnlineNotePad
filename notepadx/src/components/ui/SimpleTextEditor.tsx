@@ -421,16 +421,16 @@ export default function SimpleTextEditor({
     <div className={`simple-text-editor ${className}`}>
       {!readOnly && (
         <>
-          <div className="toolbar border border-gray-300 border-b-0 rounded-t-lg bg-gray-50 p-3">
+          <div className="toolbar border border-gray-300 border-b-0 rounded-t-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-3 shadow-sm">
             {/* Single Row - All Features */}
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-1 items-center">
               {/* Font Size */}
               <div className="flex items-center gap-1">
-                <label className="text-xs text-gray-700 font-medium">Size:</label>
+                <label className="text-xs text-gray-800 font-semibold">Size:</label>
                 <select
                   value={fontSize}
                   onChange={(e) => changeFontSize(e.target.value)}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16 text-gray-900 bg-white"
+                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-14 text-gray-900 bg-white shadow-sm font-medium"
                 >
                   <option value="12">12</option>
                   <option value="14">14</option>
@@ -445,11 +445,11 @@ export default function SimpleTextEditor({
 
               {/* Line Height */}
               <div className="flex items-center gap-1">
-                <label className="text-xs text-gray-700 font-medium">Line:</label>
+                <label className="text-xs text-gray-800 font-semibold">Line:</label>
                 <select
                   value={lineHeight}
                   onChange={(e) => changeLineHeight(e.target.value)}
-                  className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 w-16 text-gray-900 bg-white"
+                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-14 text-gray-900 bg-white shadow-sm font-medium"
                 >
                   <option value="1.0">1.0</option>
                   <option value="1.2">1.2</option>
@@ -460,7 +460,7 @@ export default function SimpleTextEditor({
                 </select>
               </div>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Basic Formatting */}
               <button
@@ -473,7 +473,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('bold');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 font-bold transition-colors ${getButtonState('bold') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded font-bold transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('bold') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Bold (Ctrl+B)"
               >
@@ -489,7 +489,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('italic');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 italic transition-colors ${getButtonState('italic') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded italic transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('italic') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Italic (Ctrl+I)"
               >
@@ -505,7 +505,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('underline');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 underline transition-colors ${getButtonState('underline') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded underline transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('underline') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Underline (Ctrl+U)"
               >
@@ -521,14 +521,14 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('strikethrough');
                 }}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 line-through transition-colors ${getButtonState('strikethrough') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded line-through transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('strikethrough') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Strikethrough"
               >
                 S
               </button>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Text Color */}
               <div className="relative">
@@ -543,18 +543,18 @@ export default function SimpleTextEditor({
                     setShowColorPicker(!showColorPicker);
                     setShowBgColorPicker(false);
                   }}
-                  className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors flex items-center gap-1"
+                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center gap-1 bg-white hover:bg-blue-50 hover:border-blue-300"
                   title="Text Color"
                 >
-                  A
+                  <span className="font-bold text-black">A</span>
                   <div
-                    className="w-3 h-2 border border-gray-300 rounded-sm"
+                    className="w-2 h-2 border border-gray-400 rounded-sm shadow-sm"
                     style={{ backgroundColor: textColor }}
                   ></div>
                 </button>
                 {showColorPicker && (
-                  <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-300 rounded shadow-lg z-10 color-picker-dropdown">
-                    <div className="grid grid-cols-6 gap-1 mb-2">
+                  <div className="absolute top-full left-0 mt-2 p-3 bg-white border-2 border-blue-200 rounded-lg shadow-xl z-10 color-picker-dropdown">
+                    <div className="grid grid-cols-6 gap-2 mb-3">
                       {['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF',
                         '#00FFFF', '#FFA500', '#800080', '#008000', '#800000', '#000080'].map(color => (
                           <button
@@ -564,7 +564,7 @@ export default function SimpleTextEditor({
                               e.preventDefault();
                               changeTextColor(color);
                             }}
-                            className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
+                            className="w-6 h-6 border-2 border-gray-300 rounded hover:scale-110 transition-transform shadow-sm hover:shadow-md"
                             style={{ backgroundColor: color }}
                             title={color}
                           />
@@ -574,7 +574,7 @@ export default function SimpleTextEditor({
                       type="color"
                       value={textColor}
                       onChange={(e) => changeTextColor(e.target.value)}
-                      className="w-full h-8 border border-gray-300 rounded"
+                      className="w-full h-8 border-2 border-blue-200 rounded shadow-sm"
                     />
                   </div>
                 )}
@@ -593,18 +593,18 @@ export default function SimpleTextEditor({
                     setShowBgColorPicker(!showBgColorPicker);
                     setShowColorPicker(false);
                   }}
-                  className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors flex items-center gap-1"
+                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 flex items-center gap-1 bg-white hover:bg-blue-50 hover:border-blue-300"
                   title="Background Color"
                 >
-                  🎨
+                  <span className="text-sm">🎨</span>
                   <div
-                    className="w-3 h-2 border border-gray-300 rounded-sm"
+                    className="w-2 h-2 border border-gray-400 rounded-sm shadow-sm"
                     style={{ backgroundColor: backgroundColor }}
                   ></div>
                 </button>
                 {showBgColorPicker && (
-                  <div className="absolute top-full left-0 mt-1 p-2 bg-white border border-gray-300 rounded shadow-lg z-10 color-picker-dropdown">
-                    <div className="grid grid-cols-6 gap-1 mb-2">
+                  <div className="absolute top-full left-0 mt-2 p-3 bg-white border-2 border-blue-200 rounded-lg shadow-xl z-10 color-picker-dropdown">
+                    <div className="grid grid-cols-6 gap-2 mb-3">
                       {['#FFFFFF', '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF', '#FFA500',
                         '#FFE4E1', '#E6E6FA', '#F0F8FF', '#F5F5DC', '#FFF8DC', '#F0FFF0'].map(color => (
                           <button
@@ -614,7 +614,7 @@ export default function SimpleTextEditor({
                               e.preventDefault();
                               changeBackgroundColor(color);
                             }}
-                            className="w-6 h-6 border border-gray-300 rounded hover:scale-110 transition-transform"
+                            className="w-6 h-6 border-2 border-gray-300 rounded hover:scale-110 transition-transform shadow-sm hover:shadow-md"
                             style={{ backgroundColor: color }}
                             title={color}
                           />
@@ -624,13 +624,13 @@ export default function SimpleTextEditor({
                       type="color"
                       value={backgroundColor}
                       onChange={(e) => changeBackgroundColor(e.target.value)}
-                      className="w-full h-8 border border-gray-300 rounded"
+                      className="w-full h-8 border-2 border-blue-200 rounded shadow-sm"
                     />
                   </div>
                 )}
               </div>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Superscript/Subscript */}
               <button
@@ -643,7 +643,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('superscript');
                 }}
-                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${getButtonState('superscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold ${getButtonState('superscript') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Superscript"
               >
@@ -659,14 +659,14 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('subscript');
                 }}
-                className={`px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors ${getButtonState('subscript') ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold ${getButtonState('subscript') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Subscript"
               >
                 X₂
               </button>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Alignment */}
               <button
@@ -679,10 +679,10 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('left');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Align Left (Ctrl+L)"
               >
-                ⬅️
+                Left
               </button>
               <button
                 type="button"
@@ -694,10 +694,10 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('center');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Center (Ctrl+E)"
               >
-                ↔️
+                Center
               </button>
               <button
                 type="button"
@@ -709,10 +709,10 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('right');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Align Right (Ctrl+R)"
               >
-                ➡️
+                Right
               </button>
               <button
                 type="button"
@@ -724,13 +724,13 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('justify');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Justify (Ctrl+J)"
               >
-                ⬌
+                Justify
               </button>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Lists */}
               <button
@@ -743,7 +743,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('list');
                 }}
-                className="px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
                 title="Bullet List"
               >
                 • List
@@ -758,13 +758,13 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('numbered');
                 }}
-                className="px-2 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
                 title="Numbered List"
               >
                 1. List
               </button>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Voice Input */}
               <button
@@ -774,14 +774,14 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   setShowVoiceInput(!showVoiceInput);
                 }}
-                className={`px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors ${showVoiceInput ? 'bg-blue-100 border-blue-300 text-blue-700' : 'text-gray-700 bg-white'
+                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold ${showVoiceInput ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
                   }`}
                 title="Voice Input with Translation"
               >
                 🎤 Voice
               </button>
 
-              <div className="border-l border-gray-300 h-6 mx-1"></div>
+              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
 
               {/* Undo/Redo */}
               <button
@@ -791,10 +791,10 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('undo');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Undo (Ctrl+Z)"
               >
-                ↶
+                Undo
               </button>
               <button
                 type="button"
@@ -803,10 +803,10 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('redo');
                 }}
-                className="px-2 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 bg-white hover:bg-blue-50 hover:border-blue-300 font-semibold text-black"
                 title="Redo (Ctrl+Y)"
               >
-                ↷
+                Redo
               </button>
             </div>
           </div>

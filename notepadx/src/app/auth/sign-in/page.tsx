@@ -43,14 +43,14 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="container-custom py-16">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="max-w-md mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your NotepadX account</p>
         </div>
 
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Email */}
             <div>
@@ -61,10 +61,11 @@ export default function SignInPage() {
                 {...register('email')}
                 type="email"
                 id="email"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your email"
                 disabled={isLoading}
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -81,15 +82,16 @@ export default function SignInPage() {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter your password"
                   disabled={isLoading}
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +116,7 @@ export default function SignInPage() {
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${isLoading
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
                 }`}
             >
               {isLoading ? 'Signing In...' : 'Sign In'}

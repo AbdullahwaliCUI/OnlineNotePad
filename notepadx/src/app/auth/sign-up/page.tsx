@@ -48,14 +48,14 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="container-custom py-16">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="max-w-md mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
           <p className="text-gray-600">Join NotepadX to start organizing your notes</p>
         </div>
 
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Full Name */}
             <div>
@@ -66,10 +66,11 @@ export default function SignUpPage() {
                 {...register('fullName')}
                 type="text"
                 id="fullName"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.fullName ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 ${errors.fullName ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your full name"
                 disabled={isLoading}
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
               {errors.fullName && (
                 <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
@@ -85,10 +86,11 @@ export default function SignUpPage() {
                 {...register('email')}
                 type="email"
                 id="email"
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 ${errors.email ? 'border-red-500' : 'border-gray-300'
                   }`}
                 placeholder="Enter your email"
                 disabled={isLoading}
+                style={{ color: '#111827', backgroundColor: '#ffffff' }}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -105,15 +107,16 @@ export default function SignUpPage() {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   id="password"
-                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 ${errors.password ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 ${errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Create a strong password"
                   disabled={isLoading}
+                  style={{ color: '#111827', backgroundColor: '#ffffff' }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,13 +143,15 @@ export default function SignUpPage() {
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                 Phone Number
               </label>
-              <PhoneInput
-                value={phoneValue}
-                onChange={(value) => setValue('phone', value || '')}
-                placeholder="Enter your phone number"
-                disabled={isLoading}
-                error={errors.phone?.message}
-              />
+              <div className="phone-input-wrapper">
+                <PhoneInput
+                  value={phoneValue}
+                  onChange={(value) => setValue('phone', value || '')}
+                  placeholder="Enter your phone number"
+                  disabled={isLoading}
+                  error={errors.phone?.message}
+                />
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -155,7 +160,7 @@ export default function SignUpPage() {
               disabled={isLoading}
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${isLoading
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
                 }`}
             >
               {isLoading ? 'Creating Account...' : 'Create Account'}
