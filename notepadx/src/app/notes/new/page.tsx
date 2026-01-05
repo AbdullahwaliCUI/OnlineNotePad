@@ -78,33 +78,24 @@ export default function NewNotePage() {
       let htmlContent = content;
       let plainTextContent = content;
 
-      // If using simple editor, convert markdown-like syntax to HTML
+      // If using simple editor, keep content exactly as typed
       if (useSimpleEditor) {
-        htmlContent = content
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/^• (.+)$/gm, '<li>$1</li>')
-          .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
-          .replace(/\n/g, '<br>');
-
-        // Wrap lists in proper tags
-        htmlContent = htmlContent
-          .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
-          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
-
-        plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+        // NO PROCESSING - keep content exactly as user typed it
+        plainTextContent = content;
+        htmlContent = content.replace(/\n/g, '<br>'); // Only convert line breaks for HTML display
       } else {
         // For rich editor, extract plain text
         plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+        htmlContent = content;
       }
 
-      // Sanitize HTML content
+      // Sanitize HTML content only for display
       const sanitizedContent = sanitizeHtml(htmlContent);
 
       const noteData = {
         user_id: user.id,
         title: title.trim(),
-        content: plainTextContent,
+        content: plainTextContent, // Keep EXACT original format
         content_html: sanitizedContent,
       };
 
@@ -231,16 +222,20 @@ export default function NewNotePage() {
                 className="text-xs text-blue-600 hover:text-blue-700"
                 disabled={isSaving}
               >
-                {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
+                {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
               </button>
             </div>
 
             <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
               {useSimpleEditor ? (
-                <SimpleTextEditor
+                <textarea
                   value={content}
-                  onChange={handleContentChange}
+                  onChange={(e) => handleContentChange(e.target.value)}
                   placeholder="Start writing your note..."
+                  className="w-full min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical text-gray-900 bg-white font-mono text-sm leading-relaxed"
+                  style={{
+                    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                  }}
                 />
               ) : (
                 <TiptapEditor

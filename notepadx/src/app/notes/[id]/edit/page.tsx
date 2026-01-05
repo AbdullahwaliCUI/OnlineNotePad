@@ -117,27 +117,23 @@ export default function EditNotePage() {
       let htmlContent = content;
       let plainTextContent = content;
 
-      // If using simple editor, convert basic formatting to HTML
+      // If using simple editor, keep content exactly as typed
       if (useSimpleEditor) {
-        // Only convert basic formatting, preserve line breaks and structure
-        htmlContent = content
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/_(.*?)_/g, '<u>$1</u>')
-          .replace(/\n/g, '<br>');
-
+        // NO PROCESSING - keep content exactly as user typed it
         plainTextContent = content;
+        htmlContent = content.replace(/\n/g, '<br>'); // Only convert line breaks for HTML display
       } else {
         // For rich editor, extract plain text
         plainTextContent = content.replace(/<[^>]*>/g, '').trim();
+        htmlContent = content;
       }
 
-      // Sanitize HTML content
+      // Sanitize HTML content only for display
       const sanitizedContent = sanitizeHtml(htmlContent);
 
       const updateData = {
         title: title.trim(),
-        content: plainTextContent, // Keep original format
+        content: plainTextContent, // Keep EXACT original format
         content_html: sanitizedContent,
       };
 
@@ -298,16 +294,20 @@ export default function EditNotePage() {
                     className="text-xs text-blue-600 hover:text-blue-700"
                     disabled={isSaving}
                   >
-                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
+                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
                   </button>
                 </div>
 
                 <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
                   {useSimpleEditor ? (
-                    <SimpleTextEditor
+                    <textarea
                       value={content}
-                      onChange={handleContentChange}
+                      onChange={(e) => handleContentChange(e.target.value)}
                       placeholder="Start writing your note..."
+                      className="w-full min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical text-gray-900 bg-white font-mono text-sm leading-relaxed"
+                      style={{
+                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                      }}
                     />
                   ) : (
                     <TiptapEditor
@@ -328,16 +328,33 @@ export default function EditNotePage() {
             <div className="bg-blue-50 rounded-lg p-4 mb-6">
               <h4 className="font-medium text-blue-900 mb-2">✨ Editing Tips:</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-                <ul className="space-y-1">
-                  <li>• <strong>Auto-save:</strong> Changes are saved when you click "Save Changes"</li>
-                  <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</li>
-                  <li>• <strong>Text Selection:</strong> Select text with mouse, then use toolbar buttons</li>
-                </ul>
-                <ul className="space-y-1">
-                  <li>• <strong>Alignment:</strong> Use Left, Center, Right, Justify buttons</li>
-                  <li>• <strong>Lists:</strong> Use bullet and numbered list buttons</li>
-                  <li>• <strong>Voice Input:</strong> Click 🎤 Voice for speech-to-text</li>
-                </ul>
+                {useSimpleEditor ? (
+                  <>
+                    <ul className="space-y-1">
+                      <li>• <strong>Plain Text:</strong> Your text is saved exactly as you type it</li>
+                      <li>• <strong>No Formatting Changes:</strong> Line breaks and spacing preserved</li>
+                      <li>• <strong>Simple & Fast:</strong> No complex formatting, just pure text</li>
+                    </ul>
+                    <ul className="space-y-1">
+                      <li>• <strong>Monospace Font:</strong> Easy to read and align text</li>
+                      <li>• <strong>Original Format:</strong> Keeps your exact formatting</li>
+                      <li>• <strong>Switch Editors:</strong> Use "Rich Editor" for advanced formatting</li>
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <ul className="space-y-1">
+                      <li>• <strong>Rich Formatting:</strong> Bold, italic, lists, and more</li>
+                      <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic)</li>
+                      <li>• <strong>Text Selection:</strong> Select text, then use toolbar buttons</li>
+                    </ul>
+                    <ul className="space-y-1">
+                      <li>• <strong>Lists & Headings:</strong> Use toolbar for structured content</li>
+                      <li>• <strong>Advanced Features:</strong> Quotes, code blocks, and more</li>
+                      <li>• <strong>Switch Editors:</strong> Use "Plain Text" for simple editing</li>
+                    </ul>
+                  </>
+                )}
               </div>
             </div>
 
