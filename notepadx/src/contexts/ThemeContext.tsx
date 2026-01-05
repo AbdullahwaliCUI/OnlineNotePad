@@ -242,7 +242,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           cardBackground: 'bg-gray-800/90 backdrop-blur-md border border-gray-700/50',
           cardHover: 'hover:bg-gray-700/95 hover:shadow-gray-900/80 hover:shadow-2xl hover:scale-[1.01] hover:border-gray-600',
           statsBackground: 'bg-gradient-to-r from-gray-800/90 to-gray-700/90 backdrop-blur-md',
-          searchBackground: 'bg-gray-800/80 backdrop-blur-lg border-gray-600/50 text-gray-100',
+          searchBackground: 'bg-gray-800/80 backdrop-blur-lg border-gray-600/50',
           shadowColor: 'shadow-gray-900/50',
           glowEffect: 'hover:shadow-gray-600/30 hover:shadow-xl',
         };
