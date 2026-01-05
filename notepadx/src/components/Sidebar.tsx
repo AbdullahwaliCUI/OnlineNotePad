@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
-import ThemeSwitcher from './ThemeSwitcher';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -16,8 +15,30 @@ interface SidebarProps {
 export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
-  const { getThemeClasses } = useTheme();
-  const themeClasses = getThemeClasses();
+  
+  // Add error handling for theme context
+  let themeClasses;
+  let setTheme;
+  try {
+    const themeContext = useTheme();
+    themeClasses = themeContext.getThemeClasses();
+    setTheme = themeContext.setTheme;
+  } catch (error) {
+    console.error('Theme context error:', error);
+    // Fallback to blue theme
+    themeClasses = {
+      sidebar: 'bg-gradient-to-b from-blue-600 to-blue-800',
+      sidebarBorder: 'border-blue-700',
+      sidebarText: 'text-blue-100',
+      sidebarActiveItem: 'bg-blue-700 text-white border-blue-600',
+      sidebarInactiveItem: 'text-blue-200 hover:text-white hover:bg-blue-700',
+      background: 'bg-gray-50',
+      accent: 'bg-blue-600',
+      accentHover: 'hover:bg-blue-700',
+      gradient: 'bg-gradient-to-r from-blue-50 to-indigo-50',
+    };
+    setTheme = () => {}; // No-op fallback
+  }
 
   const navigation = [
     {
@@ -158,7 +179,24 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         <div className={`px-4 pb-2 border-b ${themeClasses.sidebarBorder}`}>
           <div className="flex items-center justify-between">
             <span className={`text-sm ${themeClasses.sidebarText}`}>Theme</span>
-            <ThemeSwitcher />
+            <div className="flex gap-1">
+              {/* Blue Theme Button */}
+              <button
+                onClick={() => setTheme('blue')}
+                className="w-6 h-6 rounded bg-gradient-to-r from-blue-600 to-blue-800 border-2 border-white hover:scale-110 transition-transform"
+                title="Ocean Blue Theme"
+              >
+                🌊
+              </button>
+              {/* Green Theme Button */}
+              <button
+                onClick={() => setTheme('green')}
+                className="w-6 h-6 rounded bg-gradient-to-r from-green-600 to-green-800 border-2 border-white hover:scale-110 transition-transform"
+                title="Forest Green Theme"
+              >
+                🌲
+              </button>
+            </div>
           </div>
         </div>
       )}

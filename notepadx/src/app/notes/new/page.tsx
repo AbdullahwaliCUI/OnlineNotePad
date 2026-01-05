@@ -9,6 +9,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import TiptapEditor from '@/components/TiptapEditor';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
 import { noteService } from '@/lib/database';
 import { sanitizeHtml } from '@/lib/utils';
 import { noteSchema, validateNoteContent } from '@/lib/validations';
@@ -16,6 +17,8 @@ import { z } from 'zod';
 
 export default function NewNotePage() {
   const { user } = useAuth();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -150,9 +153,9 @@ export default function NewNotePage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !title.trim()}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl ${isSaving || !title.trim()
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                    : themeClasses.buttonPrimary
                     }`}
                 >
                   {isSaving ? (

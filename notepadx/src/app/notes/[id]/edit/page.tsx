@@ -10,6 +10,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import TiptapEditor from '@/components/TiptapEditor';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
 import { noteService } from '@/lib/database';
 import { sanitizeHtml } from '@/lib/utils';
 import { noteSchema, validateNoteContent } from '@/lib/validations';
@@ -18,6 +19,8 @@ import type { Note } from '@/types/database';
 
 export default function EditNotePage() {
   const { user } = useAuth();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const router = useRouter();
   const params = useParams();
   const noteId = params.id as string;
@@ -220,9 +223,9 @@ export default function EditNotePage() {
                 <button
                   onClick={handleSave}
                   disabled={isSaving || !title.trim()}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors shadow-lg hover:shadow-xl ${isSaving || !title.trim()
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                    : themeClasses.buttonPrimary
                     }`}
                 >
                   {isSaving ? (
@@ -254,7 +257,7 @@ export default function EditNotePage() {
                   maxLength={200}
                   className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.title
                     ? 'border-red-300 focus:ring-red-500'
-                    : 'border-gray-300 focus:ring-blue-500'
+                    : `border-gray-300 ${themeClasses.inputFocus}`
                     }`}
                   disabled={isSaving}
                 />
@@ -275,7 +278,7 @@ export default function EditNotePage() {
                   <button
                     type="button"
                     onClick={() => setUseSimpleEditor(!useSimpleEditor)}
-                    className="text-xs text-blue-600 hover:text-blue-700"
+                    className={`text-xs ${themeClasses.iconColor} hover:opacity-80`}
                     disabled={isSaving}
                   >
                     {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
@@ -306,9 +309,9 @@ export default function EditNotePage() {
             </div>
 
             {/* Tips Section */}
-            <div className="bg-blue-50 rounded-lg p-4 mb-6">
-              <h4 className="font-medium text-blue-900 mb-2">✨ Editing Tips:</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+            <div className={`${themeClasses.gradient} rounded-lg p-4 mb-6 border ${themeClasses.cardBorder}`}>
+              <h4 className={`font-medium ${themeClasses.primaryText} mb-2`}>✨ Editing Tips:</h4>
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 text-sm ${themeClasses.primaryText}`}>
                 {useSimpleEditor ? (
                   <>
                     <ul className="space-y-1">
@@ -341,7 +344,7 @@ export default function EditNotePage() {
 
             {/* Back Link */}
             <div className="mt-6">
-              <Link href={`/notes/${noteId}`} className="text-blue-600 hover:text-blue-700">
+              <Link href={`/notes/${noteId}`} className={`${themeClasses.iconColor} hover:opacity-80`}>
                 ← Back to Note
               </Link>
             </div>

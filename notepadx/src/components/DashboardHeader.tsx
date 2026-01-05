@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface DashboardHeaderProps {
   totalNotes: number;
@@ -24,6 +25,8 @@ export default function DashboardHeader({
   onViewModeChange,
 }: DashboardHeaderProps) {
   const { user } = useAuth();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const userName = user?.email?.split('@')[0] || 'User';
 
   return (
@@ -41,7 +44,7 @@ export default function DashboardHeader({
 
         <Link
           href="/notes/new"
-          className="btn-primary shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300 transform hover:-translate-y-0.5"
+          className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl ${themeClasses.buttonPrimary}`}
         >
           + New Note
         </Link>
@@ -77,14 +80,14 @@ export default function DashboardHeader({
       {/* Search Bar & View Toggle */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1 group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none`}>
+            <svg className={`h-5 w-5 text-gray-400 group-focus-within:${themeClasses.iconColor} transition-colors`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 bg-white dark:bg-gray-800 border border-border rounded-xl leading-5 placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200 shadow-sm"
+            className={`block w-full pl-10 pr-3 py-2.5 bg-white border rounded-xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm ${themeClasses.inputFocus} border-gray-300`}
             placeholder="Search your notes..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}

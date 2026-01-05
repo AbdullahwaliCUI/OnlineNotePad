@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/contexts/ThemeContext';
 import { formatDateTime } from '@/lib/utils';
 import type { Note } from '@/types/database';
 
@@ -17,6 +18,8 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
   onShare?: (note: Note) => void;
 }) {
   const router = useRouter();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
 
   const handleClick = (e: React.MouseEvent) => {
     // Prevent navigation if clicking on actions
