@@ -52,27 +52,27 @@ export default function DashboardHeader({
 
       {/* Stats - Compact & Blended */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-border rounded-xl p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">Notes</p>
+        <div className={`${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
+          <p className="text-sm font-medium text-gray-600 mb-1">Notes</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">{totalNotes}</span>
-            <span className="text-xs text-muted-foreground">total</span>
+            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalNotes}</span>
+            <span className="text-xs text-gray-500">total</span>
           </div>
         </div>
 
-        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-border rounded-xl p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">Words</p>
+        <div className={`${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
+          <p className="text-sm font-medium text-gray-600 mb-1">Words</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">{totalWords.toLocaleString()}</span>
-            <span className="text-xs text-muted-foreground">written</span>
+            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalWords.toLocaleString()}</span>
+            <span className="text-xs text-gray-500">written</span>
           </div>
         </div>
 
-        <div className="col-span-2 md:col-span-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-border rounded-xl p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-1">Reading Time</p>
+        <div className={`col-span-2 md:col-span-1 ${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
+          <p className="text-sm font-medium text-gray-600 mb-1">Reading Time</p>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-foreground">{totalReadingTime}</span>
-            <span className="text-xs text-muted-foreground">mins</span>
+            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalReadingTime}</span>
+            <span className="text-xs text-gray-500">mins</span>
           </div>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function DashboardHeader({
           </div>
           <input
             type="text"
-            className={`block w-full pl-10 pr-3 py-2.5 bg-white border rounded-xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm ${themeClasses.inputFocus} border-gray-300`}
+            className={`block w-full pl-10 pr-3 py-2.5 ${themeClasses.searchBackground} border rounded-xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm ${themeClasses.inputFocus} ${themeClasses.cardBorder}`}
             placeholder="Search your notes..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}

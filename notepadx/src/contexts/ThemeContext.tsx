@@ -17,7 +17,7 @@ interface ThemeContextType {
     accent: string;
     accentHover: string;
     gradient: string;
-    // New comprehensive theme colors
+    // Comprehensive theme colors
     primary: string;
     primaryHover: string;
     primaryLight: string;
@@ -28,6 +28,13 @@ interface ThemeContextType {
     inputFocus: string;
     cardBorder: string;
     iconColor: string;
+    // Theme-specific dashboard effects
+    cardBackground: string;
+    cardHover: string;
+    statsBackground: string;
+    searchBackground: string;
+    shadowColor: string;
+    glowEffect: string;
   };
 }
 
@@ -81,6 +88,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-blue-500 focus:border-blue-500',
           cardBorder: 'border-blue-200',
           iconColor: 'text-blue-600',
+          // Ocean Blue theme effects
+          cardBackground: 'bg-white/80 backdrop-blur-sm',
+          cardHover: 'hover:bg-white/90 hover:shadow-blue-200/50 hover:shadow-2xl hover:scale-[1.02]',
+          statsBackground: 'bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm',
+          searchBackground: 'bg-white/70 backdrop-blur-md border-blue-200/50',
+          shadowColor: 'shadow-blue-200/30',
+          glowEffect: 'hover:shadow-blue-400/30 hover:shadow-xl',
         };
       case 'green':
         return {
@@ -104,6 +118,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-green-500 focus:border-green-500',
           cardBorder: 'border-green-200',
           iconColor: 'text-green-600',
+          // Forest Green theme effects
+          cardBackground: 'bg-white/85 backdrop-blur-sm',
+          cardHover: 'hover:bg-white/95 hover:shadow-green-200/50 hover:shadow-2xl hover:scale-[1.02] hover:-rotate-1',
+          statsBackground: 'bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm',
+          searchBackground: 'bg-white/75 backdrop-blur-md border-green-200/50',
+          shadowColor: 'shadow-green-200/30',
+          glowEffect: 'hover:shadow-green-400/30 hover:shadow-xl',
         };
       case 'purple':
         return {
@@ -127,6 +148,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-purple-500 focus:border-purple-500',
           cardBorder: 'border-purple-200',
           iconColor: 'text-purple-600',
+          // Royal Purple theme effects
+          cardBackground: 'bg-white/90 backdrop-blur-md',
+          cardHover: 'hover:bg-white/95 hover:shadow-purple-300/60 hover:shadow-2xl hover:scale-105 hover:rotate-1',
+          statsBackground: 'bg-gradient-to-r from-purple-100/90 to-violet-100/90 backdrop-blur-md',
+          searchBackground: 'bg-white/80 backdrop-blur-lg border-purple-200/60',
+          shadowColor: 'shadow-purple-300/40',
+          glowEffect: 'hover:shadow-purple-500/40 hover:shadow-2xl',
         };
       case 'orange':
         return {
@@ -150,6 +178,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-orange-500 focus:border-orange-500',
           cardBorder: 'border-orange-200',
           iconColor: 'text-orange-600',
+          // Sunset Orange theme effects
+          cardBackground: 'bg-white/85 backdrop-blur-sm',
+          cardHover: 'hover:bg-white/95 hover:shadow-orange-300/50 hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1',
+          statsBackground: 'bg-gradient-to-r from-orange-100/85 to-amber-100/85 backdrop-blur-sm',
+          searchBackground: 'bg-white/75 backdrop-blur-md border-orange-200/50',
+          shadowColor: 'shadow-orange-200/40',
+          glowEffect: 'hover:shadow-orange-400/40 hover:shadow-xl',
         };
       case 'pink':
         return {
@@ -173,6 +208,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-pink-500 focus:border-pink-500',
           cardBorder: 'border-pink-200',
           iconColor: 'text-pink-600',
+          // Cherry Pink theme effects
+          cardBackground: 'bg-white/90 backdrop-blur-md',
+          cardHover: 'hover:bg-white/95 hover:shadow-pink-300/50 hover:shadow-2xl hover:scale-[1.02] hover:rotate-2',
+          statsBackground: 'bg-gradient-to-r from-pink-100/90 to-rose-100/90 backdrop-blur-md',
+          searchBackground: 'bg-white/80 backdrop-blur-lg border-pink-200/60',
+          shadowColor: 'shadow-pink-200/40',
+          glowEffect: 'hover:shadow-pink-400/40 hover:shadow-xl',
         };
       case 'dark':
         return {
@@ -196,6 +238,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-gray-500 focus:border-gray-500',
           cardBorder: 'border-gray-600',
           iconColor: 'text-gray-400',
+          // Dark Mode theme effects
+          cardBackground: 'bg-gray-800/90 backdrop-blur-md border border-gray-700/50',
+          cardHover: 'hover:bg-gray-700/95 hover:shadow-gray-900/80 hover:shadow-2xl hover:scale-[1.01] hover:border-gray-600',
+          statsBackground: 'bg-gradient-to-r from-gray-800/90 to-gray-700/90 backdrop-blur-md',
+          searchBackground: 'bg-gray-800/80 backdrop-blur-lg border-gray-600/50 text-gray-100',
+          shadowColor: 'shadow-gray-900/50',
+          glowEffect: 'hover:shadow-gray-600/30 hover:shadow-xl',
         };
       default:
         return {
