@@ -242,9 +242,9 @@ export default function NotePage() {
             <div className="flex items-center space-x-3">
               <Link
                 href={`/notes/${note.id}/edit`}
-                className="btn-primary flex items-center px-4 py-2"
+                className="btn-primary flex items-center px-6 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
               >
-                <Edit size={16} className="mr-2" />
+                <Edit size={20} className="mr-2" />
                 Edit Note
               </Link>
 
@@ -268,12 +268,12 @@ export default function NotePage() {
               </button>
             </div>
 
-            <div className="text-right hidden md:block">
+            <div className="text-right">
               <span className="text-xs text-gray-500 block">
-                💡 Tip: Double-click note content to edit
+                💡 Quick Edit: Double-click note content
               </span>
               <span className="text-xs text-blue-600 block">
-                Or press Ctrl+E (Cmd+E on Mac)
+                Keyboard: Ctrl+E (Cmd+E on Mac)
               </span>
             </div>
           </div>
@@ -355,20 +355,39 @@ export default function NotePage() {
 
           {/* Note Content */}
           <div
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all duration-200 select-none"
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 cursor-pointer hover:shadow-md hover:border-blue-300 transition-all duration-200"
             onDoubleClick={handleDoubleClick}
             onClick={handleSingleClick}
             title="Double-click to edit"
-            style={{ userSelect: 'none' }}
           >
-            <div
-              className="prose prose-lg max-w-none pointer-events-none"
-              dangerouslySetInnerHTML={{ __html: note.content_html || note.content }}
-            />
-
-            {(!note.content_html && !note.content) && (
-              <p className="text-gray-500 italic pointer-events-none">This note is empty. Double-click to start writing.</p>
+            {/* Content Display */}
+            {note.content_html ? (
+              <div
+                className="prose prose-lg max-w-none text-gray-900 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: note.content_html }}
+              />
+            ) : note.content ? (
+              <div className="prose prose-lg max-w-none text-gray-900 leading-relaxed whitespace-pre-wrap">
+                {note.content}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="text-gray-400 mb-4">
+                  <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 italic text-lg">This note is empty.</p>
+                <p className="text-gray-400 text-sm mt-2">Double-click here to start writing.</p>
+              </div>
             )}
+
+            {/* Edit Overlay Hint */}
+            <div className="absolute top-4 right-4 opacity-0 hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              <div className="bg-blue-600 text-white text-xs px-2 py-1 rounded shadow-lg">
+                Double-click to edit
+              </div>
+            </div>
           </div>
 
           {/* Note Metadata */}
@@ -395,6 +414,18 @@ export default function NotePage() {
               ← Back to Dashboard
             </Link>
           </div>
+
+          {/* Floating Edit Button */}
+          <Link
+            href={`/notes/${note.id}/edit`}
+            className="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-200 z-50 group"
+            title="Edit Note"
+          >
+            <Edit size={24} />
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Edit Note
+            </span>
+          </Link>
         </div>
       </DashboardLayout>
     </div>

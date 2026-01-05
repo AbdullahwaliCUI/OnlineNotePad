@@ -8,12 +8,13 @@ import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import TiptapEditor from '@/components/TiptapEditor';
-import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { noteService } from '@/lib/database';
+import { sanitizeHtml } from '@/lib/utils';
+import { noteSchema, validateNoteContent } from '@/lib/validations';
+import { z } from 'zod';
 import type { Note } from '@/types/database';
-import { sanitizeHtml, htmlToSimpleText } from '@/lib/utils';
 
 export default function EditNotePage() {
   const { user } = useAuth();
@@ -26,56 +27,76 @@ export default function EditNotePage() {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [useSimpleEditor, setUseSimpleEditor] = useState(true);
-  const [isShared, setIsShared] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isTogglingShare, setIsTogglingShare] = useState(false);
+  const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
 
   useEffect(() => {
-    if (user && noteId) {
+    if (noteId && user) {
       loadNote();
     }
-  }, [user, noteId]);
+  }, [noteId, user]);
 
   const loadNote = async () => {
-    if (!user || !noteId) return;
+    if (!noteId || !user) return;
 
     setLoading(true);
-    setError(null);
-
     try {
       const noteData = await noteService.getNote(noteId, user.id);
 
       if (noteData) {
-        setNote(noteData as any); // Type assertion for compatibility
-        setTitle(noteData.title);
-
-        // Convert HTML content back to simple format for editing
-        let editableContent = noteData.content_html || noteData.content;
-
-        // If using simple editor, convert HTML back to markdown-like format
-        if (useSimpleEditor && noteData.content_html) {
-          editableContent = htmlToSimpleText(noteData.content_html);
-        } else if (!useSimpleEditor) {
-          // For rich editor, use HTML content
-          editableContent = noteData.content_html || noteData.content;
-        } else {
-          // For simple editor with no HTML, use plain content
-          editableContent = noteData.content;
-        }
-
-        setContent(editableContent);
-        setIsShared((noteData as any).is_shared || false);
+        const note = noteData as unknown as Note;
+        setNote(note);
+        setTitle(note.title || '');
+        setContent(note.content || '');
       } else {
-        setError('Note not found or you do not have permission to edit it');
+        toast.error('Note not found or you do not have permission to edit it');
+        router.push('/dashboard');
       }
     } catch (error) {
       console.error('Error loading note:', error);
-      setError('Failed to load note');
+      toast.error('Failed to load note');
+      router.push('/dashboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const validateForm = (): boolean => {
+    try {
+      // Validate using Zod schema
+      noteSchema.parse({
+        title: title.trim(),
+        content: content,
+      });
+
+      // Additional content validation
+      const contentValidation = validateNoteContent(content);
+      if (!contentValidation.isValid) {
+        setErrors({ content: contentValidation.error });
+        toast.error(contentValidation.error || 'Content validation failed');
+        return false;
+      }
+
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: { title?: string; content?: string } = {};
+        error.issues.forEach((err: any) => {
+          if (err.path[0] === 'title') {
+            fieldErrors.title = err.message;
+          } else if (err.path[0] === 'content') {
+            fieldErrors.content = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+
+        // Show the first error as toast
+        const firstError = error.issues[0];
+        toast.error(firstError.message);
+        return false;
+      }
+      return false;
     }
   };
 
@@ -85,8 +106,7 @@ export default function EditNotePage() {
       return;
     }
 
-    if (!title.trim()) {
-      toast.error('Please enter a title for your note');
+    if (!validateForm()) {
       return;
     }
 
@@ -119,20 +139,19 @@ export default function EditNotePage() {
       // Sanitize HTML content
       const sanitizedContent = sanitizeHtml(htmlContent);
 
-      const updates = {
+      const updateData = {
         title: title.trim(),
         content: plainTextContent,
         content_html: sanitizedContent,
-        is_shared: isShared,
       };
 
-      const updatedNote = await noteService.updateNote(note.id, updates);
+      const updatedNote = await noteService.updateNote(note.id, updateData);
 
       if (updatedNote) {
         toast.success('Note updated successfully!');
-        setNote({ ...note, ...updatedNote } as any);
+        router.push(`/notes/${note.id}`);
       } else {
-        toast.error('Failed to update note');
+        toast.error('Failed to update note. Please try again.');
       }
     } catch (error) {
       console.error('Error updating note:', error);
@@ -142,344 +161,198 @@ export default function EditNotePage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!note) return;
-    setShowDeleteDialog(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!note) return;
-
-    setIsDeleting(true);
-
-    try {
-      const success = await noteService.deleteNote(note.id);
-
-      if (success) {
-        toast.success('Note deleted successfully');
-        router.push('/dashboard');
-      } else {
-        toast.error('Failed to delete note');
+  const handleCancel = () => {
+    if (note && (title !== (note.title || '') || content !== (note.content || ''))) {
+      if (confirm('Are you sure you want to discard your changes?')) {
+        router.push(`/notes/${noteId}`);
       }
-    } catch (error) {
-      console.error('Error deleting note:', error);
-      toast.error('An error occurred while deleting the note');
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteDialog(false);
+    } else {
+      router.push(`/notes/${noteId}`);
     }
   };
 
-  const handleEditorSwitch = () => {
-    const newEditorType = !useSimpleEditor;
-    setUseSimpleEditor(newEditorType);
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    setTitle(newTitle);
 
-    // Convert content format when switching editors
-    if (note) {
-      let convertedContent = content;
-
-      if (newEditorType) {
-        // Switching to simple editor - convert HTML to markdown-like format
-        if (note.content_html) {
-          convertedContent = htmlToSimpleText(note.content_html);
-        }
-      } else {
-        // Switching to rich editor - use HTML content
-        convertedContent = note.content_html || note.content;
-      }
-
-      setContent(convertedContent);
+    // Clear title error when user starts typing
+    if (errors.title && newTitle.trim()) {
+      setErrors(prev => ({ ...prev, title: undefined }));
     }
   };
 
-  const handleShareToggle = async () => {
-    if (!note) return;
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent);
 
-    const newSharedState = !isShared;
-    setIsTogglingShare(true);
-
-    try {
-      const updates = { is_shared: newSharedState };
-      const updatedNote = await noteService.updateNote(note.id, updates);
-
-      if (updatedNote) {
-        setNote({ ...note, ...updatedNote } as any);
-        setIsShared(newSharedState);
-        toast.success(newSharedState ? 'Note is now public!' : 'Note is now private');
-      } else {
-        toast.error('Failed to update sharing settings');
-      }
-    } catch (error) {
-      console.error('Error updating share settings:', error);
-      toast.error('An error occurred while updating sharing settings');
-    } finally {
-      setIsTogglingShare(false);
-    }
-  };
-
-  const getPublicUrl = () => {
-    if (!(note as any)?.share_id) return '';
-    return `${window.location.origin}/s/${(note as any).share_id}`;
-  };
-
-  const handleWhatsAppShare = () => {
-    if (!note) return;
-
-    const publicUrl = getPublicUrl();
-    const text = `${title} - ${publicUrl}`;
-    const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-    window.open(whatsappUrl, '_blank');
-  };
-
-  const handleNativeShare = async () => {
-    if (!note) return;
-
-    const publicUrl = getPublicUrl();
-    const shareData = {
-      title: title,
-      text: `Check out this note: ${title}`,
-      url: publicUrl,
-    };
-
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        // Fallback to copying to clipboard
-        await navigator.clipboard.writeText(`${title} - ${publicUrl}`);
-        toast.success('Link copied to clipboard!');
-      }
-    } catch (error) {
-      console.error('Error sharing:', error);
-      // Fallback to WhatsApp
-      handleWhatsAppShare();
-    }
-  };
-
-  const copyPublicUrl = async () => {
-    if (!note) return;
-
-    try {
-      const publicUrl = getPublicUrl();
-      await navigator.clipboard.writeText(publicUrl);
-      toast.success('Public URL copied to clipboard!');
-    } catch (error) {
-      console.error('Error copying URL:', error);
-      toast.error('Failed to copy URL');
+    // Clear content error when user starts typing
+    if (errors.content && newContent.trim()) {
+      setErrors(prev => ({ ...prev, content: undefined }));
     }
   };
 
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="container-custom py-8">
-          <div className="flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading note...</span>
+        <DashboardLayout>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading note...</p>
+            </div>
           </div>
-        </div>
+        </DashboardLayout>
       </ProtectedRoute>
     );
   }
 
-  if (error || !note) {
+  if (!note) {
     return (
       <ProtectedRoute>
-        <div className="container-custom py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              {error || 'Note not found'}
-            </h1>
-            <Link href="/dashboard" className="btn-primary">
-              Back to Dashboard
-            </Link>
+        <DashboardLayout>
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Note not found</h1>
+              <Link href="/dashboard" className="btn-primary">
+                Back to Dashboard
+              </Link>
+            </div>
           </div>
-        </div>
+        </DashboardLayout>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <div className="container-custom py-8">
-        {/* Header with Save and Share buttons */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Edit Note</h1>
-            <p className="text-gray-600 mt-1">Make changes to your note</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link
-              href="/dashboard"
-              className="btn-secondary"
-            >
-              Back to Dashboard
-            </Link>
-
-            {/* Share Toggle */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium text-gray-700">Share:</label>
+      <div className="min-h-screen bg-gray-50">
+        <DashboardLayout>
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Note</h1>
+                <p className="text-gray-600">Make changes to your note</p>
+              </div>
+              <div className="flex items-center space-x-4">
                 <button
-                  onClick={handleShareToggle}
-                  disabled={isTogglingShare}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isShared ? 'bg-blue-600' : 'bg-gray-200'
-                    } ${isTogglingShare ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={isSaving}
                 >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isShared ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                  />
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving || !title.trim()}
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                    }`}
+                >
+                  {isSaving ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </div>
+                  ) : (
+                    'Save Changes'
+                  )}
                 </button>
               </div>
-
-              {/* Share Buttons */}
-              {isShared && (
-                <>
-                  <button
-                    onClick={handleNativeShare}
-                    className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                  >
-                    📱 Share
-                  </button>
-                  <button
-                    onClick={handleWhatsAppShare}
-                    className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                  >
-                    📱 WhatsApp
-                  </button>
-                </>
-              )}
             </div>
 
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className={`px-4 py-2 border rounded-lg font-medium transition-colors ${isDeleting
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'text-red-600 hover:text-red-700 border-red-300 hover:border-red-400'
-                }`}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving || !title.trim()}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-            >
-              {isSaving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </div>
-
-        {/* Maximized Content Area */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          {/* Title Input */}
-          <div className="mb-6">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter note title..."
-              className="w-full px-4 py-3 text-xl border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white"
-              disabled={isSaving}
-            />
-          </div>
-
-          {/* Content Editor */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Content
-              </label>
-              <button
-                type="button"
-                onClick={handleEditorSwitch}
-                className="text-xs text-blue-600 hover:text-blue-700"
-              >
-                {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
-              </button>
-            </div>
-
-            {useSimpleEditor ? (
-              <SimpleTextEditor
-                value={content}
-                onChange={setContent}
-                placeholder="Start writing your note..."
-              />
-            ) : (
-              <TiptapEditor
-                content={content}
-                onChange={setContent}
-                placeholder="Start writing your note..."
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Bottom Details Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Public URL */}
-          {isShared && (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Public URL</h4>
-              <div className="flex">
+            {/* Note Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              {/* Title Input */}
+              <div className="mb-6">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 ml-2">(max 200 characters)</span>
+                </label>
                 <input
                   type="text"
-                  value={getPublicUrl()}
-                  readOnly
-                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-l-lg bg-gray-50"
+                  id="title"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Enter note title..."
+                  maxLength={200}
+                  className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.title
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                    }`}
+                  disabled={isSaving}
                 />
-                <button
-                  onClick={copyPublicUrl}
-                  className="px-3 py-2 text-sm bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg hover:bg-gray-200"
-                >
-                  Copy
-                </button>
+                {errors.title && (
+                  <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                )}
+                <div className="mt-1 text-xs text-gray-500 text-right">
+                  {title.length}/200 characters
+                </div>
+              </div>
+
+              {/* Content Editor */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Content <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setUseSimpleEditor(!useSimpleEditor)}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                    disabled={isSaving}
+                  >
+                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Simple Editor'}
+                  </button>
+                </div>
+
+                <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
+                  {useSimpleEditor ? (
+                    <SimpleTextEditor
+                      value={content}
+                      onChange={handleContentChange}
+                      placeholder="Start writing your note..."
+                    />
+                  ) : (
+                    <TiptapEditor
+                      content={content}
+                      onChange={handleContentChange}
+                      placeholder="Start writing your note..."
+                    />
+                  )}
+                </div>
+
+                {errors.content && (
+                  <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Note Statistics */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Note Statistics</h4>
-            <div className="space-y-2 text-sm text-gray-600">
-              {note.word_count > 0 && <div>Words: {note.word_count}</div>}
-              {note.reading_time > 0 && <div>Reading time: {note.reading_time} min</div>}
-              <div>Characters: {content.length}</div>
+            {/* Tips Section */}
+            <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-blue-900 mb-2">✨ Editing Tips:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+                <ul className="space-y-1">
+                  <li>• <strong>Auto-save:</strong> Changes are saved when you click "Save Changes"</li>
+                  <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</li>
+                  <li>• <strong>Text Selection:</strong> Select text with mouse, then use toolbar buttons</li>
+                </ul>
+                <ul className="space-y-1">
+                  <li>• <strong>Alignment:</strong> Use Left, Center, Right, Justify buttons</li>
+                  <li>• <strong>Lists:</strong> Use bullet and numbered list buttons</li>
+                  <li>• <strong>Voice Input:</strong> Click 🎤 Voice for speech-to-text</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Back Link */}
+            <div className="mt-6">
+              <Link href={`/notes/${noteId}`} className="text-blue-600 hover:text-blue-700">
+                ← Back to Note
+              </Link>
             </div>
           </div>
-
-          {/* Note Info */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Note Info</h4>
-            <div className="space-y-2 text-sm text-gray-600">
-              <div>Created: {new Date(note.created_at).toLocaleDateString()}</div>
-              <div>Updated: {new Date(note.updated_at).toLocaleDateString()}</div>
-              <div>Status: {isShared ? 'Public' : 'Private'}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Delete Confirmation Dialog */}
-        <ConfirmDialog
-          isOpen={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-          onConfirm={confirmDelete}
-          title="Delete Note"
-          message="Are you sure you want to delete this note? This action cannot be undone and all content will be permanently lost."
-          confirmText="Delete Note"
-          cancelText="Cancel"
-          type="danger"
-          loading={isDeleting}
-        />
+        </DashboardLayout>
       </div>
     </ProtectedRoute>
   );
