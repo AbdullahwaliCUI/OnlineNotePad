@@ -47,6 +47,7 @@ export default function EditNotePage() {
         const note = noteData as unknown as Note;
         setNote(note);
         setTitle(note.title || '');
+        // Use the original content, not the HTML version
         setContent(note.content || '');
       } else {
         toast.error('Note not found or you do not have permission to edit it');
@@ -116,21 +117,16 @@ export default function EditNotePage() {
       let htmlContent = content;
       let plainTextContent = content;
 
-      // If using simple editor, convert markdown-like syntax to HTML
+      // If using simple editor, convert basic formatting to HTML
       if (useSimpleEditor) {
+        // Only convert basic formatting, preserve line breaks and structure
         htmlContent = content
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/^• (.+)$/gm, '<li>$1</li>')
-          .replace(/^(\d+)\. (.+)$/gm, '<li>$1. $2</li>')
+          .replace(/_(.*?)_/g, '<u>$1</u>')
           .replace(/\n/g, '<br>');
 
-        // Wrap lists in proper tags
-        htmlContent = htmlContent
-          .replace(/(<li>(?:(?!<li>).)*<\/li>)/g, '<ul>$1</ul>')
-          .replace(/(<li>\d+\.(?:(?!<li>).)*<\/li>)/g, '<ol>$1</ol>');
-
-        plainTextContent = content.replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1');
+        plainTextContent = content;
       } else {
         // For rich editor, extract plain text
         plainTextContent = content.replace(/<[^>]*>/g, '').trim();
@@ -141,7 +137,7 @@ export default function EditNotePage() {
 
       const updateData = {
         title: title.trim(),
-        content: plainTextContent,
+        content: plainTextContent, // Keep original format
         content_html: sanitizedContent,
       };
 

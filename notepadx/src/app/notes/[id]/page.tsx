@@ -367,8 +367,10 @@ export default function NotePage() {
                 dangerouslySetInnerHTML={{ __html: note.content_html }}
               />
             ) : note.content ? (
-              <div className="prose prose-lg max-w-none text-gray-900 leading-relaxed whitespace-pre-wrap">
-                {note.content}
+              <div className="prose prose-lg max-w-none text-gray-900 leading-relaxed">
+                <pre className="whitespace-pre-wrap font-sans text-base leading-relaxed">
+                  {note.content}
+                </pre>
               </div>
             ) : (
               <div className="text-center py-12">

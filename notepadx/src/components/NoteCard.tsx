@@ -24,6 +24,20 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
     router.push(`/notes/${note.id}`);
   };
 
+  // Create a clean preview from content
+  const getPreview = (content: string, maxLength: number = 100) => {
+    if (!content) return 'No content';
+    
+    // Remove HTML tags and get plain text
+    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    
+    if (plainText.length <= maxLength) {
+      return plainText;
+    }
+    
+    return plainText.substring(0, maxLength) + '...';
+  };
+
   const ActionButtons = () => (
     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
       {onShare && (
@@ -77,7 +91,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
               </div>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
-              {note.excerpt || 'No content preview'}
+              {getPreview(note.content || '', 80)}
             </p>
           </div>
         </div>
@@ -98,8 +112,8 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
       </div>
 
       <div className="flex-1">
-        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-5 leading-relaxed">
-          {note.excerpt || 'Start writing your thoughts...'}
+        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed">
+          {getPreview(note.content || '', 150)}
         </p>
       </div>
 
