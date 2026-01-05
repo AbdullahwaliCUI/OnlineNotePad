@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/contexts/ThemeContext';
 import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import ThemeSwitcher from './ThemeSwitcher';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -14,6 +16,8 @@ interface SidebarProps {
 export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
 
   const navigation = [
     {
@@ -85,13 +89,13 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
   };
 
   return (
-    <div className={`bg-blue-600 shadow-sm border-r border-blue-700 h-full flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+    <div className={`${themeClasses.sidebar} shadow-sm border-r ${themeClasses.sidebarBorder} h-full flex flex-col transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       {/* Logo */}
-      <div className={`p-6 border-b border-blue-700 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+      <div className={`p-6 border-b ${themeClasses.sidebarBorder} flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
         {!isCollapsed ? (
           <Link
             href="/"
-            className="text-xl font-bold text-white hover:text-blue-200 transition-colors"
+            className={`text-xl font-bold text-white hover:text-opacity-80 transition-colors`}
             onClick={handleLinkClick}
           >
             📝 NotepadX
@@ -99,7 +103,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         ) : (
           <Link
             href="/"
-            className="text-xl font-bold text-white hover:text-blue-200 transition-colors"
+            className={`text-xl font-bold text-white hover:text-opacity-80 transition-colors`}
             onClick={handleLinkClick}
             title="NotepadX"
           >
@@ -111,7 +115,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {onToggleCollapse && (
           <button
             onClick={onToggleCollapse}
-            className={`hidden lg:flex items-center justify-center p-1 rounded-md text-blue-200 hover:text-white hover:bg-blue-700 transition-colors ${!isCollapsed ? 'ml-auto' : ''}`}
+            className={`hidden lg:flex items-center justify-center p-1 rounded-md ${themeClasses.sidebarInactiveItem} ${!isCollapsed ? 'ml-auto' : ''}`}
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -121,7 +125,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {/* Close button for mobile */}
         <button
           onClick={onClose}
-          className="lg:hidden text-blue-200 hover:text-white p-1 rounded-md hover:bg-blue-700 transition-colors"
+          className={`lg:hidden p-1 rounded-md ${themeClasses.sidebarInactiveItem}`}
           aria-label="Close sidebar"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +143,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
                 href={item.href}
                 onClick={handleLinkClick}
                 title={isCollapsed ? item.name : ''}
-                className={`${isActive(item.href) ? 'sidebar-nav-item sidebar-nav-item-active' : 'sidebar-nav-item sidebar-nav-item-inactive'} ${isCollapsed ? 'justify-center px-2' : ''}`}
+                className={`${isActive(item.href) ? `${themeClasses.sidebarActiveItem} sidebar-nav-item sidebar-nav-item-active` : `${themeClasses.sidebarInactiveItem} sidebar-nav-item sidebar-nav-item-inactive`} ${isCollapsed ? 'justify-center px-2' : ''}`}
               >
                 {item.icon}
                 {!isCollapsed && <span className="ml-3 transition-opacity duration-300 opacity-100">{item.name}</span>}
@@ -149,11 +153,21 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         </ul>
       </nav>
 
+      {/* Theme Switcher */}
+      {!isCollapsed && (
+        <div className={`px-4 pb-2 border-b ${themeClasses.sidebarBorder}`}>
+          <div className="flex items-center justify-between">
+            <span className={`text-sm ${themeClasses.sidebarText}`}>Theme</span>
+            <ThemeSwitcher />
+          </div>
+        </div>
+      )}
+
       {/* User Profile */}
-      <div className={`p-4 border-t border-blue-700 ${isCollapsed ? 'flex justify-center' : ''}`}>
+      <div className={`p-4 border-t ${themeClasses.sidebarBorder} ${isCollapsed ? 'flex justify-center' : ''}`}>
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-blue-800 rounded-full flex items-center justify-center flex-shrink-0" title={user?.email || 'User'}>
-            <span className="text-blue-200 font-medium text-sm">
+          <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0" title={user?.email || 'User'}>
+            <span className="text-white font-medium text-sm">
               {user?.email?.charAt(0).toUpperCase()}
             </span>
           </div>
@@ -167,7 +181,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
           {!isCollapsed && (
             <button
               onClick={handleSignOut}
-              className="text-blue-200 hover:text-white transition-colors p-1 rounded-md hover:bg-blue-700 ml-2"
+              className={`p-1 rounded-md ml-2 ${themeClasses.sidebarInactiveItem}`}
               title="Sign Out"
             >
               <LogOut size={20} />
@@ -178,7 +192,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         {isCollapsed && (
           <button
             onClick={handleSignOut}
-            className="mt-4 w-full flex justify-center text-blue-200 hover:text-white transition-colors p-1 rounded-md hover:bg-blue-700"
+            className={`mt-4 w-full flex justify-center p-1 rounded-md ${themeClasses.sidebarInactiveItem}`}
             title="Sign Out"
           >
             <LogOut size={20} />

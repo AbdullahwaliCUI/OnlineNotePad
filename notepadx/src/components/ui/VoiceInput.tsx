@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useVoiceRecognition, SPEECH_LANGUAGES } from '@/hooks/useVoiceRecognition';
 import { translationService, LANGUAGE_CODES } from '@/lib/translation';
+import { useTheme } from '@/contexts/ThemeContext';
 import toast from 'react-hot-toast';
 
 interface VoiceInputProps {
@@ -11,6 +12,8 @@ interface VoiceInputProps {
 }
 
 export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputProps) {
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const [isTranslating, setIsTranslating] = useState(false);
   const [sourceLanguage, setSourceLanguage] = useState<string>(SPEECH_LANGUAGES.URDU_PAKISTAN);
   const [targetLanguage, setTargetLanguage] = useState<string>(LANGUAGE_CODES.ENGLISH);
@@ -126,7 +129,7 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
               ? 'bg-red-500 text-white border-red-500 hover:bg-red-600 animate-pulse'
               : isTranslating
               ? 'bg-yellow-500 text-white border-yellow-500 cursor-not-allowed'
-              : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
+              : `${themeClasses.accent} text-white ${themeClasses.accent.replace('bg-', 'border-')} ${themeClasses.accentHover}`
           }`}
           title={isListening ? 'Click to Stop Recording and Insert Text' : 'Start Voice Input'}
         >

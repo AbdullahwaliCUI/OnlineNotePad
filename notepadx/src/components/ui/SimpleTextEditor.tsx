@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import VoiceInput from './VoiceInput';
 
 interface SimpleTextEditorProps {
@@ -19,6 +20,8 @@ export default function SimpleTextEditor({
   className = '',
 }: SimpleTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const [fontSize, setFontSize] = useState('16');
   const [textColor, setTextColor] = useState('#000000');
   const [backgroundColor, setBackgroundColor] = useState('#ffffff');
@@ -28,6 +31,41 @@ export default function SimpleTextEditor({
   const [isInitialized, setIsInitialized] = useState(false);
   const [savedSelection, setSavedSelection] = useState<Range | null>(null);
   const [showVoiceInput, setShowVoiceInput] = useState(false);
+
+  // Helper function to get theme-based button classes
+  const getButtonClasses = (isActive: boolean = false) => {
+    const baseClasses = "px-2 py-1 text-xs border-2 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105";
+    
+    if (themeClasses.accent === 'bg-blue-600') {
+      // Blue theme
+      return isActive 
+        ? `${baseClasses} bg-blue-600 border-blue-600 text-white shadow-lg`
+        : `${baseClasses} border-blue-200 text-black bg-white hover:bg-blue-50 hover:border-blue-300`;
+    } else {
+      // Green theme
+      return isActive 
+        ? `${baseClasses} bg-green-600 border-green-600 text-white shadow-lg`
+        : `${baseClasses} border-green-200 text-black bg-white hover:bg-green-50 hover:border-green-300`;
+    }
+  };
+
+  const getInputClasses = () => {
+    return themeClasses.accent === 'bg-blue-600'
+      ? 'border-blue-200 focus:ring-blue-500 focus:border-blue-500'
+      : 'border-green-200 focus:ring-green-500 focus:border-green-500';
+  };
+
+  const getDropdownClasses = () => {
+    return themeClasses.accent === 'bg-blue-600'
+      ? 'border-blue-200'
+      : 'border-green-200';
+  };
+
+  const getSeparatorClasses = () => {
+    return themeClasses.accent === 'bg-blue-600'
+      ? 'border-blue-300'
+      : 'border-green-300';
+  };
 
   // Convert markdown to HTML for display
   const markdownToHtml = (text: string) => {
@@ -421,7 +459,7 @@ export default function SimpleTextEditor({
     <div className={`simple-text-editor ${className}`}>
       {!readOnly && (
         <>
-          <div className="toolbar border border-gray-300 border-b-0 rounded-t-lg bg-gradient-to-r from-blue-50 to-indigo-50 p-3 shadow-sm">
+          <div className={`toolbar border border-gray-300 border-b-0 rounded-t-lg ${themeClasses.gradient} p-3 shadow-sm`}>
             {/* Single Row - All Features */}
             <div className="flex flex-wrap gap-1 items-center">
               {/* Font Size */}
@@ -430,7 +468,7 @@ export default function SimpleTextEditor({
                 <select
                   value={fontSize}
                   onChange={(e) => changeFontSize(e.target.value)}
-                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-14 text-gray-900 bg-white shadow-sm font-medium"
+                  className={`px-2 py-1 text-xs border-2 rounded focus:outline-none focus:ring-2 w-14 text-gray-900 bg-white shadow-sm font-medium ${themeClasses.accent === 'bg-blue-600' ? 'border-blue-200 focus:ring-blue-500 focus:border-blue-500' : 'border-green-200 focus:ring-green-500 focus:border-green-500'}`}
                 >
                   <option value="12">12</option>
                   <option value="14">14</option>
@@ -449,7 +487,7 @@ export default function SimpleTextEditor({
                 <select
                   value={lineHeight}
                   onChange={(e) => changeLineHeight(e.target.value)}
-                  className="px-2 py-1 text-xs border-2 border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-14 text-gray-900 bg-white shadow-sm font-medium"
+                  className={`px-2 py-1 text-xs border-2 rounded focus:outline-none focus:ring-2 w-14 text-gray-900 bg-white shadow-sm font-medium ${getInputClasses()}`}
                 >
                   <option value="1.0">1.0</option>
                   <option value="1.2">1.2</option>
@@ -460,7 +498,7 @@ export default function SimpleTextEditor({
                 </select>
               </div>
 
-              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+              <div className={`border-l-2 h-6 mx-1 ${getSeparatorClasses()}`}></div>
 
               {/* Basic Formatting */}
               <button
@@ -473,8 +511,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('bold');
                 }}
-                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded font-bold transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('bold') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                className={`${getButtonClasses(getButtonState('bold'))} font-bold`}
                 title="Bold (Ctrl+B)"
               >
                 B
@@ -489,8 +526,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('italic');
                 }}
-                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded italic transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('italic') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                className={`${getButtonClasses(getButtonState('italic'))} italic`}
                 title="Italic (Ctrl+I)"
               >
                 I
@@ -505,8 +541,7 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('underline');
                 }}
-                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded underline transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('underline') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                className={`${getButtonClasses(getButtonState('underline'))} underline`}
                 title="Underline (Ctrl+U)"
               >
                 U
@@ -521,14 +556,13 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   applyFormat('strikethrough');
                 }}
-                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded line-through transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 ${getButtonState('strikethrough') ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                className={`${getButtonClasses(getButtonState('strikethrough'))} line-through`}
                 title="Strikethrough"
               >
                 S
               </button>
 
-              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+              <div className={`border-l-2 h-6 mx-1 ${getSeparatorClasses()}`}></div>
 
               {/* Text Color */}
               <div className="relative">
@@ -774,14 +808,13 @@ export default function SimpleTextEditor({
                   e.preventDefault();
                   setShowVoiceInput(!showVoiceInput);
                 }}
-                className={`px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold ${showVoiceInput ? 'bg-blue-600 border-blue-600 text-white shadow-lg' : 'text-black bg-white hover:bg-blue-50 hover:border-blue-300'
-                  }`}
+                className={`${getButtonClasses(showVoiceInput)} font-semibold`}
                 title="Voice Input with Translation"
               >
                 🎤 Voice
               </button>
 
-              <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+              <div className={`border-l-2 h-6 mx-1 ${getSeparatorClasses()}`}></div>
 
               {/* Undo/Redo */}
               <button
