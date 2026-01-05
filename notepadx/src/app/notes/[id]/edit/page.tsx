@@ -300,15 +300,234 @@ export default function EditNotePage() {
 
                 <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
                   {useSimpleEditor ? (
-                    <textarea
-                      value={content}
-                      onChange={(e) => handleContentChange(e.target.value)}
-                      placeholder="Start writing your note..."
-                      className="w-full min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical text-gray-900 bg-white font-mono text-sm leading-relaxed"
-                      style={{
-                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-                      }}
-                    />
+                    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                      {/* Formatting Toolbar */}
+                      <div className="toolbar border-b border-gray-300 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 shadow-sm">
+                        <div className="flex flex-wrap gap-1 items-center">
+                          {/* Font Size */}
+                          <div className="flex items-center gap-1">
+                            <label className="text-xs text-gray-800 font-semibold">Size:</label>
+                            <select
+                              className="px-2 py-1 text-xs border-2 border-blue-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-14 text-gray-900 bg-white shadow-sm font-medium"
+                              onChange={(e) => {
+                                const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                                if (textarea) {
+                                  textarea.style.fontSize = `${e.target.value}px`;
+                                }
+                              }}
+                              defaultValue="14"
+                            >
+                              <option value="12">12</option>
+                              <option value="14">14</option>
+                              <option value="16">16</option>
+                              <option value="18">18</option>
+                              <option value="20">20</option>
+                              <option value="24">24</option>
+                            </select>
+                          </div>
+
+                          <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+
+                          {/* Basic Formatting Buttons */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = textarea.value.substring(start, end);
+                                if (selectedText) {
+                                  const newText = textarea.value.substring(0, start) + `**${selectedText}**` + textarea.value.substring(end);
+                                  handleContentChange(newText);
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start, end + 4);
+                                  }, 0);
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded font-bold transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 text-black bg-white hover:bg-blue-50 hover:border-blue-300"
+                            title="Bold - Wrap with **text**"
+                          >
+                            B
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = textarea.value.substring(start, end);
+                                if (selectedText) {
+                                  const newText = textarea.value.substring(0, start) + `*${selectedText}*` + textarea.value.substring(end);
+                                  handleContentChange(newText);
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start, end + 2);
+                                  }, 0);
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded italic transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 text-black bg-white hover:bg-blue-50 hover:border-blue-300"
+                            title="Italic - Wrap with *text*"
+                          >
+                            I
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const end = textarea.selectionEnd;
+                                const selectedText = textarea.value.substring(start, end);
+                                if (selectedText) {
+                                  const newText = textarea.value.substring(0, start) + `_${selectedText}_` + textarea.value.substring(end);
+                                  handleContentChange(newText);
+                                  setTimeout(() => {
+                                    textarea.focus();
+                                    textarea.setSelectionRange(start, end + 2);
+                                  }, 0);
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded underline transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 text-black bg-white hover:bg-blue-50 hover:border-blue-300"
+                            title="Underline - Wrap with _text_"
+                          >
+                            U
+                          </button>
+
+                          <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+
+                          {/* List Buttons */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const lines = textarea.value.split('\n');
+                                let currentLine = 0;
+                                let charCount = 0;
+                                
+                                // Find which line the cursor is on
+                                for (let i = 0; i < lines.length; i++) {
+                                  if (charCount + lines[i].length >= start) {
+                                    currentLine = i;
+                                    break;
+                                  }
+                                  charCount += lines[i].length + 1; // +1 for newline
+                                }
+                                
+                                // Add bullet point to current line
+                                if (!lines[currentLine].startsWith('• ')) {
+                                  lines[currentLine] = '• ' + lines[currentLine];
+                                  handleContentChange(lines.join('\n'));
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
+                            title="Bullet List"
+                          >
+                            • List
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const lines = textarea.value.split('\n');
+                                let currentLine = 0;
+                                let charCount = 0;
+                                
+                                // Find which line the cursor is on
+                                for (let i = 0; i < lines.length; i++) {
+                                  if (charCount + lines[i].length >= start) {
+                                    currentLine = i;
+                                    break;
+                                  }
+                                  charCount += lines[i].length + 1;
+                                }
+                                
+                                // Add number to current line
+                                if (!lines[currentLine].match(/^\d+\. /)) {
+                                  lines[currentLine] = '1. ' + lines[currentLine];
+                                  handleContentChange(lines.join('\n'));
+                                }
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
+                            title="Numbered List"
+                          >
+                            1. List
+                          </button>
+
+                          <div className="border-l-2 border-blue-300 h-6 mx-1"></div>
+
+                          {/* Insert Buttons */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const newText = textarea.value.substring(0, start) + '\n---\n' + textarea.value.substring(start);
+                                handleContentChange(newText);
+                                setTimeout(() => {
+                                  textarea.focus();
+                                  textarea.setSelectionRange(start + 5, start + 5);
+                                }, 0);
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
+                            title="Insert Line"
+                          >
+                            ─ Line
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const textarea = document.getElementById('content-textarea') as HTMLTextAreaElement;
+                              if (textarea) {
+                                const start = textarea.selectionStart;
+                                const date = new Date().toLocaleDateString();
+                                const time = new Date().toLocaleTimeString();
+                                const timestamp = `[${date} ${time}]`;
+                                const newText = textarea.value.substring(0, start) + timestamp + textarea.value.substring(start);
+                                handleContentChange(newText);
+                                setTimeout(() => {
+                                  textarea.focus();
+                                  textarea.setSelectionRange(start + timestamp.length, start + timestamp.length);
+                                }, 0);
+                              }
+                            }}
+                            className="px-2 py-1 text-xs border-2 border-blue-200 rounded transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-105 font-semibold bg-white hover:bg-blue-50 hover:border-blue-300 text-black"
+                            title="Insert Timestamp"
+                          >
+                            📅 Date
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Textarea */}
+                      <textarea
+                        id="content-textarea"
+                        value={content}
+                        onChange={(e) => handleContentChange(e.target.value)}
+                        placeholder="Start writing your note..."
+                        className="w-full min-h-[400px] p-4 border-0 focus:outline-none resize-vertical text-gray-900 bg-white font-mono text-sm leading-relaxed"
+                        style={{
+                          fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
+                        }}
+                      />
+                    </div>
                   ) : (
                     <TiptapEditor
                       content={content}
