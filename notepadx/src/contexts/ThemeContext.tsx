@@ -17,6 +17,17 @@ interface ThemeContextType {
     accent: string;
     accentHover: string;
     gradient: string;
+    // New comprehensive theme colors
+    primary: string;
+    primaryHover: string;
+    primaryLight: string;
+    primaryBorder: string;
+    primaryText: string;
+    buttonPrimary: string;
+    buttonSecondary: string;
+    inputFocus: string;
+    cardBorder: string;
+    iconColor: string;
   };
 }
 
