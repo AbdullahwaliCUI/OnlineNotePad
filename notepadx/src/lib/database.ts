@@ -591,6 +591,76 @@ export const searchService = {
 
     return data || [];
   },
+
+  async togglePin(noteId: string): Promise<boolean> {
+    try {
+      // First get the current pin status
+      const { data: currentNote, error: fetchError } = await supabase
+        .from('notes')
+        .select('is_pinned')
+        .eq('id', noteId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching note pin status:', fetchError);
+        return false;
+      }
+
+      // Toggle the pin status
+      const { error } = await supabase
+        .from('notes')
+        .update({ 
+          is_pinned: !currentNote.is_pinned,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', noteId);
+
+      if (error) {
+        console.error('Error toggling pin status:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in togglePin:', error);
+      return false;
+    }
+  },
+
+  async toggleArchive(noteId: string): Promise<boolean> {
+    try {
+      // First get the current archive status
+      const { data: currentNote, error: fetchError } = await supabase
+        .from('notes')
+        .select('is_archived')
+        .eq('id', noteId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching note archive status:', fetchError);
+        return false;
+      }
+
+      // Toggle the archive status
+      const { error } = await supabase
+        .from('notes')
+        .update({ 
+          is_archived: !currentNote.is_archived,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', noteId);
+
+      if (error) {
+        console.error('Error toggling archive status:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in toggleArchive:', error);
+      return false;
+    }
+  },
 };
 
 // =============================================

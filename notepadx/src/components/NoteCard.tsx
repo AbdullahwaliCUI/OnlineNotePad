@@ -9,14 +9,13 @@ import type { Note } from '@/types/database';
 interface NoteCardProps {
   note: Note;
   view?: 'grid' | 'list';
-}
-
-export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
-  note: Note;
-  view?: 'grid' | 'list';
   onDelete?: (note: Note) => void;
   onShare?: (note: Note) => void;
-}) {
+  onTogglePin?: (note: Note) => void;
+  onToggleArchive?: (note: Note) => void;
+}
+
+export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTogglePin, onToggleArchive }: NoteCardProps) {
   const router = useRouter();
   const { getThemeClasses } = useTheme();
   const themeClasses = getThemeClasses();
@@ -43,6 +42,43 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
 
   const ActionButtons = () => (
     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+      {onTogglePin && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin(note);
+          }}
+          className={`p-1.5 rounded-md transition-colors ${
+            note.is_pinned 
+              ? 'text-yellow-600 bg-yellow-50 hover:bg-yellow-100' 
+              : 'text-gray-500 hover:text-yellow-600 hover:bg-yellow-50'
+          }`}
+          title={note.is_pinned ? "Unpin note" : "Pin note"}
+        >
+          <svg className="w-4 h-4" fill={note.is_pinned ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        </button>
+      )}
+      {onToggleArchive && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleArchive(note);
+          }}
+          className={`p-1.5 rounded-md transition-colors ${
+            note.is_archived 
+              ? 'text-green-600 bg-green-50 hover:bg-green-100' 
+              : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
+          }`}
+          title={note.is_archived ? "Unarchive note" : "Archive note"}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18v4H3z" />
+          </svg>
+        </button>
+      )}
       {onShare && (
         <button
           onClick={(e) => {
@@ -124,7 +160,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare }: {
         <span>{formatDateTime(note.updated_at)}</span>
         <div className="flex items-center gap-2">
           {note.is_pinned && <span title="Pinned">📌</span>}
-          {note.word_count > 0 && <span>{note.word_count}w</span>}
+          {note.is_archived && <span title="Archived">📦</span>}
         </div>
       </div>
     </div>

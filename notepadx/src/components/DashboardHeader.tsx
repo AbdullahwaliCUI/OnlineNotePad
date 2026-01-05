@@ -1,14 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 
 interface DashboardHeaderProps {
-  totalNotes: number;
-  totalWords: number;
-  totalReadingTime: number;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   viewMode: 'grid' | 'list';
@@ -16,9 +12,6 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({
-  totalNotes,
-  totalWords,
-  totalReadingTime,
   searchQuery,
   onSearchChange,
   viewMode,
@@ -48,33 +41,6 @@ export default function DashboardHeader({
         >
           + New Note
         </Link>
-      </div>
-
-      {/* Stats - Compact & Blended */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-        <div className={`${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
-          <p className="text-sm font-medium text-gray-600 mb-1">Notes</p>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalNotes}</span>
-            <span className="text-xs text-gray-500">total</span>
-          </div>
-        </div>
-
-        <div className={`${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
-          <p className="text-sm font-medium text-gray-600 mb-1">Words</p>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalWords.toLocaleString()}</span>
-            <span className="text-xs text-gray-500">written</span>
-          </div>
-        </div>
-
-        <div className={`col-span-2 md:col-span-1 ${themeClasses.statsBackground} border ${themeClasses.cardBorder} rounded-xl p-4 ${themeClasses.shadowColor} shadow-lg transition-all duration-300 ${themeClasses.glowEffect}`}>
-          <p className="text-sm font-medium text-gray-600 mb-1">Reading Time</p>
-          <div className="flex items-baseline gap-2">
-            <span className={`text-2xl font-bold ${themeClasses.primaryText}`}>{totalReadingTime}</span>
-            <span className="text-xs text-gray-500">mins</span>
-          </div>
-        </div>
       </div>
 
       {/* Search Bar & View Toggle */}

@@ -257,7 +257,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           accent: 'bg-blue-600',
           accentHover: 'hover:bg-blue-700',
           gradient: 'bg-gradient-to-r from-blue-50 to-indigo-50',
-          // Default blue theme
+          // Comprehensive theme colors
           primary: 'blue-600',
           primaryHover: 'blue-700',
           primaryLight: 'blue-50',
@@ -268,6 +268,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           inputFocus: 'focus:ring-blue-500 focus:border-blue-500',
           cardBorder: 'border-blue-200',
           iconColor: 'text-blue-600',
+          // Ocean Blue theme effects
+          cardBackground: 'bg-white/80 backdrop-blur-sm',
+          cardHover: 'hover:bg-white/90 hover:shadow-blue-200/50 hover:shadow-2xl hover:scale-[1.02]',
+          statsBackground: 'bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm',
+          searchBackground: 'bg-white/70 backdrop-blur-md border-blue-200/50',
+          shadowColor: 'shadow-blue-200/30',
+          glowEffect: 'hover:shadow-blue-400/30 hover:shadow-xl',
         };
     }
   };

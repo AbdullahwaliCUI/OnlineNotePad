@@ -20,10 +20,16 @@ export default function DashboardPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [filter, setFilter] = useState<string>('');
 
   // Handle hydration
   useEffect(() => {
     setMounted(true);
+    
+    // Get filter from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterParam = urlParams.get('filter') || '';
+    setFilter(filterParam);
   }, []);
 
   // Handle authentication and notes loading
@@ -62,14 +68,24 @@ export default function DashboardPage() {
     loadNotes();
   };
 
-  // Filter notes based on search query
-  const filteredNotes = notes.filter(note =>
-    (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (note.content || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalWords = notes.reduce((total, note) => total + (note.word_count || 0), 0);
-  const totalReadingTime = notes.reduce((total, note) => total + (note.reading_time || 0), 0);
+  // Filter notes based on search query and filter type
+  const filteredNotes = notes.filter(note => {
+    // First apply search filter
+    const matchesSearch = (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (note.content || '').toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    // Then apply type filter
+    switch (filter) {
+      case 'pinned':
+        return note.is_pinned;
+      case 'archived':
+        return note.is_archived;
+      default:
+        return !note.is_archived; // Show only non-archived notes by default
+    }
+  });
 
   const handleDeleteNote = async (note: Note) => {
     try {
@@ -95,6 +111,46 @@ export default function DashboardPage() {
       toast.success('Note link copied to clipboard!');
     } catch (err) {
       toast.error('Failed to copy link');
+    }
+  };
+
+  const handleTogglePin = async (note: Note) => {
+    try {
+      const success = await (noteService as any).togglePin(note.id);
+      if (success) {
+        // Update the note in the local state
+        setNotes(notes.map(n => 
+          n.id === note.id 
+            ? { ...n, is_pinned: !n.is_pinned }
+            : n
+        ));
+        toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
+      } else {
+        toast.error('Failed to update note');
+      }
+    } catch (error) {
+      console.error('Error toggling pin:', error);
+      toast.error('An error occurred');
+    }
+  };
+
+  const handleToggleArchive = async (note: Note) => {
+    try {
+      const success = await (noteService as any).toggleArchive(note.id);
+      if (success) {
+        // Update the note in the local state
+        setNotes(notes.map(n => 
+          n.id === note.id 
+            ? { ...n, is_archived: !n.is_archived }
+            : n
+        ));
+        toast.success(note.is_archived ? 'Note unarchived' : 'Note archived');
+      } else {
+        toast.error('Failed to update note');
+      }
+    } catch (error) {
+      console.error('Error toggling archive:', error);
+      toast.error('An error occurred');
     }
   };
 
@@ -143,9 +199,6 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardHeader
-        totalNotes={notes.length}
-        totalWords={totalWords}
-        totalReadingTime={totalReadingTime}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         viewMode={viewMode}
@@ -191,6 +244,8 @@ export default function DashboardPage() {
                 view={viewMode}
                 onDelete={handleDeleteNote}
                 onShare={handleShareNote}
+                onTogglePin={handleTogglePin}
+                onToggleArchive={handleToggleArchive}
               />
             ))}
           </div>
