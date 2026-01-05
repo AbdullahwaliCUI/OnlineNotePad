@@ -84,7 +84,8 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
 
   const toggleListening = () => {
     if (isListening) {
-      stopListening();
+      // When stopping, process the current transcript
+      handleStop();
     } else {
       if (!isSupported) {
         toast.error('Voice recognition is not supported in this browser');
@@ -96,8 +97,10 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
 
   const handleStop = () => {
     stopListening();
-    if (transcript.trim()) {
-      handleVoiceResult(transcript.trim());
+    // Process any transcript that was captured (final or interim)
+    const textToProcess = transcript.trim() || interimTranscript.trim();
+    if (textToProcess) {
+      handleVoiceResult(textToProcess);
     }
   };
 
@@ -125,11 +128,11 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
               ? 'bg-yellow-500 text-white border-yellow-500 cursor-not-allowed'
               : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600'
           }`}
-          title={isListening ? 'Stop Recording' : 'Start Voice Input'}
+          title={isListening ? 'Click to Stop Recording and Insert Text' : 'Start Voice Input'}
         >
           {isListening ? (
             <>
-              🔴 Recording...
+              🔴 Click to Stop
             </>
           ) : isTranslating ? (
             <>

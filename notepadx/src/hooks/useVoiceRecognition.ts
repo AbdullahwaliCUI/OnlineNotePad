@@ -184,8 +184,17 @@ export function useVoiceRecognition(options: VoiceRecognitionOptions = {}): Voic
   }, [isSupported, isListening]);
 
   const stopListening = useCallback(() => {
+    console.log('stopListening called, isListening:', isListening);
     if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+        console.log('Recognition stop() called');
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+        // Force state update if stop() fails
+        setIsListening(false);
+        setInterimTranscript('');
+      }
     }
     
     if (timeoutRef.current) {
