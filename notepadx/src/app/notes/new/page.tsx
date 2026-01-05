@@ -75,28 +75,12 @@ export default function NewNotePage() {
     setIsSaving(true);
 
     try {
-      let htmlContent = content;
-      let plainTextContent = content;
-
-      // If using simple editor, keep content exactly as typed
-      if (useSimpleEditor) {
-        // NO PROCESSING - keep content exactly as user typed it
-        plainTextContent = content;
-        htmlContent = content.replace(/\n/g, '<br>'); // Only convert line breaks for HTML display
-      } else {
-        // For rich editor, extract plain text
-        plainTextContent = content.replace(/<[^>]*>/g, '').trim();
-        htmlContent = content;
-      }
-
-      // Sanitize HTML content only for display
-      const sanitizedContent = sanitizeHtml(htmlContent);
-
+      // Keep content exactly as user typed it - no processing
       const noteData = {
         user_id: user.id,
         title: title.trim(),
-        content: plainTextContent, // Keep EXACT original format
-        content_html: sanitizedContent,
+        content: content, // Keep EXACT original format - no changes
+        content_html: content.replace(/\n/g, '<br>'), // Only convert line breaks for HTML display
       };
 
       const newNote = await noteService.createNote(noteData);
@@ -146,135 +130,153 @@ export default function NewNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container-custom py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Create New Note</h1>
-            <p className="text-gray-600 mt-1">Write your thoughts and ideas</p>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={handleCancel}
-              className="btn-secondary"
-              disabled={isSaving}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving || !title.trim()}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-            >
-              {isSaving ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
+      <div className="min-h-screen bg-gray-50">
+        <DashboardLayout>
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Note</h1>
+                <p className="text-gray-600">Write your thoughts and ideas</p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={isSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving || !title.trim()}
+                  className={`px-6 py-2 rounded-lg font-medium transition-colors ${isSaving || !title.trim()
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl'
+                    }`}
+                >
+                  {isSaving ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Saving...
+                    </div>
+                  ) : (
+                    'Save Note'
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Note Form */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              {/* Title Input */}
+              <div className="mb-6">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                  Title <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 ml-2">(max 200 characters)</span>
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  value={title}
+                  onChange={handleTitleChange}
+                  placeholder="Enter note title..."
+                  maxLength={200}
+                  className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.title
+                    ? 'border-red-300 focus:ring-red-500'
+                    : 'border-gray-300 focus:ring-blue-500'
+                    }`}
+                  disabled={isSaving}
+                />
+                {errors.title && (
+                  <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                )}
+                <div className="mt-1 text-xs text-gray-500 text-right">
+                  {title.length}/200 characters
                 </div>
-              ) : (
-                'Save Note'
-              )}
-            </button>
-          </div>
-        </div>
+              </div>
 
-        {/* Maximized Note Form */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          {/* Title Input */}
-          <div className="mb-6">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Title <span className="text-red-500">*</span>
-              <span className="text-xs text-gray-500 ml-2">(max 200 characters)</span>
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={handleTitleChange}
-              placeholder="Enter note title..."
-              maxLength={200}
-              className={`w-full px-4 py-3 text-xl border rounded-lg focus:outline-none focus:ring-2 transition-colors ${errors.title
-                ? 'border-red-300 focus:ring-red-500'
-                : 'border-gray-300 focus:ring-blue-500'
-                }`}
-              disabled={isSaving}
-            />
-            {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-            )}
-            <div className="mt-1 text-xs text-gray-500 text-right">
-              {title.length}/200 characters
-            </div>
-          </div>
+              {/* Content Editor */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Content <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setUseSimpleEditor(!useSimpleEditor)}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                    disabled={isSaving}
+                  >
+                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
+                  </button>
+                </div>
 
-          {/* Content Editor */}
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Content <span className="text-red-500">*</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => setUseSimpleEditor(!useSimpleEditor)}
-                className="text-xs text-blue-600 hover:text-blue-700"
-                disabled={isSaving}
-              >
-                {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
-              </button>
+                <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
+                  {useSimpleEditor ? (
+                    <SimpleTextEditor
+                      value={content}
+                      onChange={handleContentChange}
+                      placeholder="Start writing your note..."
+                      className="min-h-[400px]"
+                    />
+                  ) : (
+                    <TiptapEditor
+                      content={content}
+                      onChange={handleContentChange}
+                      placeholder="Start writing your note..."
+                    />
+                  )}
+                </div>
+
+                {errors.content && (
+                  <p className="mt-1 text-sm text-red-600">{errors.content}</p>
+                )}
+              </div>
             </div>
 
-            <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
-              {useSimpleEditor ? (
-                <textarea
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  placeholder="Start writing your note..."
-                  className="w-full min-h-[400px] p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-vertical text-gray-900 bg-white font-mono text-sm leading-relaxed"
-                  style={{
-                    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-                  }}
-                />
-              ) : (
-                <TiptapEditor
-                  content={content}
-                  onChange={handleContentChange}
-                  placeholder="Start writing your note..."
-                />
-              )}
+            {/* Tips Section */}
+            <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              <h4 className="font-medium text-blue-900 mb-2">✨ Writing Tips:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+                {useSimpleEditor ? (
+                  <>
+                    <ul className="space-y-1">
+                      <li>• <strong>🎤 Voice Input:</strong> Click the voice button to speak in Urdu and get English text</li>
+                      <li>• <strong>Rich Formatting:</strong> Bold, italic, colors, alignment, and more</li>
+                      <li>• <strong>Text Selection:</strong> Select text with mouse, then use toolbar buttons</li>
+                    </ul>
+                    <ul className="space-y-1">
+                      <li>• <strong>Font Controls:</strong> Change size, colors, and line height</li>
+                      <li>• <strong>Lists & Alignment:</strong> Bullet points, numbers, and text alignment</li>
+                      <li>• <strong>Switch Editors:</strong> Use "Rich Editor" for advanced formatting</li>
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <ul className="space-y-1">
+                      <li>• <strong>Rich Formatting:</strong> Bold, italic, lists, and more</li>
+                      <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic)</li>
+                      <li>• <strong>Text Selection:</strong> Select text, then use toolbar buttons</li>
+                    </ul>
+                    <ul className="space-y-1">
+                      <li>• <strong>Lists & Headings:</strong> Use toolbar for structured content</li>
+                      <li>• <strong>Advanced Features:</strong> Quotes, code blocks, and more</li>
+                      <li>• <strong>Switch Editors:</strong> Use "Plain Text" for voice input and advanced formatting</li>
+                    </ul>
+                  </>
+                )}
+              </div>
             </div>
 
-            {errors.content && (
-              <p className="mt-1 text-sm text-red-600">{errors.content}</p>
-            )}
+            {/* Back Link */}
+            <div className="mt-6">
+              <Link href="/dashboard" className="text-blue-600 hover:text-blue-700">
+                ← Back to Dashboard
+              </Link>
+            </div>
           </div>
-        </div>
-
-        {/* Bottom Tips Section */}
-        <div className="bg-blue-50 rounded-lg p-4 mb-6">
-          <h4 className="font-medium text-blue-900 mb-2">✨ Writing Tips:</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
-            <ul className="space-y-1">
-              <li>• <strong>Mouse Selection:</strong> Select text with mouse, then click toolbar buttons</li>
-              <li>• <strong>Keyboard Shortcuts:</strong> Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</li>
-              <li>• <strong>Colors:</strong> Select text and choose colors from toolbar</li>
-            </ul>
-            <ul className="space-y-1">
-              <li>• <strong>Alignment:</strong> Ctrl+L (left), Ctrl+E (center), Ctrl+R (right)</li>
-              <li>• <strong>Lists:</strong> Use bullet and numbered list buttons</li>
-              <li>• <strong>Auto-save:</strong> Content is automatically saved</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Back Link */}
-        <div className="mt-6">
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-700">
-            ← Back to Dashboard
-          </Link>
-        </div>
+        </DashboardLayout>
       </div>
     </ProtectedRoute>
   );

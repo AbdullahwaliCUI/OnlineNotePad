@@ -114,27 +114,11 @@ export default function EditNotePage() {
     setIsSaving(true);
 
     try {
-      let htmlContent = content;
-      let plainTextContent = content;
-
-      // If using simple editor, keep content exactly as typed
-      if (useSimpleEditor) {
-        // NO PROCESSING - keep content exactly as user typed it
-        plainTextContent = content;
-        htmlContent = content.replace(/\n/g, '<br>'); // Only convert line breaks for HTML display
-      } else {
-        // For rich editor, extract plain text
-        plainTextContent = content.replace(/<[^>]*>/g, '').trim();
-        htmlContent = content;
-      }
-
-      // Sanitize HTML content only for display
-      const sanitizedContent = sanitizeHtml(htmlContent);
-
+      // Keep content exactly as user typed it - no processing
       const updateData = {
         title: title.trim(),
-        content: plainTextContent, // Keep EXACT original format
-        content_html: sanitizedContent,
+        content: content, // Keep EXACT original format - no changes
+        content_html: content.replace(/\n/g, '<br>'), // Only convert line breaks for HTML display
       };
 
       const updatedNote = await noteService.updateNote(note.id, updateData);
