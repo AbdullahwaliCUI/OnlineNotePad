@@ -203,7 +203,7 @@ export default function EditNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
+      <div className={`min-h-screen ${themeClasses.background}`}>
         <DashboardLayout>
           <div className="p-6">
             {/* Header */}

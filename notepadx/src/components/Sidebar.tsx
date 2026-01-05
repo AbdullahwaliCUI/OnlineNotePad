@@ -177,26 +177,58 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
       {/* Theme Switcher */}
       {!isCollapsed && (
         <div className={`px-4 pb-2 border-b ${themeClasses.sidebarBorder}`}>
-          <div className="flex items-center justify-between">
-            <span className={`text-sm ${themeClasses.sidebarText}`}>Theme</span>
-            <div className="flex gap-1">
-              {/* Blue Theme Button */}
-              <button
-                onClick={() => setTheme('blue')}
-                className="w-6 h-6 rounded bg-gradient-to-r from-blue-600 to-blue-800 border-2 border-white hover:scale-110 transition-transform"
-                title="Ocean Blue Theme"
-              >
-                🌊
-              </button>
-              {/* Green Theme Button */}
-              <button
-                onClick={() => setTheme('green')}
-                className="w-6 h-6 rounded bg-gradient-to-r from-green-600 to-green-800 border-2 border-white hover:scale-110 transition-transform"
-                title="Forest Green Theme"
-              >
-                🌲
-              </button>
-            </div>
+          <div className="mb-2">
+            <span className={`text-sm ${themeClasses.sidebarText}`}>Themes</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {/* Blue Theme Button */}
+            <button
+              onClick={() => setTheme('blue')}
+              className="w-full h-8 rounded bg-gradient-to-r from-blue-600 to-blue-800 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Ocean Blue"
+            >
+              <span className="text-white text-xs font-bold">🌊</span>
+            </button>
+            {/* Green Theme Button */}
+            <button
+              onClick={() => setTheme('green')}
+              className="w-full h-8 rounded bg-gradient-to-r from-green-600 to-green-800 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Forest Green"
+            >
+              <span className="text-white text-xs font-bold">🌲</span>
+            </button>
+            {/* Purple Theme Button */}
+            <button
+              onClick={() => setTheme('purple')}
+              className="w-full h-8 rounded bg-gradient-to-r from-purple-600 to-purple-800 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Royal Purple"
+            >
+              <span className="text-white text-xs font-bold">👑</span>
+            </button>
+            {/* Orange Theme Button */}
+            <button
+              onClick={() => setTheme('orange')}
+              className="w-full h-8 rounded bg-gradient-to-r from-orange-600 to-orange-800 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Sunset Orange"
+            >
+              <span className="text-white text-xs font-bold">🌅</span>
+            </button>
+            {/* Pink Theme Button */}
+            <button
+              onClick={() => setTheme('pink')}
+              className="w-full h-8 rounded bg-gradient-to-r from-pink-600 to-pink-800 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Cherry Pink"
+            >
+              <span className="text-white text-xs font-bold">🌸</span>
+            </button>
+            {/* Dark Theme Button */}
+            <button
+              onClick={() => setTheme('dark')}
+              className="w-full h-8 rounded bg-gradient-to-r from-gray-800 to-gray-900 border-2 border-white hover:scale-105 transition-transform flex items-center justify-center"
+              title="Dark Mode"
+            >
+              <span className="text-white text-xs font-bold">🌙</span>
+            </button>
           </div>
         </div>
       )}

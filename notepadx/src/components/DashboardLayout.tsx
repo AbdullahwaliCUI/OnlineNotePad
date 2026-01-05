@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTheme } from '@/contexts/ThemeContext';
 import Sidebar from './Sidebar';
 
 interface DashboardLayoutProps {
@@ -11,6 +12,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
 
   // Handle hydration
   useEffect(() => {
@@ -66,7 +69,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className={`flex h-screen ${themeClasses.background} min-h-screen`}>
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
