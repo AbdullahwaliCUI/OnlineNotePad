@@ -126,7 +126,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
         <div className="flex items-center justify-between gap-2 sm:gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100 truncate pr-2 group-hover:text-blue-600 transition-colors">
+              <h3 className={`text-sm sm:text-base font-semibold truncate pr-2 group-hover:text-blue-600 transition-colors ${themeClasses.primaryText}`}>
                 {note.title || 'Untitled Note'}
               </h3>
               <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
       className={`group relative ${themeClasses.cardBackground} border rounded-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex flex-col h-56 sm:h-64 ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
     >
       <div className="flex items-start justify-between mb-2 sm:mb-3">
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors pr-2">
+        <h3 className={`text-base sm:text-lg font-bold line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors pr-2 ${themeClasses.primaryText}`}>
           {note.title || 'Untitled Note'}
         </h3>
         <ActionButtons />

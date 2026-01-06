@@ -25,12 +25,12 @@ export default function DashboardHeader({
   return (
     <div className="mb-8">
       {/* Welcome & New Note - Flex container */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 text-foreground">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">
+          <h1 className={`text-3xl font-bold tracking-tight mb-1 ${themeClasses.primaryText}`}>
             Hi, {userName} <span className="animate-wave inline-block origin-[70%_70%]">👋</span>
           </h1>
-          <p className="text-muted-foreground">
+          <p className={`${themeClasses.primaryText} opacity-70`}>
             Manage your ideas and creative work.
           </p>
         </div>
@@ -53,14 +53,14 @@ export default function DashboardHeader({
           </div>
           <input
             type="text"
-            className={`block w-full pl-10 pr-3 py-2.5 ${themeClasses.searchBackground} border rounded-xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm ${themeClasses.inputFocus} ${themeClasses.cardBorder}`}
+            className={`block w-full pl-10 pr-3 py-2.5 ${themeClasses.searchBackground} border rounded-xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 transition-all duration-200 shadow-sm ${themeClasses.inputFocus} ${themeClasses.cardBorder} ${themeClasses.primaryText}`}
             placeholder="Search your notes..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <div className="flex bg-white dark:bg-gray-800 rounded-xl p-1 border border-border shrink-0 shadow-sm">
+        <div className={`flex rounded-xl p-1 border shrink-0 shadow-sm ${themeClasses.cardBackground} ${themeClasses.cardBorder}`}>
           <button
             onClick={() => onViewModeChange('grid')}
             className={`p-2 rounded-lg transition-all duration-200 ${viewMode === 'grid'

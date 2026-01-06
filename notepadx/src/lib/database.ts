@@ -596,21 +596,15 @@ export const searchService = {
     try {
       console.log('togglePin called for noteId:', noteId);
       
-      // First get the current pin status
+      // Use noteService.updateNote instead of direct supabase call
       const { data: currentNote, error: fetchError } = await supabase
         .from('notes')
-        .select('is_pinned')
+        .select('is_pinned, user_id')
         .eq('id', noteId)
         .single();
 
       if (fetchError) {
         console.error('Error fetching note pin status:', fetchError);
-        console.error('Fetch error details:', {
-          message: fetchError.message,
-          details: fetchError.details,
-          hint: fetchError.hint,
-          code: fetchError.code
-        });
         return false;
       }
 
@@ -621,28 +615,19 @@ export const searchService = {
 
       console.log('Current pin status:', currentNote.is_pinned, 'Toggling to:', !currentNote.is_pinned);
 
-      // Toggle the pin status
-      const { error } = await supabase
-        .from('notes')
-        .update({ 
-          is_pinned: !currentNote.is_pinned,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', noteId);
+      // Use noteService.updateNote for proper permissions
+      const updatedNote = await noteService.updateNote(noteId, {
+        is_pinned: !currentNote.is_pinned,
+        updated_at: new Date().toISOString()
+      });
 
-      if (error) {
-        console.error('Error toggling pin status:', error);
-        console.error('Update error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
+      if (updatedNote) {
+        console.log('Pin status updated successfully');
+        return true;
+      } else {
+        console.error('Failed to update note via noteService');
         return false;
       }
-
-      console.log('Pin status updated successfully');
-      return true;
     } catch (error) {
       console.error('Error in togglePin:', error);
       return false;
