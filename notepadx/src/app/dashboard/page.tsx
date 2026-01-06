@@ -70,26 +70,35 @@ export default function DashboardPage() {
     loadNotes();
   };
 
-  // Filter notes based on search query and filter type
-  const filteredNotes = notes.filter(note => {
-    // First apply search filter
-    const matchesSearch = (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (note.content || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (!matchesSearch) return false;
-    
-    // Then apply type filter
-    switch (filter) {
-      case 'pinned':
-        return note.is_pinned;
-      case 'archived':
-        return note.is_archived;
-      case 'all':
-        return true; // Show all notes
-      default:
-        return !note.is_archived; // Show only non-archived notes by default
-    }
-  });
+  // Filter and sort notes - pinned notes first, then by date
+  const filteredNotes = notes
+    .filter(note => {
+      // First apply search filter
+      const matchesSearch = (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (note.content || '').toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+      
+      // Then apply type filter
+      switch (filter) {
+        case 'pinned':
+          return note.is_pinned;
+        case 'archived':
+          return note.is_archived;
+        case 'all':
+          return true; // Show all notes
+        default:
+          return !note.is_archived; // Show only non-archived notes by default
+      }
+    })
+    .sort((a, b) => {
+      // First sort by pinned status (pinned notes first)
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      
+      // Then sort by updated_at (newest first)
+      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+    });
 
   const handleDeleteNote = async (note: Note) => {
     try {
@@ -114,6 +123,15 @@ export default function DashboardPage() {
 
   const handleTogglePin = async (note: Note) => {
     try {
+      // Check if trying to pin and already have 8 pinned notes
+      if (!note.is_pinned) {
+        const pinnedCount = notes.filter(n => n.is_pinned).length;
+        if (pinnedCount >= 8) {
+          toast.error('Maximum 8 notes can be pinned (2 rows). Please unpin a note first.');
+          return;
+        }
+      }
+
       console.log('Toggling pin for note:', note.id, 'Current status:', note.is_pinned);
       
       const success = await searchService.togglePin(note.id);
@@ -125,14 +143,14 @@ export default function DashboardPage() {
             ? { ...n, is_pinned: !n.is_pinned }
             : n
         ));
-        toast.success(note.is_pinned ? 'Note removed from favorites' : 'Note added to favorites');
+        toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
       } else {
         console.error('togglePin returned false');
         toast.error('Failed to update note');
       }
     } catch (error) {
       console.error('Error toggling pin:', error);
-      toast.error('An error occurred while updating favorite status');
+      toast.error('An error occurred while updating pin status');
     }
   };
 
