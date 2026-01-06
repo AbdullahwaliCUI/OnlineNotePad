@@ -116,18 +116,35 @@ export default function DashboardPage() {
 
   const handleTogglePin = async (note: Note) => {
     try {
-      const success = await (noteService as any).togglePin(note.id);
-      if (success) {
-        // Update the note in the local state
-        setNotes(notes.map(n => 
-          n.id === note.id 
-            ? { ...n, is_pinned: !n.is_pinned }
-            : n
-        ));
-        toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
-      } else {
+      // Import supabase directly to avoid the function issue
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      // Toggle the pin status directly
+      const { error } = await supabase
+        .from('notes')
+        .update({ 
+          is_pinned: !note.is_pinned,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', note.id);
+
+      if (error) {
+        console.error('Error toggling pin status:', error);
         toast.error('Failed to update note');
+        return;
       }
+
+      // Update the note in the local state
+      setNotes(notes.map(n => 
+        n.id === note.id 
+          ? { ...n, is_pinned: !n.is_pinned }
+          : n
+      ));
+      toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
     } catch (error) {
       console.error('Error toggling pin:', error);
       toast.error('An error occurred');
@@ -136,18 +153,35 @@ export default function DashboardPage() {
 
   const handleToggleArchive = async (note: Note) => {
     try {
-      const success = await (noteService as any).toggleArchive(note.id);
-      if (success) {
-        // Update the note in the local state
-        setNotes(notes.map(n => 
-          n.id === note.id 
-            ? { ...n, is_archived: !n.is_archived }
-            : n
-        ));
-        toast.success(note.is_archived ? 'Note unarchived' : 'Note archived');
-      } else {
+      // Import supabase directly to avoid the function issue
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      // Toggle the archive status directly
+      const { error } = await supabase
+        .from('notes')
+        .update({ 
+          is_archived: !note.is_archived,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', note.id);
+
+      if (error) {
+        console.error('Error toggling archive status:', error);
         toast.error('Failed to update note');
+        return;
       }
+
+      // Update the note in the local state
+      setNotes(notes.map(n => 
+        n.id === note.id 
+          ? { ...n, is_archived: !n.is_archived }
+          : n
+      ));
+      toast.success(note.is_archived ? 'Note unarchived' : 'Note archived');
     } catch (error) {
       console.error('Error toggling archive:', error);
       toast.error('An error occurred');
@@ -251,16 +285,11 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Quick Stats Footer */}
-        {filteredNotes.length > 0 && (
+        {/* Simple footer for filtered results */}
+        {filteredNotes.length > 0 && searchQuery && (
           <div className="mt-8 pt-6 border-t border-border">
             <div className="text-center text-sm text-muted-foreground">
-              Showing {filteredNotes.length} of {notes.length} notes
-              {searchQuery && (
-                <span className="ml-2">
-                  • Filtered by "{searchQuery}"
-                </span>
-              )}
+              Found {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} matching "{searchQuery}"
             </div>
           </div>
         )}
