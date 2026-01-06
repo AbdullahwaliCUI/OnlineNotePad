@@ -3,16 +3,18 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import Link from 'next/link';
 import EmptyState from '@/components/ui/EmptyState';
 import DashboardHeader from '@/components/DashboardHeader';
 import NoteCard from '@/components/NoteCard';
 import { useAuth } from '@/hooks/useAuth';
-import { noteService } from '@/lib/database';
+import { noteService, searchService } from '@/lib/database';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { Note } from '@/types/database';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
   const router = useRouter();
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(true);
@@ -82,6 +84,8 @@ export default function DashboardPage() {
         return note.is_pinned;
       case 'archived':
         return note.is_archived;
+      case 'all':
+        return true; // Show all notes
       default:
         return !note.is_archived; // Show only non-archived notes by default
     }
@@ -103,48 +107,26 @@ export default function DashboardPage() {
   };
 
   const handleShareNote = async (note: Note) => {
-    // For now, we'll just show a toast since sharing logic might require a modal
-    // In a real implementation, this would open a share dialog
-    const url = `${window.location.origin}/notes/${note.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success('Note link copied to clipboard!');
-    } catch (err) {
-      toast.error('Failed to copy link');
-    }
+    // The share functionality is now handled by the ShareModal in NoteCard
+    // This function is kept for compatibility but the actual sharing is done in the modal
+    console.log('Share note:', note.title);
   };
 
   const handleTogglePin = async (note: Note) => {
     try {
-      // Import supabase directly to avoid the function issue
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      // Toggle the pin status directly
-      const { error } = await supabase
-        .from('notes')
-        .update({ 
-          is_pinned: !note.is_pinned,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', note.id);
-
-      if (error) {
-        console.error('Error toggling pin status:', error);
+      const success = await searchService.togglePin(note.id);
+      
+      if (success) {
+        // Update the note in the local state
+        setNotes(notes.map(n => 
+          n.id === note.id 
+            ? { ...n, is_pinned: !n.is_pinned }
+            : n
+        ));
+        toast.success(note.is_pinned ? 'Note removed from favorites' : 'Note added to favorites');
+      } else {
         toast.error('Failed to update note');
-        return;
       }
-
-      // Update the note in the local state
-      setNotes(notes.map(n => 
-        n.id === note.id 
-          ? { ...n, is_pinned: !n.is_pinned }
-          : n
-      ));
-      toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
     } catch (error) {
       console.error('Error toggling pin:', error);
       toast.error('An error occurred');
@@ -153,35 +135,19 @@ export default function DashboardPage() {
 
   const handleToggleArchive = async (note: Note) => {
     try {
-      // Import supabase directly to avoid the function issue
-      const { createClient } = await import('@supabase/supabase-js');
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      // Toggle the archive status directly
-      const { error } = await supabase
-        .from('notes')
-        .update({ 
-          is_archived: !note.is_archived,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', note.id);
-
-      if (error) {
-        console.error('Error toggling archive status:', error);
+      const success = await searchService.toggleArchive(note.id);
+      
+      if (success) {
+        // Update the note in the local state
+        setNotes(notes.map(n => 
+          n.id === note.id 
+            ? { ...n, is_archived: !n.is_archived }
+            : n
+        ));
+        toast.success(note.is_archived ? 'Note unarchived' : 'Note archived');
+      } else {
         toast.error('Failed to update note');
-        return;
       }
-
-      // Update the note in the local state
-      setNotes(notes.map(n => 
-        n.id === note.id 
-          ? { ...n, is_archived: !n.is_archived }
-          : n
-      ));
-      toast.success(note.is_archived ? 'Note unarchived' : 'Note archived');
     } catch (error) {
       console.error('Error toggling archive:', error);
       toast.error('An error occurred');
@@ -231,7 +197,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 min-h-screen ${themeClasses.background}`}>
       <DashboardHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

@@ -92,26 +92,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out">
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${themeClasses.background}`}>
         {/* Mobile header with hamburger menu */}
-        <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
+        <div className={`lg:hidden shadow-sm border-b px-4 py-3 ${themeClasses.cardBackground} ${themeClasses.cardBorder}`}>
           <div className="flex items-center justify-between">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-600 hover:text-gray-900 p-2 rounded-md hover:bg-gray-100 transition-colors"
+              className={`p-2 rounded-md transition-colors ${themeClasses.iconColor} hover:bg-white/20`}
               aria-label="Open sidebar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">📝 NotepadX</h1>
+            <h1 className={`text-lg font-semibold ${themeClasses.primaryText}`}>📝 NotepadX</h1>
             <div className="w-10"></div>
           </div>
         </div>
 
         {/* Page content with modern header and cards */}
-        <main className="flex-1 overflow-y-auto">
+        <main className={`flex-1 overflow-y-auto ${themeClasses.background}`}>
           <div className="container-custom py-6">
             {children}
           </div>
