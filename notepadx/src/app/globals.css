@@ -24,8 +24,7 @@
   }
 
   body {
-    /* Use standard tailwind classes or simple css */
-    @apply bg-white text-gray-900;
+    /* Theme background will be applied by ThemeWrapper */
     min-height: 100vh;
   }
 

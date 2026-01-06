@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/providers/ToastProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import ThemeWrapper from "@/components/ThemeWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -63,11 +64,13 @@ export default function RootLayout({
       <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <AuthProvider>
           <ThemeProvider>
-            <Navbar />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <ToastProvider />
+            <ThemeWrapper>
+              <Navbar />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <ToastProvider />
+            </ThemeWrapper>
           </ThemeProvider>
         </AuthProvider>
       </body>
