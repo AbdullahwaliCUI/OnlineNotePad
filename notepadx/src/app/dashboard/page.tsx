@@ -134,7 +134,13 @@ export default function DashboardPage() {
 
       console.log('Toggling pin for note:', note.id, 'Current status:', note.is_pinned);
       
+      // Show loading state
+      const loadingToast = toast.loading(note.is_pinned ? 'Unpinning note...' : 'Pinning note...');
+      
       const success = await searchService.togglePin(note.id);
+      
+      // Dismiss loading toast
+      toast.dismiss(loadingToast);
       
       if (success) {
         // Update the note in the local state
@@ -146,7 +152,7 @@ export default function DashboardPage() {
         toast.success(note.is_pinned ? 'Note unpinned' : 'Note pinned');
       } else {
         console.error('togglePin returned false');
-        toast.error('Failed to update note');
+        toast.error('Failed to update note. Please check your permissions.');
       }
     } catch (error) {
       console.error('Error toggling pin:', error);

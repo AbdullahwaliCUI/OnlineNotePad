@@ -596,11 +596,19 @@ export const searchService = {
     try {
       console.log('togglePin called for noteId:', noteId);
       
-      // Use noteService.updateNote instead of direct supabase call
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('No authenticated user found');
+        return false;
+      }
+
+      // First get the current note with user verification
       const { data: currentNote, error: fetchError } = await supabase
         .from('notes')
         .select('is_pinned, user_id')
         .eq('id', noteId)
+        .eq('user_id', user.id) // Ensure user owns the note
         .single();
 
       if (fetchError) {
@@ -609,25 +617,47 @@ export const searchService = {
       }
 
       if (!currentNote) {
-        console.error('Note not found with id:', noteId);
+        console.error('Note not found or user does not own this note');
         return false;
       }
 
       console.log('Current pin status:', currentNote.is_pinned, 'Toggling to:', !currentNote.is_pinned);
 
-      // Use noteService.updateNote for proper permissions
-      const updatedNote = await noteService.updateNote(noteId, {
-        is_pinned: !currentNote.is_pinned,
-        updated_at: new Date().toISOString()
-      });
+      // Try direct update first
+      const { error: updateError } = await supabase
+        .from('notes')
+        .update({ 
+          is_pinned: !currentNote.is_pinned,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', noteId)
+        .eq('user_id', user.id); // Ensure user owns the note
 
-      if (updatedNote) {
-        console.log('Pin status updated successfully');
-        return true;
-      } else {
-        console.error('Failed to update note via noteService');
-        return false;
+      if (updateError) {
+        console.error('Direct update failed, trying noteService:', updateError);
+        
+        // Fallback to noteService
+        try {
+          const updatedNote = await noteService.updateNote(noteId, {
+            is_pinned: !currentNote.is_pinned,
+            updated_at: new Date().toISOString()
+          });
+          
+          if (updatedNote) {
+            console.log('Pin status updated successfully via noteService');
+            return true;
+          } else {
+            console.error('noteService update also failed');
+            return false;
+          }
+        } catch (serviceError) {
+          console.error('noteService update error:', serviceError);
+          return false;
+        }
       }
+
+      console.log('Pin status updated successfully via direct update');
+      return true;
     } catch (error) {
       console.error('Error in togglePin:', error);
       return false;
