@@ -114,6 +114,8 @@ export default function DashboardPage() {
 
   const handleTogglePin = async (note: Note) => {
     try {
+      console.log('Toggling pin for note:', note.id, 'Current status:', note.is_pinned);
+      
       const success = await searchService.togglePin(note.id);
       
       if (success) {
@@ -125,11 +127,12 @@ export default function DashboardPage() {
         ));
         toast.success(note.is_pinned ? 'Note removed from favorites' : 'Note added to favorites');
       } else {
+        console.error('togglePin returned false');
         toast.error('Failed to update note');
       }
     } catch (error) {
       console.error('Error toggling pin:', error);
-      toast.error('An error occurred');
+      toast.error('An error occurred while updating favorite status');
     }
   };
 

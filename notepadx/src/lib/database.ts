@@ -594,6 +594,8 @@ export const searchService = {
 
   async togglePin(noteId: string): Promise<boolean> {
     try {
+      console.log('togglePin called for noteId:', noteId);
+      
       // First get the current pin status
       const { data: currentNote, error: fetchError } = await supabase
         .from('notes')
@@ -603,8 +605,21 @@ export const searchService = {
 
       if (fetchError) {
         console.error('Error fetching note pin status:', fetchError);
+        console.error('Fetch error details:', {
+          message: fetchError.message,
+          details: fetchError.details,
+          hint: fetchError.hint,
+          code: fetchError.code
+        });
         return false;
       }
+
+      if (!currentNote) {
+        console.error('Note not found with id:', noteId);
+        return false;
+      }
+
+      console.log('Current pin status:', currentNote.is_pinned, 'Toggling to:', !currentNote.is_pinned);
 
       // Toggle the pin status
       const { error } = await supabase
@@ -617,9 +632,16 @@ export const searchService = {
 
       if (error) {
         console.error('Error toggling pin status:', error);
+        console.error('Update error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         return false;
       }
 
+      console.log('Pin status updated successfully');
       return true;
     } catch (error) {
       console.error('Error in togglePin:', error);
