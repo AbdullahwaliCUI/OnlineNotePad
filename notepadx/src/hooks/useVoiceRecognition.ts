@@ -128,17 +128,17 @@ export function useVoiceRecognition(options: VoiceRecognitionOptions = {}): Voic
           case 'language-not-supported':
             errorMessage = 'Language not supported. Switching to English.';
             break;
+          case 'aborted':
+            // Don't show error for manual abort
+            console.log('Voice recognition manually stopped');
+            setIsListening(false);
+            setInterimTranscript('');
+            return;
           default:
             errorMessage = `Voice recognition error: ${event.error}`;
         }
         
         setError(errorMessage);
-        setIsListening(false);
-        onError?.(errorMessage);
-      };
-
-      recognition.onend = () => {
-        console.log('Voice recognition ended');
         setIsListening(false);
         setInterimTranscript('');
         
@@ -146,6 +146,27 @@ export function useVoiceRecognition(options: VoiceRecognitionOptions = {}): Voic
           clearTimeout(timeoutRef.current);
         }
         
+        // Only call onError for critical errors
+        if (event.error !== 'no-speech') {
+          onError?.(errorMessage);
+        }
+      };
+
+      recognition.onend = () => {
+        console.log('Voice recognition ended naturally');
+        
+        // Clear timeout
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        
+        // Only update state if we're still supposed to be listening
+        // This prevents race conditions
+        setIsListening(false);
+        setInterimTranscript('');
+        
+        // Call onEnd callback
         onEnd?.();
       };
 
@@ -171,36 +192,64 @@ export function useVoiceRecognition(options: VoiceRecognitionOptions = {}): Voic
     }
 
     if (isListening) {
+      console.log('Already listening, ignoring start request');
       return; // Already listening
     }
 
     try {
       setError(null);
-      recognitionRef.current.start();
+      setIsListening(false); // Reset state before starting
+      setTranscript('');
+      setInterimTranscript('');
+      
+      // Small delay to ensure clean state
+      setTimeout(() => {
+        if (recognitionRef.current) {
+          recognitionRef.current.start();
+          console.log('Voice recognition start() called');
+        }
+      }, 100);
+      
     } catch (error) {
       console.error('Error starting voice recognition:', error);
       setError('Failed to start voice recognition');
+      setIsListening(false);
     }
   }, [isSupported, isListening]);
 
   const stopListening = useCallback(() => {
     console.log('stopListening called, isListening:', isListening);
-    if (recognitionRef.current && isListening) {
+    
+    // Immediately update state to stop UI
+    setIsListening(false);
+    setInterimTranscript('');
+    
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
+    // Stop the actual recognition forcefully
+    if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
-        console.log('Recognition stop() called');
+        // Abort instead of stop for immediate termination
+        recognitionRef.current.abort();
+        console.log('Recognition abort() called for immediate stop');
       } catch (error) {
-        console.error('Error stopping recognition:', error);
-        // Force state update if stop() fails
-        setIsListening(false);
-        setInterimTranscript('');
+        console.error('Error aborting recognition:', error);
+        try {
+          // Fallback to stop if abort fails
+          recognitionRef.current.stop();
+        } catch (stopError) {
+          console.error('Error stopping recognition:', stopError);
+        }
       }
     }
     
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-  }, [isListening]);
+    // Call onEnd callback
+    onEnd?.();
+  }, [onEnd]);
 
   const resetTranscript = useCallback(() => {
     setTranscript('');

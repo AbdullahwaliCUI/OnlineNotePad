@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useVoiceRecognition, SPEECH_LANGUAGES } from '@/hooks/useVoiceRecognition';
 import { translationService, LANGUAGE_CODES } from '@/lib/translation';
 import { useTheme } from '@/contexts/ThemeContext';
-import toast from 'react-hot-toast';
 
 interface VoiceInputProps {
   onTextInsert: (text: string) => void;
@@ -19,6 +18,7 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
   const [targetLanguage, setTargetLanguage] = useState<string>(LANGUAGE_CODES.ENGLISH);
   const [showSettings, setShowSettings] = useState(false);
   const [autoTranslate, setAutoTranslate] = useState(true);
+  const [forceStop, setForceStop] = useState(false);
 
   const {
     isListening,
@@ -39,13 +39,16 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
       }
     },
     onError: (error: string) => {
-      toast.error(error);
+      // Only show critical errors, not notifications
+      console.error('Voice error:', error);
     },
     onStart: () => {
-      toast.success('🎤 Voice recording started');
+      // Remove notification
+      console.log('Voice recording started');
     },
     onEnd: () => {
-      toast.success('🎤 Voice recording stopped');
+      // Remove notification  
+      console.log('Voice recording stopped');
     },
   });
 
@@ -66,44 +69,63 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
         // Insert translated text
         onTextInsert(result.translatedText);
         
-        // Show success message
-        toast.success(`Translated: "${text}" → "${result.translatedText}"`);
+        // No toast notification, just console log
+        console.log(`Translated: "${text}" → "${result.translatedText}"`);
         
       } else {
         // Insert original text without translation
         onTextInsert(text);
-        toast.success(`Voice input: "${text}"`);
+        console.log(`Voice input: "${text}"`);
       }
     } catch (error) {
       console.error('Translation error:', error);
       // Fallback: insert original text
       onTextInsert(text);
-      toast.error('Translation failed, inserted original text');
     } finally {
       setIsTranslating(false);
+      // Always reset transcript after processing
       resetTranscript();
     }
   };
 
+  const handleStop = async () => {
+    console.log('handleStop called, isListening:', isListening);
+    
+    // Set force stop flag
+    setForceStop(true);
+    
+    // Immediately stop the recognition first
+    stopListening();
+    
+    // Process any transcript that was captured (final or interim)
+    const textToProcess = transcript.trim() || interimTranscript.trim();
+    
+    // Process the text if available
+    if (textToProcess) {
+      await handleVoiceResult(textToProcess);
+    } else {
+      // If no text, just reset without notification
+      console.log('Voice recording stopped - no text captured');
+      resetTranscript();
+    }
+    
+    // Reset force stop flag after processing
+    setTimeout(() => setForceStop(false), 500);
+  };
+
   const toggleListening = () => {
-    if (isListening) {
-      // When stopping, process the current transcript
+    if (isListening || forceStop) {
+      // When stopping via main button, process the current transcript
       handleStop();
     } else {
       if (!isSupported) {
-        toast.error('Voice recognition is not supported in this browser');
+        console.error('Voice recognition is not supported in this browser');
         return;
       }
+      // Clear any previous transcript before starting
+      setForceStop(false);
+      resetTranscript();
       startListening();
-    }
-  };
-
-  const handleStop = () => {
-    stopListening();
-    // Process any transcript that was captured (final or interim)
-    const textToProcess = transcript.trim() || interimTranscript.trim();
-    if (textToProcess) {
-      handleVoiceResult(textToProcess);
     }
   };
 
@@ -122,24 +144,28 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
         {/* Main Voice Button */}
         <button
           type="button"
-          onClick={toggleListening}
-          disabled={isTranslating}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleListening();
+          }}
+          disabled={isTranslating || forceStop}
           className={`px-3 py-1.5 text-sm border rounded transition-all duration-200 flex items-center gap-2 ${
-            isListening
+            (isListening && !forceStop)
               ? 'bg-red-500 text-white border-red-500 hover:bg-red-600 animate-pulse'
-              : isTranslating
+              : isTranslating || forceStop
               ? 'bg-yellow-500 text-white border-yellow-500 cursor-not-allowed'
               : `${themeClasses.accent} text-white ${themeClasses.accent.replace('bg-', 'border-')} ${themeClasses.accentHover}`
           }`}
-          title={isListening ? 'Click to Stop Recording and Insert Text' : 'Start Voice Input'}
+          title={(isListening && !forceStop) ? 'Recording... Click to Stop' : 'Start Voice Input'}
         >
-          {isListening ? (
+          {(isListening && !forceStop) ? (
             <>
-              🔴 Click to Stop
+              🔴 Recording...
             </>
-          ) : isTranslating ? (
+          ) : (isTranslating || forceStop) ? (
             <>
-              🔄 Translating...
+              🔄 Processing...
             </>
           ) : (
             <>
@@ -149,14 +175,19 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
         </button>
 
         {/* Stop Button (when listening) */}
-        {isListening && (
+        {(isListening && !forceStop) && (
           <button
             type="button"
-            onClick={handleStop}
-            className="px-2 py-1.5 text-xs bg-gray-600 text-white border border-gray-600 rounded hover:bg-gray-700 transition-colors"
-            title="Stop and Insert"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Stop button clicked');
+              handleStop();
+            }}
+            className="px-3 py-1.5 text-xs bg-red-600 text-white border border-red-600 rounded hover:bg-red-700 transition-colors flex items-center gap-1 font-medium"
+            title="Stop Recording Immediately"
           >
-            ⏹️ Stop
+            ⏹️ STOP
           </button>
         )}
 
@@ -172,7 +203,7 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
       </div>
 
       {/* Live Transcript Display */}
-      {(isListening || interimTranscript) && (
+      {(isListening && !forceStop) && (
         <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
           <div className="text-blue-700 font-medium mb-1">🎤 Live Transcript:</div>
           <div className="text-gray-800">
@@ -180,7 +211,7 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
             {interimTranscript && (
               <span className="text-gray-500 italic">{interimTranscript}</span>
             )}
-            {isListening && <span className="animate-pulse">|</span>}
+            <span className="animate-pulse">|</span>
           </div>
         </div>
       )}
@@ -252,8 +283,8 @@ export default function VoiceInput({ onTextInsert, className = '' }: VoiceInputP
         </div>
       )}
 
-      {/* Error Display */}
-      {error && (
+      {/* Error Display - Only show critical errors */}
+      {error && !error.includes('No speech detected') && (
         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
           ❌ {error}
         </div>
