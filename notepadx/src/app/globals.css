@@ -215,6 +215,39 @@
   .prose blockquote {
     @apply border-l-4 border-gray-300 pl-4 italic my-4;
   }
+
+  /* Quill editor content styling */
+  .ql-editor ol,
+  .ql-editor ul {
+    @apply pl-6 my-4;
+  }
+
+  .ql-editor li {
+    @apply mb-2;
+  }
+
+  .ql-editor ol li {
+    @apply list-decimal;
+  }
+
+  .ql-editor ul li {
+    @apply list-disc;
+  }
+
+  /* Quill list classes */
+  .ql-editor .ql-list-ordered {
+    @apply list-decimal list-inside;
+  }
+
+  .ql-editor .ql-list-bullet {
+    @apply list-disc list-inside;
+  }
+
+  /* Ensure proper list display */
+  .ql-editor ol > li,
+  .ql-editor ul > li {
+    @apply block;
+  }
 }
 
 @keyframes fadeInUp {

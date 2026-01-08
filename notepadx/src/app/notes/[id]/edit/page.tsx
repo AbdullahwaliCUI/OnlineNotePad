@@ -117,11 +117,11 @@ export default function EditNotePage() {
     setIsSaving(true);
 
     try {
-      // Keep content exactly as user typed it - no processing
+      // Properly save rich text content
       const updateData = {
         title: title.trim(),
-        content: content, // Keep EXACT original format - no changes
-        content_html: content.replace(/\n/g, '<br>'), // Only convert line breaks for HTML display
+        content: content, // Keep original rich HTML content
+        content_html: content, // Save the rich HTML content for display
       };
 
       const updatedNote = await noteService.updateNote(note.id, updateData);

@@ -150,6 +150,37 @@ export default function RichTextEditor({
               setShowLinkDialog(true);
             }
           }
+        },
+        list: function(value: string) {
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection();
+            if (range) {
+              // If there's selected text, convert it to list
+              if (range.length > 0) {
+                const selectedText = quill.getText(range.index, range.length);
+                const lines = selectedText.split('\n').filter((line: string) => line.trim());
+                
+                // Delete the selected text
+                quill.deleteText(range.index, range.length);
+                
+                // Insert each line as a list item
+                let currentIndex = range.index;
+                lines.forEach((line: string, index: number) => {
+                  if (index > 0) {
+                    quill.insertText(currentIndex, '\n');
+                    currentIndex++;
+                  }
+                  quill.insertText(currentIndex, line.trim());
+                  quill.formatLine(currentIndex, 1, 'list', value);
+                  currentIndex += line.trim().length;
+                });
+              } else {
+                // Normal list formatting for current line
+                quill.format('list', value);
+              }
+            }
+          }
         }
       }
     },
@@ -306,6 +337,37 @@ export default function RichTextEditor({
           
           .rich-text-editor .ql-editor a:hover {
             color: #1d4ed8;
+          }
+
+          /* List styling in editor */
+          .rich-text-editor .ql-editor ol,
+          .rich-text-editor .ql-editor ul {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+          }
+
+          .rich-text-editor .ql-editor li {
+            margin-bottom: 0.5rem;
+            padding-left: 0.25rem;
+          }
+
+          .rich-text-editor .ql-editor ol li {
+            list-style-type: decimal;
+            display: list-item;
+          }
+
+          .rich-text-editor .ql-editor ul li {
+            list-style-type: disc;
+            display: list-item;
+          }
+
+          /* Ensure list items are properly displayed */
+          .rich-text-editor .ql-editor .ql-list-ordered {
+            list-style-type: decimal;
+          }
+
+          .rich-text-editor .ql-editor .ql-list-bullet {
+            list-style-type: disc;
           }
         `}</style>
       </div>

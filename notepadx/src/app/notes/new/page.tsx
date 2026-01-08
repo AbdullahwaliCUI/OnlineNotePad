@@ -78,12 +78,12 @@ export default function NewNotePage() {
     setIsSaving(true);
 
     try {
-      // Keep content exactly as user typed it - no processing
+      // Properly save rich text content
       const noteData = {
         user_id: user.id,
         title: title.trim(),
-        content: content, // Keep EXACT original format - no changes
-        content_html: content.replace(/\n/g, '<br>'), // Only convert line breaks for HTML display
+        content: content, // Keep original rich HTML content
+        content_html: content, // Save the rich HTML content for display
       };
 
       const newNote = await noteService.createNote(noteData);
