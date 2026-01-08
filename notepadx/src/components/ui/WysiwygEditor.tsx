@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import VoiceInput from '@/components/ui/VoiceInput';
 
 interface WysiwygEditorProps {
   value: string;
@@ -113,8 +114,39 @@ export default function WysiwygEditor({
     }
   };
 
+  // Insert text at cursor position (for voice input)
+  const insertTextAtCursor = (text: string) => {
+    if (editorRef.current) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // If no selection, append to end
+        editorRef.current.innerHTML += text;
+      }
+      handleInput();
+    }
+  };
+
   return (
     <div className={`wysiwyg-editor-container ${className}`}>
+      {/* Voice Input */}
+      {!readOnly && (
+        <div className="mb-4">
+          <VoiceInput
+            onTextInsert={insertTextAtCursor}
+            className="w-full"
+          />
+        </div>
+      )}
+
       {/* Toolbar */}
       {!readOnly && (
         <div className="toolbar border border-gray-300 border-b-0 rounded-t-lg bg-gray-50 p-2 flex flex-wrap gap-1">
@@ -191,6 +223,19 @@ export default function WysiwygEditor({
             title="Insert Link"
           >
             🔗
+          </button>
+
+          {/* Voice Input Button */}
+          <button
+            type="button"
+            onClick={() => {
+              // Focus editor for voice input
+              editorRef.current?.focus();
+            }}
+            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200 bg-blue-50"
+            title="Voice Input Available Above"
+          >
+            🎤 Voice
           </button>
 
           {/* Undo */}
