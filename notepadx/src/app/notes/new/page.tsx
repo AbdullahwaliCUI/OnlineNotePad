@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import DashboardLayout from '@/components/DashboardLayout';
 import TiptapEditor from '@/components/TiptapEditor';
-import SimpleTextEditor from '@/components/ui/SimpleTextEditor';
+import WysiwygEditor from '@/components/ui/WysiwygEditor';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
 import { noteService } from '@/lib/database';
@@ -211,13 +211,13 @@ export default function NewNotePage() {
                     className="text-xs text-blue-600 hover:text-blue-700"
                     disabled={isSaving}
                   >
-                    {useSimpleEditor ? 'Use Rich Editor' : 'Use Plain Text Editor'}
+                    {useSimpleEditor ? 'Use Rich Editor' : 'Use WYSIWYG Editor'}
                   </button>
                 </div>
 
                 <div className={`${errors.content ? 'ring-2 ring-red-500 rounded-lg' : ''}`}>
                   {useSimpleEditor ? (
-                    <SimpleTextEditor
+                    <WysiwygEditor
                       value={content}
                       onChange={handleContentChange}
                       placeholder="Start writing your note..."

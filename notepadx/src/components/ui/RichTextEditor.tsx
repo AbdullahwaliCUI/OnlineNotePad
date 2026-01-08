@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import 'react-quill/dist/quill.snow.css';
 
 // Create a wrapper component for ReactQuill
@@ -130,6 +130,42 @@ export default function RichTextEditor({
   const [selectedText, setSelectedText] = useState('');
   const quillRef = useRef<any>(null);
 
+  // Force WYSIWYG styling after component mounts
+  useEffect(() => {
+    if (quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      if (editor) {
+        // Force list styling
+        const style = document.createElement('style');
+        style.textContent = `
+          .ql-editor ol, .ql-editor ul {
+            padding-left: 1.5rem !important;
+            margin: 1rem 0 !important;
+          }
+          .ql-editor li {
+            display: list-item !important;
+            margin-bottom: 0.5rem !important;
+          }
+          .ql-editor ol li {
+            list-style-type: decimal !important;
+          }
+          .ql-editor ul li {
+            list-style-type: disc !important;
+          }
+          .ql-editor .ql-list-ordered li {
+            list-style-type: decimal !important;
+            display: list-item !important;
+          }
+          .ql-editor .ql-list-bullet li {
+            list-style-type: disc !important;
+            display: list-item !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, []);
+
   const modules = useMemo(() => ({
     toolbar: readOnly ? false : {
       container: [
@@ -156,59 +192,29 @@ export default function RichTextEditor({
           if (quill) {
             const range = quill.getSelection();
             if (range) {
-              // If there's selected text, convert it to list
-              if (range.length > 0) {
-                const selectedText = quill.getText(range.index, range.length);
-                const lines = selectedText.split('\n').filter((line: string) => line.trim());
-                
-                // Delete the selected text
-                quill.deleteText(range.index, range.length);
-                
-                // Insert each line as a list item
-                let currentIndex = range.index;
-                lines.forEach((line: string, index: number) => {
-                  if (index > 0) {
-                    quill.insertText(currentIndex, '\n');
-                    currentIndex++;
+              // Apply list formatting
+              quill.format('list', value);
+              
+              // Force immediate visual update
+              setTimeout(() => {
+                const listItems = quill.container.querySelectorAll('li');
+                listItems.forEach((li: HTMLElement) => {
+                  if (value === 'ordered') {
+                    li.style.listStyleType = 'decimal';
+                    li.style.display = 'list-item';
+                  } else if (value === 'bullet') {
+                    li.style.listStyleType = 'disc';
+                    li.style.display = 'list-item';
                   }
-                  quill.insertText(currentIndex, line.trim());
-                  quill.formatLine(currentIndex, 1, 'list', value);
-                  currentIndex += line.trim().length;
                 });
-              } else {
-                // Normal list formatting for current line
-                quill.format('list', value);
-              }
+              }, 10);
             }
           }
         }
       }
     },
-    // Disable image and video modules
-    imageResize: false,
-    imageDrop: false,
     clipboard: {
-      // Custom clipboard handling to sanitize pasted content
       matchVisual: false,
-      matchers: [
-        // Custom matcher to sanitize all pasted content
-        ['*', (node: any, delta: any) => {
-          // Get the HTML content
-          const html = node.outerHTML || node.innerHTML || '';
-          if (html) {
-            // Import sanitization function dynamically to avoid SSR issues
-            if (typeof window !== 'undefined') {
-              const { sanitizePastedContent } = require('@/lib/utils');
-              const sanitized = sanitizePastedContent(html);
-              // Create a temporary div to parse the sanitized HTML
-              const tempDiv = document.createElement('div');
-              tempDiv.innerHTML = sanitized;
-              return delta;
-            }
-          }
-          return delta;
-        }]
-      ]
     }
   }), [readOnly]);
 
@@ -238,13 +244,39 @@ export default function RichTextEditor({
   };
 
   const handleChange = (content: string) => {
-    // Basic sanitization happens here, but main sanitization is in save functions
     onChange(content);
+    
+    // Force list styling after content change
+    setTimeout(() => {
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor();
+        const container = editor.container;
+        
+        // Force list styling
+        const listItems = container.querySelectorAll('li');
+        listItems.forEach((li: HTMLElement) => {
+          const parent = li.parentElement;
+          if (parent?.tagName === 'OL') {
+            li.style.listStyleType = 'decimal';
+            li.style.display = 'list-item';
+          } else if (parent?.tagName === 'UL') {
+            li.style.listStyleType = 'disc';
+            li.style.display = 'list-item';
+          }
+        });
+        
+        const lists = container.querySelectorAll('ol, ul');
+        lists.forEach((list: HTMLElement) => {
+          list.style.paddingLeft = '1.5rem';
+          list.style.margin = '1rem 0';
+        });
+      }
+    }, 10);
   };
 
   return (
     <>
-      <div className={`rich-text-editor ${className}`}>
+      <div className={`rich-text-editor wysiwyg-editor ${className}`}>
         <QuillWrapper
           ref={quillRef}
           theme="snow"
@@ -260,14 +292,15 @@ export default function RichTextEditor({
         />
         
         <style jsx global>{`
-          .rich-text-editor .ql-editor {
+          /* STRICT WYSIWYG STYLING - FORCE LIST DISPLAY */
+          .wysiwyg-editor .ql-editor {
             min-height: 300px;
             font-size: 16px;
             line-height: 1.6;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           }
           
-          .rich-text-editor .ql-toolbar {
+          .wysiwyg-editor .ql-toolbar {
             border-top: 1px solid #e5e7eb;
             border-left: 1px solid #e5e7eb;
             border-right: 1px solid #e5e7eb;
@@ -277,7 +310,7 @@ export default function RichTextEditor({
             background: #fafafa;
           }
           
-          .rich-text-editor .ql-container {
+          .wysiwyg-editor .ql-container {
             border-bottom: 1px solid #e5e7eb;
             border-left: 1px solid #e5e7eb;
             border-right: 1px solid #e5e7eb;
@@ -286,88 +319,70 @@ export default function RichTextEditor({
             border-bottom-right-radius: 0.5rem;
           }
           
-          .rich-text-editor .ql-editor.ql-blank::before {
+          .wysiwyg-editor .ql-editor.ql-blank::before {
             color: #9ca3af;
             font-style: normal;
           }
 
-          /* Hide image and video buttons if they appear */
-          .rich-text-editor .ql-toolbar .ql-image,
-          .rich-text-editor .ql-toolbar .ql-video {
-            display: none !important;
+          /* FORCE LIST STYLING - HIGHEST PRIORITY */
+          .wysiwyg-editor .ql-editor ol,
+          .wysiwyg-editor .ql-editor ul {
+            padding-left: 1.5rem !important;
+            margin: 1rem 0 !important;
+            list-style-position: inside !important;
           }
 
-          /* Custom link button styling */
-          .rich-text-editor .ql-toolbar .ql-link {
-            position: relative;
+          .wysiwyg-editor .ql-editor li {
+            display: list-item !important;
+            margin-bottom: 0.5rem !important;
+            padding-left: 0.25rem !important;
           }
 
-          .rich-text-editor .ql-toolbar .ql-link:after {
-            content: '🔗';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 12px;
+          .wysiwyg-editor .ql-editor ol li {
+            list-style-type: decimal !important;
           }
 
-          /* Size picker labels */
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
-            content: 'Normal';
-          }
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
-            content: 'Small';
-          }
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
-            content: 'Large';
-          }
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,
-          .rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
-            content: 'Huge';
+          .wysiwyg-editor .ql-editor ul li {
+            list-style-type: disc !important;
           }
 
-          /* Link styling in editor */
-          .rich-text-editor .ql-editor a {
+          /* Override Quill's default list styling */
+          .wysiwyg-editor .ql-editor .ql-list-ordered li {
+            list-style-type: decimal !important;
+            display: list-item !important;
+          }
+
+          .wysiwyg-editor .ql-editor .ql-list-bullet li {
+            list-style-type: disc !important;
+            display: list-item !important;
+          }
+
+          /* Link styling */
+          .wysiwyg-editor .ql-editor a {
             color: #3b82f6;
             text-decoration: underline;
           }
           
-          .rich-text-editor .ql-editor a:hover {
+          .wysiwyg-editor .ql-editor a:hover {
             color: #1d4ed8;
           }
 
-          /* List styling in editor */
-          .rich-text-editor .ql-editor ol,
-          .rich-text-editor .ql-editor ul {
-            padding-left: 1.5rem;
-            margin: 1rem 0;
+          /* Size picker labels */
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-label::before,
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-item::before {
+            content: 'Normal';
           }
-
-          .rich-text-editor .ql-editor li {
-            margin-bottom: 0.5rem;
-            padding-left: 0.25rem;
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=small]::before,
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=small]::before {
+            content: 'Small';
           }
-
-          .rich-text-editor .ql-editor ol li {
-            list-style-type: decimal;
-            display: list-item;
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=large]::before,
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=large]::before {
+            content: 'Large';
           }
-
-          .rich-text-editor .ql-editor ul li {
-            list-style-type: disc;
-            display: list-item;
-          }
-
-          /* Ensure list items are properly displayed */
-          .rich-text-editor .ql-editor .ql-list-ordered {
-            list-style-type: decimal;
-          }
-
-          .rich-text-editor .ql-editor .ql-list-bullet {
-            list-style-type: disc;
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value=huge]::before,
+          .wysiwyg-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value=huge]::before {
+            content: 'Huge';
           }
         `}</style>
       </div>

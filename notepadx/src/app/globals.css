@@ -216,37 +216,60 @@
     @apply border-l-4 border-gray-300 pl-4 italic my-4;
   }
 
-  /* Quill editor content styling */
+  /* STRICT WYSIWYG - Force list display everywhere */
+  .prose ol,
+  .prose ul,
   .ql-editor ol,
   .ql-editor ul {
     @apply pl-6 my-4;
+    list-style-position: inside !important;
   }
 
+  .prose li,
   .ql-editor li {
     @apply mb-2;
+    display: list-item !important;
   }
 
+  .prose ol li,
   .ql-editor ol li {
-    @apply list-decimal;
+    list-style-type: decimal !important;
   }
 
+  .prose ul li,
   .ql-editor ul li {
-    @apply list-disc;
+    list-style-type: disc !important;
   }
 
-  /* Quill list classes */
-  .ql-editor .ql-list-ordered {
-    @apply list-decimal list-inside;
+  /* Force Quill list classes to display properly */
+  .ql-editor .ql-list-ordered li {
+    list-style-type: decimal !important;
+    display: list-item !important;
   }
 
-  .ql-editor .ql-list-bullet {
-    @apply list-disc list-inside;
+  .ql-editor .ql-list-bullet li {
+    list-style-type: disc !important;
+    display: list-item !important;
   }
 
-  /* Ensure proper list display */
-  .ql-editor ol > li,
-  .ql-editor ul > li {
-    @apply block;
+  /* Ensure saved content displays lists correctly */
+  div[dangerouslySetInnerHTML] ol,
+  div[dangerouslySetInnerHTML] ul {
+    padding-left: 1.5rem !important;
+    margin: 1rem 0 !important;
+  }
+
+  div[dangerouslySetInnerHTML] li {
+    display: list-item !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  div[dangerouslySetInnerHTML] ol li {
+    list-style-type: decimal !important;
+  }
+
+  div[dangerouslySetInnerHTML] ul li {
+    list-style-type: disc !important;
   }
 }
 
