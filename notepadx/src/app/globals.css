@@ -163,6 +163,58 @@
   .prose {
     @apply max-w-[65ch] leading-7;
   }
+
+  /* Enhanced prose styling for rich content */
+  .prose ul {
+    @apply list-disc list-inside my-4 space-y-2;
+  }
+
+  .prose ol {
+    @apply list-decimal list-inside my-4 space-y-2;
+  }
+
+  .prose li {
+    @apply leading-relaxed;
+  }
+
+  .prose ul ul,
+  .prose ol ol,
+  .prose ul ol,
+  .prose ol ul {
+    @apply mt-2 mb-2 ml-6;
+  }
+
+  .prose p {
+    @apply my-4 leading-relaxed;
+  }
+
+  .prose h1 {
+    @apply text-2xl font-bold mt-6 mb-4;
+  }
+
+  .prose h2 {
+    @apply text-xl font-bold mt-5 mb-3;
+  }
+
+  .prose h3 {
+    @apply text-lg font-bold mt-4 mb-2;
+  }
+
+  .prose strong {
+    @apply font-semibold;
+  }
+
+  .prose em {
+    @apply italic;
+  }
+
+  .prose a {
+    @apply text-blue-600 underline hover:text-blue-800;
+  }
+
+  .prose blockquote {
+    @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  }
 }
 
 @keyframes fadeInUp {

@@ -55,8 +55,27 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
   const getPreview = (content: string, maxLength: number = 100) => {
     if (!content) return 'No content';
     
-    // Remove HTML tags and get plain text
-    const plainText = content.replace(/<[^>]*>/g, '').trim();
+    // Convert HTML to readable text while preserving list structure
+    let plainText = content
+      // Convert list items to bullet points
+      .replace(/<li[^>]*>/gi, '• ')
+      .replace(/<\/li>/gi, '\n')
+      // Convert ordered list items to numbered points
+      .replace(/<ol[^>]*>/gi, '')
+      .replace(/<\/ol>/gi, '\n')
+      .replace(/<ul[^>]*>/gi, '')
+      .replace(/<\/ul>/gi, '\n')
+      // Convert paragraphs to line breaks
+      .replace(/<p[^>]*>/gi, '')
+      .replace(/<\/p>/gi, '\n')
+      // Convert line breaks
+      .replace(/<br[^>]*>/gi, '\n')
+      // Remove all other HTML tags
+      .replace(/<[^>]*>/g, '')
+      // Clean up extra whitespace and line breaks
+      .replace(/\n\s*\n/g, '\n')
+      .replace(/^\s+|\s+$/g, '')
+      .trim();
     
     if (plainText.length <= maxLength) {
       return plainText;
@@ -135,9 +154,12 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1 flex-1">
+              <div 
+                className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1 flex-1"
+                style={{ whiteSpace: 'pre-line' }}
+              >
                 {getPreview(note.content || '', 60)}
-              </p>
+              </div>
               <span className="text-xs text-gray-400 whitespace-nowrap ml-2 sm:hidden">{formatDateTime(note.updated_at)}</span>
             </div>
           </div>
@@ -166,9 +188,12 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
       </div>
 
       <div className="flex-1">
-        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed">
+        <div 
+          className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed prose-sm"
+          style={{ whiteSpace: 'pre-line' }}
+        >
           {getPreview(note.content || '', 120)}
-        </p>
+        </div>
       </div>
 
       <div className="flex items-center justify-between text-xs text-gray-400 pt-3 sm:pt-4 border-t border-gray-100 dark:border-gray-700 mt-2">
