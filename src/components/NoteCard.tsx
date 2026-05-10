@@ -72,6 +72,13 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
       .replace(/<br[^>]*>/gi, '\n')
       // Remove all other HTML tags
       .replace(/<[^>]*>/g, '')
+      // Decode common HTML entities
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
       // Clean up extra whitespace and line breaks
       .replace(/\n\s*\n/g, '\n')
       .replace(/^\s+|\s+$/g, '')
