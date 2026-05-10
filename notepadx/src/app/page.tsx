@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import type { Metadata } from 'next';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabaseClient';
 import HeroSlider from '@/components/landing/HeroSlider';
 import StatsSection from '@/components/landing/StatsSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
@@ -18,6 +20,21 @@ const pageMetadata = {
 
 export default function HomePage() {
   const { isAuthenticated, loading } = useAuth();
+
+  // Background task to keep Supabase active and prevent pausing on the free tier.
+  // It upserts a single row with ID 1 so we don't pile up data unnecessarily.
+  useEffect(() => {
+    const keepDatabaseAlive = async () => {
+      try {
+        await supabase
+          .from('keep_alive')
+          .upsert({ id: 1, last_active: new Date().toISOString() });
+      } catch (error) {
+        console.error('Failed to update keep_alive:', error);
+      }
+    };
+    keepDatabaseAlive();
+  }, []);
 
   // If user is authenticated, show a simple redirect message
   if (isAuthenticated && !loading) {
