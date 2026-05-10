@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { VaultItem } from '@/types/vault';
-import { Copy, Eye, EyeOff, ExternalLink, Edit, Trash2, Key, Link2, FileText, Settings, Folder } from 'lucide-react';
+import { Copy, Eye, EyeOff, ExternalLink, Edit, Trash2, Key, Link2, FileText, Settings, Folder, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface VaultItemCardProps {
@@ -42,30 +42,35 @@ export default function VaultItemCard({ item, onEdit, onDelete }: VaultItemCardP
       }] : [];
 
   return (
-    <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col h-full">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-3">
-          <div className="mt-1 p-2 bg-gray-50 rounded-lg border border-gray-100">
+    <div className={`bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col`}>
+      {/* Header (Clickable to Expand) */}
+      <div 
+        className="flex justify-between items-center cursor-pointer group"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0">
             {getIcon()}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-            <span className="text-xs font-medium text-gray-500 px-2 py-0.5 bg-gray-100 rounded-full">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">{item.title}</h3>
+            <span className="text-[10px] sm:text-xs font-medium text-gray-500 px-2 py-0.5 bg-gray-100 rounded-full">
               {item.item_type || 'Password'}
             </span>
           </div>
         </div>
-        <div className="flex gap-2">
+        
+        <div className="flex gap-1 items-center flex-shrink-0">
           <button 
-            onClick={() => onEdit(item)}
+            onClick={(e) => { e.stopPropagation(); onEdit(item); }}
             className="p-1.5 text-gray-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
             title="Edit"
           >
             <Edit size={16} />
           </button>
           <button 
-            onClick={() => {
+            onClick={(e) => { 
+              e.stopPropagation();
               if (window.confirm('Are you sure you want to delete this item?')) {
                 onDelete(item.id);
               }
@@ -75,100 +80,88 @@ export default function VaultItemCard({ item, onEdit, onDelete }: VaultItemCardP
           >
             <Trash2 size={16} />
           </button>
+          <div className={`p-1 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
+             <ChevronDown size={20} />
+          </div>
         </div>
       </div>
 
-      {/* Entries List */}
-      <div className="flex-1 space-y-3 mt-2">
-        {(isExpanded ? entries : entries.slice(0, 1)).map((entry, index) => (
-          <div key={entry.id || index} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-            {/* Entry Header: Product Name & URL */}
-            <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-sm text-gray-800">{entry.productName}</span>
-              {entry.url && (
-                <a 
-                  href={entry.url.startsWith('http') ? entry.url : `https://${entry.url}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-700 transition-colors flex items-center gap-1 text-xs bg-blue-50 px-2 py-1 rounded"
-                  title="Visit URL"
-                >
-                  Visit <ExternalLink size={12} />
-                </a>
+      {/* Collapsible Content */}
+      <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100' : 'grid-rows-[0fr] opacity-0'}`}>
+        <div className="overflow-hidden">
+          {/* Entries List */}
+          <div className="space-y-3">
+            {entries.map((entry, index) => (
+              <div key={entry.id || index} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                {/* Entry Header: Product Name & URL */}
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium text-sm text-gray-800">{entry.productName}</span>
+                  {entry.url && (
+                    <a 
+                      href={entry.url.startsWith('http') ? entry.url : `https://${entry.url}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-700 transition-colors flex items-center gap-1 text-xs bg-blue-50 px-2 py-1 rounded"
+                      title="Visit URL"
+                    >
+                      Visit <ExternalLink size={12} />
+                    </a>
+                  )}
+                </div>
+
+                {/* Password / API Key Row */}
+                {entry.password && (
+                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded p-2 mt-1">
+                    <span className="font-mono text-sm tracking-widest text-gray-800 truncate flex-1">
+                      {showPasswords ? entry.password : '••••••••••••'}
+                    </span>
+                    <div className="flex items-center gap-1 flex-shrink-0 border-l border-gray-100 pl-2 ml-2">
+                      <button 
+                        onClick={() => copyToClipboard(entry.password!, 'Copied!')}
+                        className="p-1 text-gray-400 hover:text-blue-600 transition-colors rounded hover:bg-gray-50"
+                        title="Copy"
+                      >
+                        <Copy size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Individual Entry Note */}
+                {entry.note && (
+                  <p className="mt-2 text-xs text-gray-500 italic">
+                    {entry.note}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Footer Area */}
+          <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+            {/* Main Note */}
+            <div className="flex-1">
+              {item.notes ? (
+                <p className="text-xs text-gray-600 bg-yellow-50/50 p-2 rounded border border-yellow-100/50 line-clamp-2" title={item.notes}>
+                  {item.notes}
+                </p>
+              ) : (
+                <span className="text-xs text-gray-400">No general note</span>
               )}
             </div>
 
-            {/* Password / API Key Row */}
-            {entry.password && (
-              <div className="flex items-center justify-between bg-white border border-gray-200 rounded p-2 mt-1">
-                <span className="font-mono text-sm tracking-widest text-gray-800 truncate flex-1">
-                  {showPasswords ? entry.password : '••••••••••••'}
-                </span>
-                <div className="flex items-center gap-1 flex-shrink-0 border-l border-gray-100 pl-2 ml-2">
-                  <button 
-                    onClick={() => copyToClipboard(entry.password!, 'Copied!')}
-                    className="p-1 text-gray-400 hover:text-blue-600 transition-colors rounded hover:bg-gray-50"
-                    title="Copy"
-                  >
-                    <Copy size={14} />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Individual Entry Note */}
-            {entry.note && (
-              <p className="mt-2 text-xs text-gray-500 italic">
-                {entry.note}
-              </p>
+            {/* Global Show Password Toggle */}
+            {(item.item_type === 'Password' || item.item_type === 'API Key') && entries.some(e => e.password) && (
+              <button 
+                onClick={() => setShowPasswords(!showPasswords)}
+                className="ml-3 p-1.5 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200 flex-shrink-0"
+                title={showPasswords ? "Hide all passwords" : "Show all passwords"}
+              >
+                {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             )}
           </div>
-        ))}
-        
-        {/* Expand/Collapse Toggle */}
-        {!isExpanded && entries.length > 1 && (
-          <button 
-            onClick={() => setIsExpanded(true)} 
-            className="w-full py-2 flex items-center justify-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100/50"
-          >
-            Show {entries.length - 1} more
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-          </button>
-        )}
-        {isExpanded && entries.length > 1 && (
-          <button 
-            onClick={() => setIsExpanded(false)} 
-            className="w-full py-2 flex items-center justify-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
-          >
-            Show less
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-          </button>
-        )}
-      </div>
-
-      {/* Footer Area */}
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-        {/* Main Note */}
-        <div className="flex-1">
-          {item.notes ? (
-            <p className="text-xs text-gray-600 bg-yellow-50/50 p-2 rounded border border-yellow-100/50 line-clamp-2" title={item.notes}>
-              {item.notes}
-            </p>
-          ) : (
-            <span className="text-xs text-gray-400">No general note</span>
-          )}
         </div>
-
-        {/* Global Show Password Toggle */}
-        {(item.item_type === 'Password' || item.item_type === 'API Key') && entries.some(e => e.password) && (
-          <button 
-            onClick={() => setShowPasswords(!showPasswords)}
-            className="ml-3 p-1.5 text-gray-500 hover:text-gray-800 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200 flex-shrink-0"
-            title={showPasswords ? "Hide all passwords" : "Show all passwords"}
-          >
-            {showPasswords ? <EyeOff size={16} /> : <Eye size={16} />}
-          </button>
-        )}
       </div>
     </div>
   );
