@@ -78,23 +78,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     loading: false,
                 });
 
-                // Show toast notifications for auth events
+                // Handle auth events without repetitive toasts
                 switch (event) {
                     case 'SIGNED_IN':
-                        // To prevent potential duplicate toasts on initial load or re-focus/re-connect
-                        // We could add a check here, but since this provider is only mounted once,
-                        // it should correctly correspond to actual auth events.
-                        // If the issue persists, we can add a useRef to track the last event timestamp.
-                        toast.success('Successfully signed in!');
+                        console.log('User signed in or session restored');
                         break;
                     case 'SIGNED_OUT':
-                        toast.success('Successfully signed out!');
+                        console.log('User signed out');
                         break;
                     case 'TOKEN_REFRESHED':
                         console.log('Token refreshed');
                         break;
                     case 'USER_UPDATED':
-                        toast.success('Profile updated successfully!');
+                        console.log('User updated');
                         break;
                 }
             }
