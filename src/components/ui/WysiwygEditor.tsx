@@ -136,11 +136,14 @@ export default function WysiwygEditor({
   };
 
   return (
-    <div className={`wysiwyg-editor-container ${className}`}>
+    <div className={`wysiwyg-editor-container flex flex-col h-full ${className}`}>
       {/* Voice Input */}
       {!readOnly && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="text-sm font-medium text-blue-800 mb-2">🎤 Voice Input (Urdu → English)</h4>
+        <div className="mx-8 mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
+          <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+            Voice Input (Urdu → English)
+          </h4>
           <VoiceInput
             onTextInsert={insertTextAtCursor}
             className="w-full"
@@ -150,23 +153,24 @@ export default function WysiwygEditor({
 
       {/* Toolbar */}
       {!readOnly && (
-        <div className="toolbar border border-gray-300 border-b-0 rounded-t-lg bg-gray-50 p-2 flex flex-wrap gap-1">
+        <div className="toolbar sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-2 sm:p-3 flex flex-wrap items-center gap-1.5 shadow-sm rounded-t-lg mx-auto w-full transition-all">
           {/* Font Size */}
           <select
             onChange={(e) => execCommand('fontSize', e.target.value)}
-            className="px-2 py-1 border border-gray-300 rounded text-sm"
+            className="px-2 py-1.5 border border-gray-200 hover:border-gray-300 rounded text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 transition-colors"
           >
-            <option value="3">Normal</option>
-            <option value="2">Small</option>
-            <option value="4">Large</option>
-            <option value="5">Huge</option>
+            <option value="3">Normal text</option>
+            <option value="2">Small text</option>
+            <option value="4">Heading 3</option>
+            <option value="5">Heading 2</option>
+            <option value="6">Heading 1</option>
           </select>
 
           {/* Bold */}
           <button
             type="button"
             onClick={() => execCommand('bold')}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200 font-bold"
+            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
             title="Bold"
           >
             B
@@ -176,7 +180,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('italic')}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200 italic"
+            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
             title="Italic"
           >
             I
@@ -186,19 +190,19 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('underline')}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200 underline"
+            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
             title="Underline"
           >
             U
           </button>
 
-          <div className="border-l border-gray-300 mx-1"></div>
+          <div className="w-px h-5 bg-gray-300 mx-1"></div>
 
           {/* Ordered List */}
           <button
             type="button"
             onClick={createOrderedList}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
             title="Numbered List"
           >
             1. List
@@ -208,19 +212,19 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={createUnorderedList}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
             title="Bullet List"
           >
             • List
           </button>
 
-          <div className="border-l border-gray-300 mx-1"></div>
+          <div className="w-px h-5 bg-gray-300 mx-1"></div>
 
           {/* Link */}
           <button
             type="button"
             onClick={insertLink}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
             title="Insert Link"
           >
             🔗
@@ -233,7 +237,7 @@ export default function WysiwygEditor({
               // Focus editor for voice input
               editorRef.current?.focus();
             }}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200 bg-blue-50"
+            className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 bg-blue-50 rounded hover:bg-blue-100 transition-colors font-medium flex items-center gap-1"
             title="Voice Input Available Above"
           >
             🎤 Voice
@@ -243,7 +247,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('undo')}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
             title="Undo"
           >
             ↶
@@ -253,7 +257,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('redo')}
-            className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-200"
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
             title="Redo"
           >
             ↷
@@ -266,7 +270,7 @@ export default function WysiwygEditor({
         ref={editorRef}
         contentEditable={!readOnly}
         onInput={handleInput}
-        className={`editor-content border border-gray-300 ${!readOnly ? 'rounded-b-lg' : 'rounded-lg'} p-4 min-h-[300px] focus:outline-none focus:ring-2 focus:ring-blue-500 ${readOnly ? 'bg-gray-50' : 'bg-white'}`}
+        className={`editor-content flex-1 px-8 py-6 sm:px-12 sm:py-10 min-h-[800px] focus:outline-none bg-transparent`}
         style={{
           fontSize: '16px',
           lineHeight: '1.6',
