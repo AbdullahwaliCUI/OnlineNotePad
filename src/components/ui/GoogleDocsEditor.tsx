@@ -12,6 +12,12 @@ import { Link as TiptapLink } from '@tiptap/extension-link';
 import { TaskItem } from '@tiptap/extension-task-item';
 import { TaskList } from '@tiptap/extension-task-list';
 import { FontFamily } from '@tiptap/extension-font-family';
+import { CharacterCount } from '@tiptap/extension-character-count';
+import { Image as TiptapImage } from '@tiptap/extension-image';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
 import {
     Undo, Redo, Printer, SpellCheck, PaintRoller,
     Bold, Italic, Underline as UnderlineIcon, Strikethrough,
@@ -19,7 +25,7 @@ import {
     AlignLeft, AlignCenter, AlignRight, AlignJustify,
     List, ListOrdered, CheckSquare,
     IndentDecrease, IndentIncrease, RemoveFormatting,
-    FileText, ArrowLeft
+    FileText, X
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useRef, useState } from 'react';
@@ -47,15 +53,11 @@ const MenuBar = ({ editor }: { editor: any }) => {
         const previousUrl = editor.getAttributes('link').href;
         const url = window.prompt('URL', previousUrl);
 
-        if (url === null) {
-            return;
-        }
-
+        if (url === null) return;
         if (url === '') {
             editor.chain().focus().extendMarkRange('link').unsetLink().run();
             return;
         }
-
         editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     };
 
@@ -136,7 +138,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
             {/* Insertions */}
             <IconButton onClick={setLink} isActive={editor.isActive('link')} icon={LinkIcon} title="Insert link (Ctrl+K)" />
             <IconButton icon={MessageSquarePlus} title="Add comment (Ctrl+Alt+M)" />
-            <IconButton icon={ImageIcon} title="Insert image" />
+            <IconButton onClick={() => {
+                const url = window.prompt('Image URL:');
+                if (url) editor.chain().focus().setImage({ src: url }).run();
+            }} icon={ImageIcon} title="Insert image" />
 
             <Divider />
 
@@ -178,7 +183,12 @@ export default function GoogleDocsEditor({
 }: GoogleDocsEditorProps) {
     const { getThemeClasses } = useTheme();
     const themeClasses = getThemeClasses();
-    const [isMenuHovered, setIsMenuHovered] = useState<string | null>(null);
+    
+    // State for Dropdowns & Modals
+    const [activeMenu, setActiveMenu] = useState<string | null>(null);
+    const [showWordCount, setShowWordCount] = useState(false);
+    const [showShortcuts, setShowShortcuts] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const editor = useEditor({
         extensions: [
@@ -193,6 +203,12 @@ export default function GoogleDocsEditor({
             TaskList,
             TaskItem.configure({ nested: true }),
             FontFamily,
+            CharacterCount,
+            TiptapImage,
+            Table.configure({ resizable: true }),
+            TableRow,
+            TableHeader,
+            TableCell,
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -200,7 +216,7 @@ export default function GoogleDocsEditor({
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[800px]',
+                class: 'prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[800px] pb-10',
             },
         },
     });
@@ -212,14 +228,103 @@ export default function GoogleDocsEditor({
         }
     }, [content, editor]);
 
-    // Insert text for voice input
+    // Click outside to close menu
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setActiveMenu(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const insertTextAtCursor = (text: string) => {
         if (editor) {
             editor.chain().focus().insertContent(text).run();
         }
     };
 
-    const pseudoMenus = ['File', 'Edit', 'View', 'Insert', 'Format', 'Tools', 'Extensions', 'Help'];
+    // Dropdown Data
+    const menus: Record<string, any[]> = {
+        File: [
+            { label: 'New document', action: () => window.location.href = '/notes/new' },
+            { label: 'Open dashboard', action: () => window.location.href = '/dashboard' },
+            { divider: true },
+            { label: 'Save', action: onSave, disabled: isSaving || !title.trim() },
+            { label: 'Rename', action: () => document.getElementById('doc-title-input')?.focus() },
+            { divider: true },
+            { label: 'Download as HTML', action: () => {
+                const element = document.createElement("a");
+                const file = new Blob([editor?.getHTML() || ''], {type: 'text/html'});
+                element.href = URL.createObjectURL(file);
+                element.download = `${title || 'Untitled'}.html`;
+                document.body.appendChild(element);
+                element.click();
+            }},
+            { label: 'Download as TXT', action: () => {
+                const element = document.createElement("a");
+                const file = new Blob([editor?.getText() || ''], {type: 'text/plain'});
+                element.href = URL.createObjectURL(file);
+                element.download = `${title || 'Untitled'}.txt`;
+                document.body.appendChild(element);
+                element.click();
+            }},
+            { divider: true },
+            { label: 'Print', action: () => window.print() },
+        ],
+        Edit: [
+            { label: 'Undo', action: () => editor?.chain().focus().undo().run(), shortcut: 'Ctrl+Z' },
+            { label: 'Redo', action: () => editor?.chain().focus().redo().run(), shortcut: 'Ctrl+Y' },
+            { divider: true },
+            { label: 'Select All', action: () => editor?.chain().focus().selectAll().run(), shortcut: 'Ctrl+A' },
+        ],
+        View: [
+            { label: 'Toggle Fullscreen', action: () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                }
+            }},
+        ],
+        Insert: [
+            { label: 'Image', action: () => {
+                const url = window.prompt('Image URL:');
+                if (url) editor?.chain().focus().setImage({ src: url }).run();
+            }},
+            { label: 'Table (3x3)', action: () => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
+            { label: 'Horizontal Line', action: () => editor?.chain().focus().setHorizontalRule().run() },
+            { divider: true },
+            { label: 'Link', action: () => {
+                const previousUrl = editor?.getAttributes('link').href;
+                const url = window.prompt('URL', previousUrl);
+                if (url === null) return;
+                if (url === '') {
+                    editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+                    return;
+                }
+                editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+            }},
+        ],
+        Format: [
+            { label: 'Bold', action: () => editor?.chain().focus().toggleBold().run(), shortcut: 'Ctrl+B' },
+            { label: 'Italic', action: () => editor?.chain().focus().toggleItalic().run(), shortcut: 'Ctrl+I' },
+            { label: 'Underline', action: () => editor?.chain().focus().toggleUnderline().run(), shortcut: 'Ctrl+U' },
+            { label: 'Strikethrough', action: () => editor?.chain().focus().toggleStrike().run() },
+            { divider: true },
+            { label: 'Clear formatting', action: () => editor?.chain().focus().clearNodes().unsetAllMarks().run() },
+        ],
+        Tools: [
+            { label: 'Word count', action: () => setShowWordCount(true), shortcut: 'Ctrl+Shift+C' },
+        ],
+        Extensions: [
+            { label: 'AI Summarize (Coming Soon)', action: () => alert('AI Features coming soon!'), disabled: true },
+        ],
+        Help: [
+            { label: 'Keyboard shortcuts', action: () => setShowShortcuts(true), shortcut: 'Ctrl+/' },
+        ]
+    };
 
     return (
         <div className={`flex flex-col h-screen overflow-hidden ${themeClasses.background}`}>
@@ -241,6 +346,7 @@ export default function GoogleDocsEditor({
                         <div className="flex flex-col">
                             <div className="flex items-center">
                                 <input
+                                    id="doc-title-input"
                                     type="text"
                                     value={title}
                                     onChange={(e) => onTitleChange(e.target.value)}
@@ -249,21 +355,53 @@ export default function GoogleDocsEditor({
                                 />
                                 <div className="flex items-center ml-2 text-gray-500 dark:text-gray-400 gap-2">
                                     <svg className="w-4 h-4 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                                    <svg className="w-4 h-4 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
-                                    <svg className="w-4 h-4 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
                                 </div>
                             </div>
                             
-                            {/* Menus */}
-                            <div className="flex items-center text-sm mt-0.5 -ml-1">
-                                {pseudoMenus.map(menu => (
-                                    <div 
-                                        key={menu}
-                                        onMouseEnter={() => setIsMenuHovered(menu)}
-                                        onMouseLeave={() => setIsMenuHovered(null)}
-                                        className={`px-2 py-1 rounded cursor-pointer ${isMenuHovered === menu ? 'bg-gray-100 dark:bg-gray-700' : 'bg-transparent'} ${themeClasses.primaryText}`}
-                                    >
-                                        {menu}
+                            {/* Menus Dropdown System */}
+                            <div className="flex items-center text-sm mt-0.5 -ml-1 relative" ref={menuRef}>
+                                {Object.keys(menus).map(menuName => (
+                                    <div key={menuName} className="relative">
+                                        <button 
+                                            onClick={() => setActiveMenu(activeMenu === menuName ? null : menuName)}
+                                            onMouseEnter={() => {
+                                                if (activeMenu && activeMenu !== menuName) {
+                                                    setActiveMenu(menuName);
+                                                }
+                                            }}
+                                            className={`px-2 py-1 rounded cursor-pointer ${activeMenu === menuName ? 'bg-gray-100 dark:bg-gray-700' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'} ${themeClasses.primaryText}`}
+                                        >
+                                            {menuName}
+                                        </button>
+
+                                        {/* Dropdown Panel */}
+                                        {activeMenu === menuName && (
+                                            <div className={`absolute top-full left-0 mt-1 py-1 w-56 rounded-md shadow-lg border ${themeClasses.cardBorder} ${themeClasses.cardBackground} z-[100]`}>
+                                                {menus[menuName].map((item, idx) => 
+                                                    item.divider ? (
+                                                        <div key={idx} className={`my-1 h-px w-full ${themeClasses.cardBorder} border-t`} />
+                                                    ) : (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                if (!item.disabled) {
+                                                                    item.action();
+                                                                    setActiveMenu(null);
+                                                                }
+                                                            }}
+                                                            disabled={item.disabled}
+                                                            className={`w-full text-left px-4 py-1.5 text-sm flex items-center justify-between transition-colors
+                                                                ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
+                                                                ${themeClasses.primaryText}
+                                                            `}
+                                                        >
+                                                            <span>{item.label}</span>
+                                                            {item.shortcut && <span className="text-gray-400 text-xs tracking-widest">{item.shortcut}</span>}
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -274,8 +412,6 @@ export default function GoogleDocsEditor({
                     <div className="flex items-center gap-4 mt-2">
                         <div className="hidden sm:flex items-center gap-3 mr-2 text-gray-600 dark:text-gray-300">
                             <svg className="w-5 h-5 cursor-pointer hover:text-gray-900 dark:hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <svg className="w-5 h-5 cursor-pointer hover:text-gray-900 dark:hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                            <svg className="w-5 h-5 cursor-pointer hover:text-gray-900 dark:hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                         </div>
                         <button
                             onClick={onSave}
@@ -291,11 +427,6 @@ export default function GoogleDocsEditor({
                             )}
                             Save
                         </button>
-                        
-                        {/* User Avatar Placeholder */}
-                        <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-sm">
-                            U
-                        </div>
                     </div>
                 </div>
 
@@ -304,7 +435,7 @@ export default function GoogleDocsEditor({
             </div>
 
             {/* Editor Workspace Area (Scrollable) */}
-            <div className={`flex-1 overflow-y-auto ${themeClasses.background} px-2 sm:px-8 py-4 sm:py-8`}>
+            <div className={`flex-1 overflow-y-auto ${themeClasses.background} px-2 sm:px-8 py-4 sm:py-8 relative`}>
                 
                 {/* Voice Input Alert */}
                 <div className="max-w-[850px] mx-auto mb-4">
@@ -342,6 +473,64 @@ export default function GoogleDocsEditor({
                 </div>
             </div>
 
+            {/* MODALS */}
+            
+            {/* Word Count Modal */}
+            {showWordCount && (
+                <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
+                    <div className={`w-full max-w-sm rounded-lg shadow-2xl p-5 ${themeClasses.cardBackground} border ${themeClasses.cardBorder}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className={`text-lg font-semibold ${themeClasses.primaryText}`}>Word count</h2>
+                            <button onClick={() => setShowWordCount(false)} className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"><X size={20}/></button>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex justify-between pb-2 border-b border-gray-200 dark:border-gray-700">
+                                <span className="text-gray-500 dark:text-gray-400">Words</span>
+                                <span className={`font-medium ${themeClasses.primaryText}`}>{editor?.storage.characterCount.words()}</span>
+                            </div>
+                            <div className="flex justify-between pb-2 border-b border-gray-200 dark:border-gray-700">
+                                <span className="text-gray-500 dark:text-gray-400">Characters</span>
+                                <span className={`font-medium ${themeClasses.primaryText}`}>{editor?.storage.characterCount.characters()}</span>
+                            </div>
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <button onClick={() => setShowWordCount(false)} className={`px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-700`}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Shortcuts Modal */}
+            {showShortcuts && (
+                <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
+                    <div className={`w-full max-w-md rounded-lg shadow-2xl p-5 ${themeClasses.cardBackground} border ${themeClasses.cardBorder}`}>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className={`text-lg font-semibold ${themeClasses.primaryText}`}>Keyboard shortcuts</h2>
+                            <button onClick={() => setShowShortcuts(false)} className="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"><X size={20}/></button>
+                        </div>
+                        <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-2">
+                            {[
+                                { label: 'Copy', key: 'Ctrl + C' },
+                                { label: 'Paste', key: 'Ctrl + V' },
+                                { label: 'Undo', key: 'Ctrl + Z' },
+                                { label: 'Redo', key: 'Ctrl + Y' },
+                                { label: 'Bold', key: 'Ctrl + B' },
+                                { label: 'Italic', key: 'Ctrl + I' },
+                                { label: 'Underline', key: 'Ctrl + U' },
+                            ].map((s, i) => (
+                                <div key={i} className="flex justify-between py-1.5 border-b border-gray-100 dark:border-gray-800">
+                                    <span className="text-gray-500 dark:text-gray-400">{s.label}</span>
+                                    <span className="font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300">{s.key}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-6 flex justify-end">
+                            <button onClick={() => setShowShortcuts(false)} className={`px-4 py-2 rounded text-sm font-medium bg-blue-600 text-white hover:bg-blue-700`}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* CSS Overrides for Tiptap to mimic Google Docs */}
             <style jsx global>{`
                 .ProseMirror p.is-editor-empty:first-child::before {
@@ -377,6 +566,47 @@ export default function GoogleDocsEditor({
                 
                 .ProseMirror ul[data-type="taskList"] input[type="checkbox"] {
                     cursor: pointer;
+                }
+
+                /* Table Styles */
+                .ProseMirror table {
+                    border-collapse: collapse;
+                    table-layout: fixed;
+                    width: 100%;
+                    margin: 0;
+                    overflow: hidden;
+                }
+                .ProseMirror table td,
+                .ProseMirror table th {
+                    min-width: 1em;
+                    border: 1px solid #ccc;
+                    padding: 3px 5px;
+                    vertical-align: top;
+                    box-sizing: border-box;
+                    position: relative;
+                }
+                .ProseMirror table th {
+                    font-weight: bold;
+                    text-align: left;
+                    background-color: #f1f3f4;
+                }
+                .ProseMirror table .column-resize-handle {
+                    position: absolute;
+                    right: -2px;
+                    top: 0;
+                    bottom: -2px;
+                    width: 4px;
+                    background-color: #adb5bd;
+                    pointer-events: none;
+                }
+                .ProseMirror table p {
+                    margin: 0;
+                }
+                .ProseMirror img {
+                    max-width: 100%;
+                    height: auto;
+                    margin-top: 1rem;
+                    margin-bottom: 1rem;
                 }
             `}</style>
         </div>
