@@ -13,6 +13,7 @@ interface VaultItemCardProps {
 
 export default function VaultItemCard({ item, onEdit, onDelete }: VaultItemCardProps) {
   const [showPasswords, setShowPasswords] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -79,7 +80,7 @@ export default function VaultItemCard({ item, onEdit, onDelete }: VaultItemCardP
 
       {/* Entries List */}
       <div className="flex-1 space-y-3 mt-2">
-        {entries.map((entry, index) => (
+        {(isExpanded ? entries : entries.slice(0, 1)).map((entry, index) => (
           <div key={entry.id || index} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
             {/* Entry Header: Product Name & URL */}
             <div className="flex justify-between items-center mb-2">
@@ -123,6 +124,26 @@ export default function VaultItemCard({ item, onEdit, onDelete }: VaultItemCardP
             )}
           </div>
         ))}
+        
+        {/* Expand/Collapse Toggle */}
+        {!isExpanded && entries.length > 1 && (
+          <button 
+            onClick={() => setIsExpanded(true)} 
+            className="w-full py-2 flex items-center justify-center gap-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-100/50"
+          >
+            Show {entries.length - 1} more
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          </button>
+        )}
+        {isExpanded && entries.length > 1 && (
+          <button 
+            onClick={() => setIsExpanded(false)} 
+            className="w-full py-2 flex items-center justify-center gap-1 text-xs font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+          >
+            Show less
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+          </button>
+        )}
       </div>
 
       {/* Footer Area */}
