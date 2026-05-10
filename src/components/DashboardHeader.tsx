@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -22,17 +23,50 @@ export default function DashboardHeader({
   const themeClasses = getThemeClasses();
   const userName = user?.email?.split('@')[0] || 'User';
 
+  const [currentTime, setCurrentTime] = useState<string>('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }));
+    };
+    
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="mb-8">
       {/* Welcome & New Note - Flex container */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
+        <div className="flex-1">
           <h1 className={`text-3xl font-bold tracking-tight mb-1 ${themeClasses.primaryText}`}>
             Hi, {userName} <span className="animate-wave inline-block origin-[70%_70%]">👋</span>
           </h1>
-          <p className={`${themeClasses.primaryText} opacity-70`}>
-            Manage your ideas and creative work.
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-2">
+            <p className={`${themeClasses.primaryText} opacity-70`}>
+              Manage your ideas and creative work.
+            </p>
+            {mounted && (
+              <div className="flex items-center gap-2 text-sm font-medium px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-800">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {currentTime}
+              </div>
+            )}
+          </div>
         </div>
 
         <Link
