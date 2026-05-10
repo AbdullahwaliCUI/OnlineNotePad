@@ -185,10 +185,10 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
   return (
     <div
       onClick={handleClick}
-      className={`group relative ${themeClasses.cardBackground} border rounded-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex flex-col h-56 sm:h-64 ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
+      className={`group relative ${themeClasses.cardBackground} border rounded-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex flex-col h-40 sm:h-48 ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
     >
-      <div className="flex items-start justify-between mb-2 sm:mb-3">
-        <h3 className={`text-base sm:text-lg font-bold line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors pr-2 ${themeClasses.primaryText}`}>
+      <div className="flex items-start justify-between mb-2">
+        <h3 className={`text-base sm:text-lg font-bold line-clamp-1 leading-tight group-hover:text-blue-600 transition-colors pr-2 ${themeClasses.primaryText}`}>
           {note.title || 'Untitled Note'}
         </h3>
         <ActionButtons />
@@ -196,10 +196,10 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
 
       <div className="flex-1">
         <div 
-          className="text-sm text-gray-500 dark:text-gray-400 line-clamp-3 leading-relaxed prose-sm"
+          className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed prose-sm"
           style={{ whiteSpace: 'pre-line' }}
         >
-          {getPreview(note.content || '', 120)}
+          {getPreview(note.content || '', 80)}
         </div>
       </div>
 
