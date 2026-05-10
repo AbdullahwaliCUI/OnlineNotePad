@@ -27,7 +27,7 @@ export const getLiveAIResponse = async (
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                model: 'llama3-8b-8192', // Fast default model on Groq
+                model: 'llama-3.3-70b-versatile', // Updated from decommissioned llama3-8b-8192
                 messages: [
                     { role: 'system', content: 'You are an advanced, helpful AI assistant built directly into NotepadX. You help users summarize notes, fix grammar, write content, and brainstorm. Be concise and professional.' },
                     ...messages
