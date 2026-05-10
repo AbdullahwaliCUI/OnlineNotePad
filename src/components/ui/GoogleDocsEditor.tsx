@@ -327,9 +327,9 @@ export default function GoogleDocsEditor({
     };
 
     return (
-        <div className={`flex flex-col h-screen overflow-hidden ${themeClasses.background}`}>
+        <div className={`flex flex-col h-screen overflow-hidden ${themeClasses.background} print:h-auto print:overflow-visible print:bg-white`}>
             {/* Header Section */}
-            <div className={`flex flex-col pt-2 ${themeClasses.cardBackground} z-50`}>
+            <div className={`flex flex-col pt-2 ${themeClasses.cardBackground} z-50 print:hidden`}>
                 {/* Top Row: Icon, Title, Menus, Actions */}
                 <div className="flex items-start justify-between px-4 pb-1">
                     <div className="flex items-start gap-2">
@@ -435,10 +435,10 @@ export default function GoogleDocsEditor({
             </div>
 
             {/* Editor Workspace Area (Scrollable) */}
-            <div className={`flex-1 overflow-y-auto ${themeClasses.background} px-2 sm:px-8 py-4 sm:py-8 relative`}>
+            <div className={`flex-1 overflow-y-auto ${themeClasses.background} px-2 sm:px-8 py-4 sm:py-8 relative print:p-0 print:bg-white print:overflow-visible`}>
                 
                 {/* Voice Input Alert */}
-                <div className="max-w-[850px] mx-auto mb-4">
+                <div className="max-w-[850px] mx-auto mb-4 print:hidden">
                     <div className={`p-3 rounded-lg border flex items-center justify-between ${themeClasses.cardBackground} ${themeClasses.cardBorder} shadow-sm`}>
                         <div className="flex items-center gap-2">
                             <span className="text-xl">🎤</span>
@@ -449,9 +449,9 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* The "Paper" */}
-                <div className="max-w-[850px] mx-auto bg-white shadow-xl border border-gray-200 min-h-[1056px] cursor-text" onClick={() => editor?.commands.focus()}>
+                <div className="max-w-[850px] mx-auto bg-white shadow-xl border border-gray-200 min-h-[1056px] cursor-text print:shadow-none print:border-none print:m-0 print:p-0 print:max-w-none print:min-h-0" onClick={() => editor?.commands.focus()}>
                     {/* Visual Ruler (Mock) */}
-                    <div className="h-6 border-b border-gray-200 flex items-end px-16 relative overflow-hidden opacity-50">
+                    <div className="h-6 border-b border-gray-200 flex items-end px-16 relative overflow-hidden opacity-50 print:hidden">
                         {Array.from({ length: 40 }).map((_, i) => (
                             <div key={i} className="flex-1 border-l border-gray-300 h-2" style={{ position: 'relative' }}>
                                 {i % 5 === 0 && <span className="absolute -top-4 -left-1 text-[10px] text-gray-400">{i / 5 + 1}</span>}
@@ -467,7 +467,7 @@ export default function GoogleDocsEditor({
                     </div>
                     
                     {/* Content Area */}
-                    <div className="px-12 sm:px-20 py-12 sm:py-16">
+                    <div className="px-12 sm:px-20 py-12 sm:py-16 print:p-0">
                         <EditorContent editor={editor} />
                     </div>
                 </div>
@@ -607,6 +607,10 @@ export default function GoogleDocsEditor({
                     height: auto;
                     margin-top: 1rem;
                     margin-bottom: 1rem;
+                }
+                @media print {
+                    @page { margin: 0.75in; }
+                    body { background-color: white !important; }
                 }
             `}</style>
         </div>
