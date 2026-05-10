@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react';
 import VoiceInput from '@/components/ui/VoiceInput';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface WysiwygEditorProps {
   value: string;
@@ -20,6 +21,8 @@ export default function WysiwygEditor({
 }: WysiwygEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const { getThemeClasses } = useTheme();
+  const themeClasses = getThemeClasses();
 
   // Initialize editor content
   useEffect(() => {
@@ -139,8 +142,8 @@ export default function WysiwygEditor({
     <div className={`wysiwyg-editor-container flex flex-col h-full ${className}`}>
       {/* Voice Input */}
       {!readOnly && (
-        <div className="mx-8 mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg shadow-sm">
-          <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
+        <div className={`mx-8 mb-4 p-4 ${themeClasses.cardBackground} border ${themeClasses.cardBorder} rounded-lg shadow-sm`}>
+          <h4 className={`text-sm font-medium ${themeClasses.primaryText} mb-2 flex items-center gap-2`}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
             Voice Input (Urdu → English)
           </h4>
@@ -153,11 +156,11 @@ export default function WysiwygEditor({
 
       {/* Toolbar */}
       {!readOnly && (
-        <div className="toolbar sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200 p-2 sm:p-3 flex flex-wrap items-center gap-1.5 shadow-sm rounded-t-lg mx-auto w-full transition-all">
+        <div className={`toolbar sticky top-0 z-40 ${themeClasses.cardBackground} backdrop-blur-md border-b ${themeClasses.cardBorder} p-2 sm:p-3 flex flex-wrap items-center gap-1.5 shadow-sm rounded-t-lg mx-auto w-full transition-all`}>
           {/* Font Size */}
           <select
             onChange={(e) => execCommand('fontSize', e.target.value)}
-            className="px-2 py-1.5 border border-gray-200 hover:border-gray-300 rounded text-sm bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-100 transition-colors"
+            className={`px-2 py-1.5 border ${themeClasses.cardBorder} rounded text-sm bg-transparent ${themeClasses.primaryText} focus:outline-none focus:ring-2 focus:ring-blue-100 transition-colors`}
           >
             <option value="3">Normal text</option>
             <option value="2">Small text</option>
@@ -170,7 +173,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('bold')}
-            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
+            className={`p-1.5 ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors`}
             title="Bold"
           >
             B
@@ -180,7 +183,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('italic')}
-            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
+            className={`p-1.5 ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors`}
             title="Italic"
           >
             I
@@ -190,19 +193,19 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('underline')}
-            className="p-1.5 text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors"
+            className={`p-1.5 ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors`}
             title="Underline"
           >
             U
           </button>
 
-          <div className="w-px h-5 bg-gray-300 mx-1"></div>
+          <div className={`w-px h-5 ${themeClasses.cardBorder} border-l mx-1`}></div>
 
           {/* Ordered List */}
           <button
             type="button"
             onClick={createOrderedList}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors font-medium flex items-center gap-1`}
             title="Numbered List"
           >
             1. List
@@ -212,19 +215,19 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={createUnorderedList}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors font-medium flex items-center gap-1`}
             title="Bullet List"
           >
             • List
           </button>
 
-          <div className="w-px h-5 bg-gray-300 mx-1"></div>
+          <div className={`w-px h-5 ${themeClasses.cardBorder} border-l mx-1`}></div>
 
           {/* Link */}
           <button
             type="button"
             onClick={insertLink}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors font-medium flex items-center gap-1`}
             title="Insert Link"
           >
             🔗
@@ -237,7 +240,7 @@ export default function WysiwygEditor({
               // Focus editor for voice input
               editorRef.current?.focus();
             }}
-            className="px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 bg-blue-50 rounded hover:bg-blue-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.buttonPrimary} rounded transition-colors font-medium flex items-center gap-1`}
             title="Voice Input Available Above"
           >
             🎤 Voice
@@ -247,7 +250,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('undo')}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors font-medium flex items-center gap-1`}
             title="Undo"
           >
             ↶
@@ -257,7 +260,7 @@ export default function WysiwygEditor({
           <button
             type="button"
             onClick={() => execCommand('redo')}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 rounded hover:bg-gray-100 transition-colors font-medium flex items-center gap-1"
+            className={`px-3 py-1.5 text-sm ${themeClasses.iconColor} hover:opacity-80 rounded transition-colors font-medium flex items-center gap-1`}
             title="Redo"
           >
             ↷
@@ -270,7 +273,7 @@ export default function WysiwygEditor({
         ref={editorRef}
         contentEditable={!readOnly}
         onInput={handleInput}
-        className={`editor-content flex-1 px-8 py-6 sm:px-12 sm:py-10 min-h-[800px] focus:outline-none bg-transparent`}
+        className={`editor-content flex-1 px-8 py-6 sm:px-12 sm:py-10 min-h-[800px] focus:outline-none bg-transparent ${themeClasses.primaryText}`}
         style={{
           fontSize: '16px',
           lineHeight: '1.6',
