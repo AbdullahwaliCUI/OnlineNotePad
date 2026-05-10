@@ -22,10 +22,10 @@ export default function VaultPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchVaultData();
     }
-  }, [user]);
+  }, [user?.id]);
 
   const fetchVaultData = async () => {
     try {

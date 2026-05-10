@@ -43,10 +43,10 @@ export default function DashboardPage() {
       return;
     }
 
-    if (user) {
+    if (user?.id) {
       loadNotes();
     }
-  }, [user, authLoading, mounted, router]);
+  }, [user?.id, authLoading, mounted, router]);
 
   const loadNotes = async () => {
     if (!user) return;
