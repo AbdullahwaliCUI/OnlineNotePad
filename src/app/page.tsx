@@ -8,6 +8,7 @@ import HeroSlider from '@/components/landing/HeroSlider';
 import StatsSection from '@/components/landing/StatsSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
+import FAQSection from '@/components/landing/FAQSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
 import Footer from '@/components/landing/Footer';
 
@@ -118,6 +119,9 @@ export default function HomePage() {
       
       {/* How It Works Section */}
       <HowItWorksSection />
+      
+      {/* FAQ Section */}
+      <FAQSection />
       
       {/* Testimonials Section */}
       <TestimonialsSection />
