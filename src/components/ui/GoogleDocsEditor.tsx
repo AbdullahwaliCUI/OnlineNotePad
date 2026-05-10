@@ -200,7 +200,7 @@ export default function GoogleDocsEditor({
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose-base dark:prose-invert focus:outline-none max-w-none min-h-[800px]',
+                class: 'prose prose-sm sm:prose-base focus:outline-none max-w-none min-h-[800px]',
             },
         },
     });
@@ -318,11 +318,11 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* The "Paper" */}
-                <div className={`max-w-[850px] mx-auto bg-white dark:bg-[#1f1f1f] shadow-xl border border-gray-200 dark:border-gray-800 min-h-[1056px] cursor-text`} onClick={() => editor?.commands.focus()}>
+                <div className="max-w-[850px] mx-auto bg-white shadow-xl border border-gray-200 min-h-[1056px] cursor-text" onClick={() => editor?.commands.focus()}>
                     {/* Visual Ruler (Mock) */}
-                    <div className="h-6 border-b border-gray-200 dark:border-gray-800 flex items-end px-16 relative overflow-hidden opacity-50">
+                    <div className="h-6 border-b border-gray-200 flex items-end px-16 relative overflow-hidden opacity-50">
                         {Array.from({ length: 40 }).map((_, i) => (
-                            <div key={i} className="flex-1 border-l border-gray-300 dark:border-gray-600 h-2" style={{ position: 'relative' }}>
+                            <div key={i} className="flex-1 border-l border-gray-300 h-2" style={{ position: 'relative' }}>
                                 {i % 5 === 0 && <span className="absolute -top-4 -left-1 text-[10px] text-gray-400">{i / 5 + 1}</span>}
                             </div>
                         ))}
