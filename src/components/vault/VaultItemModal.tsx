@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { VaultItem, VaultEntry } from '@/types/vault';
 import { X, ShieldCheck, Trash2, Eye, EyeOff, Plus } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
+// Removed uuid import to fix build error
 
 interface VaultItemModalProps {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export default function VaultItemModal({ isOpen, onClose, onSave, item, category
       // Handle legacy migration in UI if entries is missing/empty but legacy fields exist
       if ((!item.entries || item.entries.length === 0) && (item.username || item.password || item.url)) {
         setEntries([{
-          id: uuidv4(),
+          id: Math.random().toString(36).substring(2, 15),
           productName: item.username || 'Default Entry',
           password: item.password || '',
           url: item.url || '',
@@ -46,14 +46,14 @@ export default function VaultItemModal({ isOpen, onClose, onSave, item, category
       setItemType('Password');
       setTitle('');
       setNotes('');
-      setEntries([{ id: uuidv4(), productName: '', password: '', url: '', note: '' }]);
+      setEntries([{ id: Math.random().toString(36).substring(2, 15), productName: '', password: '', url: '', note: '' }]);
     }
   }, [item, isOpen]);
 
   if (!isOpen) return null;
 
   const handleAddEntry = () => {
-    setEntries([...entries, { id: uuidv4(), productName: '', password: '', url: '', note: '' }]);
+    setEntries([...entries, { id: Math.random().toString(36).substring(2, 15), productName: '', password: '', url: '', note: '' }]);
   };
 
   const handleRemoveEntry = (id: string) => {
