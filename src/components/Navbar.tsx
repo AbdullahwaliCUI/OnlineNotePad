@@ -15,33 +15,31 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [showDropdown, setShowDropdown] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [dbTime, setDbTime] = useState<string>('Checking DB...');
+  const [currentTime, setCurrentTime] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
     
-    // Fetch last active time to show and keep DB alive
-    const fetchTime = async () => {
+    // Set up a live clock
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(`${now.toLocaleTimeString()} - ${now.toLocaleDateString()}`);
+    };
+    updateTime(); // Initial call
+    const timer = setInterval(updateTime, 1000); // Update every second
+
+    // Ping the database just once on mount to keep it alive
+    const pingDb = async () => {
       try {
-        const { data, error } = await supabase
-          .from('keep_alive')
-          .select('last_active')
-          .eq('id', 1)
-          .single();
-          
-        if (data && !error) {
-          const date = new Date(data.last_active);
-          setDbTime(`DB Active: ${date.toLocaleTimeString()} - ${date.toLocaleDateString()}`);
-        } else {
-          setDbTime('DB Active: Just Now');
-        }
+        await supabase.from('keep_alive').select('last_active').eq('id', 1).single();
       } catch (e) {
-        setDbTime('');
+        // Ignore errors silently
       }
     };
-    
-    fetchTime();
+    pingDb();
+
+    return () => clearInterval(timer);
   }, []);
 
   const handleSignOut = async () => {
@@ -82,12 +80,12 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Database Keep Alive Status (Center) */}
+          {/* Current Time Status (Center) */}
           <div className="hidden md:flex flex-1 justify-center">
-            {mounted && dbTime && (
+            {mounted && currentTime && (
               <span className="text-xs font-medium bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-200 shadow-sm flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span>{dbTime}</span>
+                <span className="font-mono">{currentTime}</span>
               </span>
             )}
           </div>
