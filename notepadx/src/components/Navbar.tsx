@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import toast from 'react-hot-toast';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Navbar() {
   const { user, isAuthenticated, loading, signOut } = useAuth();
@@ -14,10 +15,33 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [showDropdown, setShowDropdown] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [dbTime, setDbTime] = useState<string>('Checking DB...');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
+    
+    // Fetch last active time to show and keep DB alive
+    const fetchTime = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('keep_alive')
+          .select('last_active')
+          .eq('id', 1)
+          .single();
+          
+        if (data && !error) {
+          const date = new Date(data.last_active);
+          setDbTime(`DB Active: ${date.toLocaleTimeString()} - ${date.toLocaleDateString()}`);
+        } else {
+          setDbTime('DB Active: Just Now');
+        }
+      } catch (e) {
+        setDbTime('');
+      }
+    };
+    
+    fetchTime();
   }, []);
 
   const handleSignOut = async () => {
@@ -56,6 +80,16 @@ export default function Navbar() {
             <Link href="/" className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
               NotepadX
             </Link>
+          </div>
+
+          {/* Database Keep Alive Status (Center) */}
+          <div className="hidden md:flex flex-1 justify-center">
+            {mounted && dbTime && (
+              <span className="text-xs font-medium bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-200 shadow-sm flex items-center space-x-2">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span>{dbTime}</span>
+              </span>
+            )}
           </div>
 
           {/* Auth Area */}
