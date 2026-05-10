@@ -259,23 +259,33 @@ export default function DashboardPage() {
             </button>
           </div>
         ) : (
-          <div className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'space-y-4'
-          }>
-            {filteredNotes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={note}
-                view={viewMode}
-                onDelete={handleDeleteNote}
-                onShare={handleShareNote}
-                onTogglePin={handleTogglePin}
-                onToggleArchive={handleToggleArchive}
-              />
-            ))}
-          </div>
+          <>
+            {viewMode === 'list' && (
+              <div className={`hidden sm:flex items-center py-3 px-4 border-b ${themeClasses.cardBorder} text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/50 rounded-t-lg`}>
+                <div className="flex-1 ml-10">Name</div>
+                <div className="hidden md:block w-32">Owned by</div>
+                <div className="w-40">Last modified</div>
+                <div className="w-32 text-right">Actions</div>
+              </div>
+            )}
+            <div className={
+              viewMode === 'grid'
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                : `bg-white dark:bg-gray-800 rounded-b-lg border-x border-b ${themeClasses.cardBorder} overflow-hidden shadow-sm`
+            }>
+              {filteredNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  view={viewMode}
+                  onDelete={handleDeleteNote}
+                  onShare={handleShareNote}
+                  onTogglePin={handleTogglePin}
+                  onToggleArchive={handleToggleArchive}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Simple footer for filtered results */}

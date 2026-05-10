@@ -147,29 +147,46 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
     return (
       <div
         onClick={handleClick}
-        className={`group relative ${themeClasses.cardBackground} border rounded-xl p-3 sm:p-4 transition-all duration-300 cursor-pointer ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
+        className={`group relative flex items-center gap-4 py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 border-b last:border-b-0 ${themeClasses.cardBorder} transition-colors cursor-pointer`}
       >
-        <div className="flex items-center justify-between gap-2 sm:gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className={`text-sm sm:text-base font-semibold truncate pr-2 group-hover:text-blue-600 transition-colors ${themeClasses.primaryText}`}>
-                {note.title || 'Untitled Note'}
-              </h3>
-              <div className="flex items-center gap-2">
-                <ActionButtons />
-                <span className="text-xs text-gray-400 whitespace-nowrap hidden sm:inline">{formatDateTime(note.updated_at)}</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div 
-                className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-1 flex-1"
-                style={{ whiteSpace: 'pre-line' }}
-              >
-                {getPreview(note.content || '', 60)}
-              </div>
-              <span className="text-xs text-gray-400 whitespace-nowrap ml-2 sm:hidden">{formatDateTime(note.updated_at)}</span>
-            </div>
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          {/* Icon */}
+          <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100/50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+               <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+             </svg>
           </div>
+          {/* Title */}
+          <div className="flex-1 min-w-0 flex items-center gap-2">
+            <h3 className={`text-sm sm:text-base font-medium truncate ${themeClasses.primaryText}`}>
+              {note.title || 'Untitled document'}
+            </h3>
+            {note.is_pinned && <span title="Pinned" className="text-blue-500 text-xs">📌</span>}
+          </div>
+        </div>
+        
+        {/* Owner - Hidden on small screens */}
+        <div className="hidden md:flex flex-shrink-0 w-32 items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[10px] text-blue-700 dark:text-blue-300 font-bold uppercase">
+             ME
+          </div>
+          <span className="text-sm text-gray-500 dark:text-gray-400">me</span>
+        </div>
+
+        {/* Date - Hidden on very small screens */}
+        <div className="hidden sm:flex flex-shrink-0 w-40">
+          <span className="text-sm text-gray-500 dark:text-gray-400">{formatDateTime(note.updated_at)}</span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex-shrink-0 flex items-center justify-end w-32">
+            {/* Show timestamp on mobile, show actions on hover/mobile */}
+            <div className="sm:hidden text-xs text-gray-400 mr-2 block group-hover:hidden">
+              {formatDateTime(note.updated_at).split(' ')[0]}
+            </div>
+            <div className="opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-end">
+               <ActionButtons />
+            </div>
         </div>
 
         {/* Share Modal */}
