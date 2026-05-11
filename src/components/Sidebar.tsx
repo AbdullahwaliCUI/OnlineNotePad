@@ -68,16 +68,7 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
         </svg>
       ),
     },
-    {
-      name: 'Archive',
-      href: '/dashboard?filter=archived',
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18v4H3z" />
-        </svg>
-      ),
-    },
+
     {
       name: 'Secure Vault',
       href: '/dashboard/vault',
