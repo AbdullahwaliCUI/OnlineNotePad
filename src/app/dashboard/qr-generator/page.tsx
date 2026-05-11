@@ -143,7 +143,7 @@ export default function QRGeneratorPage() {
   const handleCopyImage = async () => {
     if (!qrCode.current) return;
     try {
-      const blob = await qrCode.current.getRawData('png');
+      const blob = await qrCode.current.getRawData('png') as Blob;
       if (blob) {
         await navigator.clipboard.write([
           new ClipboardItem({ 'image/png': blob })
