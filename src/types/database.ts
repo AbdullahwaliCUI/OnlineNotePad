@@ -361,7 +361,6 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
-        };
       };
       research_projects: {
         Row: {
