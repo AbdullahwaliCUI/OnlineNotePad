@@ -361,6 +361,161 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        };
+      };
+      research_projects: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          description?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      research_literature: {
+        Row: {
+          id: string;
+          user_id: string;
+          project_id: string | null;
+          title: string;
+          authors: string | null;
+          url: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          project_id?: string | null;
+          title: string;
+          authors?: string | null;
+          url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          project_id?: string | null;
+          title?: string;
+          authors?: string | null;
+          url?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      research_experiments: {
+        Row: {
+          id: string;
+          user_id: string;
+          project_id: string | null;
+          title: string;
+          status: string;
+          results: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          project_id?: string | null;
+          title: string;
+          status?: string;
+          results?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          project_id?: string | null;
+          title?: string;
+          status?: string;
+          results?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      research_sections: {
+        Row: {
+          id: string;
+          user_id: string;
+          project_id: string | null;
+          section_name: string;
+          content: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          project_id?: string | null;
+          section_name: string;
+          content?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          project_id?: string | null;
+          section_name?: string;
+          content?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      research_reminders: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          due_date: string | null;
+          is_completed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          due_date?: string | null;
+          is_completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          due_date?: string | null;
+          is_completed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
       };
     };
     Views: {
@@ -451,6 +606,12 @@ export type PromptUpdate = Database['public']['Tables']['prompts']['Update'];
 export type PromptText = Database['public']['Tables']['prompt_texts']['Row'];
 export type PromptTextInsert = Database['public']['Tables']['prompt_texts']['Insert'];
 export type PromptTextUpdate = Database['public']['Tables']['prompt_texts']['Update'];
+
+export type ResearchProject = Database['public']['Tables']['research_projects']['Row'];
+export type ResearchLiterature = Database['public']['Tables']['research_literature']['Row'];
+export type ResearchExperiment = Database['public']['Tables']['research_experiments']['Row'];
+export type ResearchSection = Database['public']['Tables']['research_sections']['Row'];
+export type ResearchReminder = Database['public']['Tables']['research_reminders']['Row'];
 
 // View types
 export type NoteWithTags = Database['public']['Views']['notes_with_tags']['Row'];
