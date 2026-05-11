@@ -147,7 +147,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
     return (
       <div
         onClick={handleClick}
-        className={`group relative flex items-center gap-4 py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 border-b last:border-b-0 ${themeClasses.cardBorder} transition-colors cursor-pointer`}
+        className={`group relative flex items-center gap-4 py-3 px-4 hover:bg-black/5 dark:hover:bg-white/5 border-b last:border-b-0 ${themeClasses.cardBorder} transition-colors cursor-pointer`}
       >
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {/* Icon */}
@@ -202,7 +202,7 @@ export default function NoteCard({ note, view = 'grid', onDelete, onShare, onTog
   return (
     <div
       onClick={handleClick}
-      className={`group relative ${themeClasses.cardBackground} border rounded-xl p-4 sm:p-5 transition-all duration-300 cursor-pointer flex flex-col h-40 sm:h-48 ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
+      className={`group relative ${themeClasses.cardBackground} border rounded-xl p-3 sm:p-4 transition-all duration-300 cursor-pointer flex flex-col h-32 sm:h-40 ${themeClasses.cardBorder} ${themeClasses.cardHover} ${themeClasses.shadowColor} shadow-lg`}
     >
       <div className="flex items-start justify-between mb-2">
         <h3 className={`text-base sm:text-lg font-bold line-clamp-1 leading-tight group-hover:text-blue-600 transition-colors pr-2 ${themeClasses.primaryText}`}>

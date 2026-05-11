@@ -261,7 +261,7 @@ export default function DashboardPage() {
         ) : (
           <>
             {viewMode === 'list' && (
-              <div className={`hidden sm:flex items-center py-3 px-4 border-b ${themeClasses.cardBorder} text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50/50 dark:bg-gray-800/50 rounded-t-lg`}>
+              <div className={`hidden sm:flex items-center py-3 px-4 border-b ${themeClasses.cardBorder} text-sm font-medium text-gray-500 dark:text-gray-400 ${themeClasses.statsBackground} rounded-t-xl`}>
                 <div className="flex-1 ml-10">Name</div>
                 <div className="hidden md:block w-32">Owned by</div>
                 <div className="w-40">Last modified</div>
@@ -270,8 +270,8 @@ export default function DashboardPage() {
             )}
             <div className={
               viewMode === 'grid'
-                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-                : `bg-white dark:bg-gray-800 rounded-b-lg border-x border-b ${themeClasses.cardBorder} overflow-hidden shadow-sm`
+                ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
+                : `${themeClasses.cardBackground} rounded-b-xl border-x border-b ${themeClasses.cardBorder} overflow-hidden shadow-sm`
             }>
               {filteredNotes.map((note) => (
                 <NoteCard
