@@ -298,6 +298,70 @@ export interface Database {
           created_at?: string;
         };
       };
+      prompts: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          category: string | null;
+          tags: string[];
+          template_variables: string[];
+          is_favorite: boolean;
+          usage_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title: string;
+          category?: string | null;
+          tags?: string[];
+          template_variables?: string[];
+          is_favorite?: boolean;
+          usage_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          title?: string;
+          category?: string | null;
+          tags?: string[];
+          template_variables?: string[];
+          is_favorite?: boolean;
+          usage_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      prompt_texts: {
+        Row: {
+          id: string;
+          prompt_id: string;
+          content: string;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          prompt_id: string;
+          content: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          prompt_id?: string;
+          content?: string;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       notes_with_tags: {
@@ -380,6 +444,14 @@ export type NoteVersionInsert = Database['public']['Tables']['note_versions']['I
 
 export type ActivityLog = Database['public']['Tables']['activity_logs']['Row'];
 
+export type Prompt = Database['public']['Tables']['prompts']['Row'];
+export type PromptInsert = Database['public']['Tables']['prompts']['Insert'];
+export type PromptUpdate = Database['public']['Tables']['prompts']['Update'];
+
+export type PromptText = Database['public']['Tables']['prompt_texts']['Row'];
+export type PromptTextInsert = Database['public']['Tables']['prompt_texts']['Insert'];
+export type PromptTextUpdate = Database['public']['Tables']['prompt_texts']['Update'];
+
 // View types
 export type NoteWithTags = Database['public']['Views']['notes_with_tags']['Row'];
 export type FolderHierarchy = Database['public']['Views']['folder_hierarchy']['Row'];
@@ -400,6 +472,10 @@ export interface FolderWithNotes extends Folder {
 
 export interface TagWithCount extends Tag {
   note_count?: number;
+}
+
+export interface PromptWithTexts extends Prompt {
+  prompt_texts?: PromptText[];
 }
 
 // Search and filter types
