@@ -25,7 +25,7 @@ import {
     AlignLeft, AlignCenter, AlignRight, AlignJustify,
     List, ListOrdered, CheckSquare,
     IndentDecrease, IndentIncrease, RemoveFormatting,
-    FileText, X
+    FileText, X, Clock, Lock, Star, Folder, Cloud, ChevronDown
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useRef, useState } from 'react';
@@ -66,21 +66,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
             onClick={onClick}
             disabled={disabled}
             title={title}
-            className={`p-1.5 rounded-sm transition-colors flex items-center justify-center
+            className={`w-8 h-8 rounded-sm transition-colors flex items-center justify-center
                 ${isActive 
-                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' 
-                    : `text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700`}
+                    ? 'bg-[#d3e3fd] text-[#041e49] dark:bg-[#4a5568] dark:text-[#e8eaed]' 
+                    : `text-[#444746] dark:text-[#e8eaed] hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568]`}
                 ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
             `}
         >
-            <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+            <Icon size={18} strokeWidth={1.5} />
         </button>
     );
 
     const Divider = () => <div className="w-px h-5 bg-gray-300 dark:bg-gray-600 mx-1" />;
 
     return (
-        <div className={`flex flex-wrap items-center gap-0.5 px-3 py-1.5 border-t border-b ${themeClasses.cardBorder} ${themeClasses.cardBackground} overflow-x-auto no-scrollbar`}>
+        <div className={`flex flex-wrap items-center gap-0.5 px-4 py-1 bg-[#edf2fa] dark:bg-[#282a2c] rounded-full mx-4 mb-2 overflow-x-auto no-scrollbar`}>
             {/* History */}
             <IconButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().chain().focus().undo().run()} icon={Undo} title="Undo" />
             <IconButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().chain().focus().redo().run()} icon={Redo} title="Redo" />
@@ -90,30 +90,30 @@ const MenuBar = ({ editor }: { editor: any }) => {
             
             <Divider />
             
-            {/* Zoom & Styles (Mock dropdowns for visual parity) */}
-            <div className="flex items-center px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm cursor-pointer text-sm text-gray-700 dark:text-gray-200">
-                100% <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            {/* Zoom & Styles */}
+            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
+                100% <ChevronDown size={14} className="ml-1 opacity-70" />
             </div>
             
             <Divider />
 
-            <div className="flex items-center px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm cursor-pointer text-sm text-gray-700 dark:text-gray-200">
-                Normal text <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
+                Normal text <ChevronDown size={14} className="ml-1 opacity-70" />
             </div>
             
             <Divider />
             
-            <div className="flex items-center px-2 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm cursor-pointer text-sm text-gray-700 dark:text-gray-200">
-                Arial <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
+                Arial <ChevronDown size={14} className="ml-1 opacity-70" />
             </div>
             
             <Divider />
 
-            {/* Font Size (Mock) */}
-            <div className="flex items-center text-sm text-gray-700 dark:text-gray-200">
-                <button className="px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">-</button>
-                <span className="px-2 py-1 border border-transparent hover:border-gray-300 dark:hover:border-gray-600 rounded-sm">11</span>
-                <button className="px-1.5 py-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm">+</button>
+            {/* Font Size */}
+            <div className="flex items-center text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
+                <button className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">-</button>
+                <span className="w-8 h-8 flex items-center justify-center border border-transparent hover:border-[#c7c7c7] dark:hover:border-gray-600 rounded-sm cursor-text">11</span>
+                <button className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">+</button>
             </div>
             
             <Divider />
@@ -329,17 +329,19 @@ export default function GoogleDocsEditor({
     return (
         <div className={`flex flex-col h-screen overflow-hidden ${themeClasses.background} print:h-auto print:overflow-visible print:bg-white`}>
             {/* Header Section */}
-            <div className={`flex flex-col pt-2 ${themeClasses.cardBackground} z-50 print:hidden`}>
+            <div className={`flex flex-col pt-3 z-50 print:hidden bg-[#f9fbfd] dark:bg-[#131314]`}>
                 {/* Top Row: Icon, Title, Menus, Actions */}
                 <div className="flex items-start justify-between px-4 pb-1">
                     <div className="flex items-start gap-2">
                         {/* Docs Icon */}
                         <div 
                             onClick={onCancel}
-                            className="mt-1 p-2 bg-blue-600 rounded cursor-pointer hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center text-white"
+                            className="mt-1.5 mr-1 ml-1 w-10 h-10 bg-[#4285F4] rounded cursor-pointer hover:bg-blue-600 transition-colors flex items-center justify-center shrink-0"
                             title="Docs Home"
                         >
-                            <FileText size={24} fill="currentColor" className="text-white" />
+                            <svg width="22" height="26" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 0L20 8V22C20 23.1 19.1 24 18 24H2C0.9 24 0 23.1 0 22V2C0 0.9 0.9 0 2 0H12ZM11 9V1.5L18.5 9H11ZM4 13H16V11H4V13ZM4 17H16V15H4V17ZM4 21H12V19H4V21Z" fill="white"/>
+                            </svg>
                         </div>
                         
                         {/* Title and Menus */}
@@ -351,10 +353,18 @@ export default function GoogleDocsEditor({
                                     value={title}
                                     onChange={(e) => onTitleChange(e.target.value)}
                                     placeholder="Untitled document"
-                                    className={`px-1.5 py-0.5 text-base sm:text-lg font-medium bg-transparent border border-transparent hover:border-gray-300 dark:hover:border-gray-600 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 rounded outline-none transition-colors w-[150px] sm:w-[300px] md:w-[500px] ${themeClasses.primaryText} placeholder-gray-400`}
+                                    className={`px-1.5 py-0.5 text-[18px] leading-6 font-normal bg-transparent border border-transparent hover:border-[#c7c7c7] dark:hover:border-gray-600 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 rounded outline-none transition-colors w-[150px] sm:w-[300px] md:w-[500px] text-[#1f1f1f] dark:text-[#e8eaed] placeholder-gray-500`}
                                 />
-                                <div className="flex items-center ml-2 text-gray-500 dark:text-gray-400 gap-2">
-                                    <svg className="w-4 h-4 cursor-pointer hover:text-gray-700 dark:hover:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                                <div className="flex items-center ml-2 text-[#444746] dark:text-[#e8eaed] gap-1">
+                                    <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        <Star size={18} strokeWidth={1.5} />
+                                    </button>
+                                    <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        <Folder size={18} strokeWidth={1.5} />
+                                    </button>
+                                    <button className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                                        <Cloud size={18} strokeWidth={1.5} />
+                                    </button>
                                 </div>
                             </div>
                             
@@ -369,7 +379,7 @@ export default function GoogleDocsEditor({
                                                     setActiveMenu(menuName);
                                                 }
                                             }}
-                                            className={`px-2 py-1 rounded cursor-pointer ${activeMenu === menuName ? 'bg-gray-100 dark:bg-gray-700' : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800'} ${themeClasses.primaryText}`}
+                                            className={`px-2 py-1 rounded cursor-pointer text-[14px] leading-5 text-[#1f1f1f] dark:text-[#e8eaed] ${activeMenu === menuName ? 'bg-[#e1e5ea] dark:bg-[#4a5568]' : 'bg-transparent hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568]'}`}
                                         >
                                             {menuName}
                                         </button>
@@ -409,24 +419,31 @@ export default function GoogleDocsEditor({
                     </div>
 
                     {/* Right Actions: Share/Save */}
-                    <div className="flex items-center gap-4 mt-2">
-                        <div className="hidden sm:flex items-center gap-3 mr-2 text-gray-600 dark:text-gray-300">
-                            <svg className="w-5 h-5 cursor-pointer hover:text-gray-900 dark:hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div className="flex items-center gap-2 mt-1.5">
+                        <div className="hidden sm:flex items-center">
+                            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-[#444746] dark:text-[#e8eaed] mx-1" title="Version history">
+                                <Clock size={22} strokeWidth={1.5} />
+                            </button>
                         </div>
                         <button
                             onClick={onSave}
                             disabled={isSaving || !title.trim()}
-                            className={`flex items-center gap-2 px-6 py-2 bg-blue-200 hover:bg-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 text-blue-900 dark:text-white rounded-full font-medium transition-colors ${
+                            className={`flex items-center gap-2 px-5 py-2 bg-[#c2e7ff] hover:bg-[#b3dcf4] dark:bg-[#004a77] dark:hover:bg-[#005c91] text-[#001d35] dark:text-[#c2e7ff] rounded-full font-medium transition-colors text-[14px] leading-5 mr-2 ${
                                 (isSaving || !title.trim()) ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                         >
                             {isSaving ? (
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
                             ) : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                <Lock size={16} strokeWidth={2} />
                             )}
                             Save
                         </button>
+                        
+                        {/* Profile Placeholder */}
+                        <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-semibold text-sm cursor-pointer shadow-sm">
+                            A
+                        </div>
                     </div>
                 </div>
 
@@ -435,7 +452,7 @@ export default function GoogleDocsEditor({
             </div>
 
             {/* Editor Workspace Area (Scrollable) */}
-            <div className={`flex-1 overflow-y-auto ${themeClasses.background} px-2 sm:px-8 py-4 sm:py-8 relative print:p-0 print:bg-white print:overflow-visible`}>
+            <div className={`flex-1 overflow-y-auto bg-[#f9fbfd] dark:bg-[#131314] px-2 sm:px-8 py-4 sm:py-8 relative print:p-0 print:bg-white print:overflow-visible`}>
                 
                 {/* Voice Input Alert */}
                 <div className="max-w-[850px] mx-auto mb-4 print:hidden">
