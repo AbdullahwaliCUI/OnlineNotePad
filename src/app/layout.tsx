@@ -6,6 +6,8 @@ import ToastProvider from "@/components/providers/ToastProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ThemeWrapper from "@/components/ThemeWrapper";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleDriveProvider } from "@/contexts/GoogleDriveContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -96,15 +98,19 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
         <AuthProvider>
-          <ThemeProvider>
-            <ThemeWrapper>
-              <Navbar />
-              <main className="min-h-screen">
-                {children}
-              </main>
-              <ToastProvider />
-            </ThemeWrapper>
-          </ThemeProvider>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "no-client-id"}>
+            <GoogleDriveProvider>
+              <ThemeProvider>
+                <ThemeWrapper>
+                  <Navbar />
+                  <main className="min-h-screen">
+                    {children}
+                  </main>
+                  <ToastProvider />
+                </ThemeWrapper>
+              </ThemeProvider>
+            </GoogleDriveProvider>
+          </GoogleOAuthProvider>
         </AuthProvider>
       </body>
     </html>

@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
-import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LogOut, Cloud } from 'lucide-react';
+import { useGoogleDrive } from '@/contexts/GoogleDriveContext';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -15,6 +16,7 @@ interface SidebarProps {
 export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse }: SidebarProps) {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const { isConnected, connect, disconnect, isConnecting } = useGoogleDrive();
   
   // Add error handling for theme context
   let themeClasses;
@@ -264,6 +266,39 @@ export default function Sidebar({ onClose, isCollapsed = false, onToggleCollapse
           </div>
         </div>
       )}
+
+      {/* Google Drive Connection */}
+      <div className={`p-4 border-t ${themeClasses.sidebarBorder} ${isCollapsed ? 'flex justify-center' : ''}`}>
+        {!isCollapsed ? (
+          <button
+            onClick={isConnected ? disconnect : connect}
+            disabled={isConnecting}
+            className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-md border ${
+              isConnected 
+                ? 'border-green-500 bg-green-500 bg-opacity-10 text-green-100 hover:bg-opacity-20' 
+                : `${themeClasses.sidebarBorder} ${themeClasses.sidebarInactiveItem}`
+            } transition-colors`}
+          >
+            <Cloud size={18} className={isConnected ? "text-green-400" : ""} />
+            <span className="text-sm font-medium">
+              {isConnecting ? 'Connecting...' : isConnected ? 'Drive Connected' : 'Connect Drive'}
+            </span>
+          </button>
+        ) : (
+          <button
+            onClick={isConnected ? disconnect : connect}
+            disabled={isConnecting}
+            className={`p-2 rounded-md border flex items-center justify-center ${
+              isConnected 
+                ? 'border-green-500 bg-green-500 bg-opacity-10 text-green-400' 
+                : `${themeClasses.sidebarBorder} ${themeClasses.sidebarInactiveItem}`
+            } transition-colors`}
+            title={isConnected ? 'Drive Connected (Click to disconnect)' : 'Connect Google Drive'}
+          >
+            <Cloud size={20} />
+          </button>
+        )}
+      </div>
 
       {/* User Profile */}
       <div className={`p-4 border-t ${themeClasses.sidebarBorder} ${isCollapsed ? 'flex justify-center' : ''}`}>

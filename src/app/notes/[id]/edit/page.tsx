@@ -15,6 +15,8 @@ import { sanitizeHtml } from '@/lib/utils';
 import { noteSchema, validateNoteContent } from '@/lib/validations';
 import { z } from 'zod';
 import type { Note } from '@/types/database';
+import { useGoogleDrive } from '@/contexts/GoogleDriveContext';
+import { getOrCreateAppFolder, saveNoteToDrive } from '@/lib/googleDrive';
 
 export default function EditNotePage() {
   const { user } = useAuth();
@@ -31,6 +33,7 @@ export default function EditNotePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [useSimpleEditor, setUseSimpleEditor] = useState(true);
   const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
+  const { isConnected, accessToken } = useGoogleDrive();
 
   useEffect(() => {
     if (noteId && user) {
@@ -127,6 +130,24 @@ export default function EditNotePage() {
 
       if (updatedNote) {
         toast.success('Note updated successfully!');
+
+        // Sync to Google Drive if connected
+        if (isConnected && accessToken) {
+          try {
+            toast.loading('Syncing to Google Drive...', { id: 'drive-sync' });
+            const folderId = await getOrCreateAppFolder(accessToken);
+            if (folderId) {
+              await saveNoteToDrive(accessToken, title.trim(), content, folderId);
+              toast.success('Synced to Google Drive!', { id: 'drive-sync' });
+            } else {
+              toast.error('Failed to create Drive folder.', { id: 'drive-sync' });
+            }
+          } catch (e) {
+            console.error('Drive sync failed:', e);
+            toast.error('Drive sync failed.', { id: 'drive-sync' });
+          }
+        }
+
         router.push(`/notes/${note.id}`);
       } else {
         toast.error('Failed to update note. Please try again.');

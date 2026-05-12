@@ -13,6 +13,8 @@ import { noteService } from '@/lib/database';
 import { sanitizeHtml } from '@/lib/utils';
 import { noteSchema, validateNoteContent } from '@/lib/validations';
 import { z } from 'zod';
+import { useGoogleDrive } from '@/contexts/GoogleDriveContext';
+import { getOrCreateAppFolder, saveNoteToDrive } from '@/lib/googleDrive';
 
 export default function NewNotePage() {
   const { user } = useAuth();
@@ -24,6 +26,7 @@ export default function NewNotePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [useSimpleEditor, setUseSimpleEditor] = useState(true);
   const [errors, setErrors] = useState<{ title?: string; content?: string }>({});
+  const { isConnected, accessToken } = useGoogleDrive();
 
   const validateForm = (): boolean => {
     try {
@@ -89,6 +92,24 @@ export default function NewNotePage() {
 
       if (newNote) {
         toast.success('Note created successfully!');
+
+        // Sync to Google Drive if connected
+        if (isConnected && accessToken) {
+          try {
+            toast.loading('Syncing to Google Drive...', { id: 'drive-sync' });
+            const folderId = await getOrCreateAppFolder(accessToken);
+            if (folderId) {
+              await saveNoteToDrive(accessToken, title.trim(), content, folderId);
+              toast.success('Synced to Google Drive!', { id: 'drive-sync' });
+            } else {
+              toast.error('Failed to create Drive folder.', { id: 'drive-sync' });
+            }
+          } catch (e) {
+            console.error('Drive sync failed:', e);
+            toast.error('Drive sync failed.', { id: 'drive-sync' });
+          }
+        }
+
         router.push(`/notes/${newNote.id}`);
       } else {
         toast.error('Failed to create note. Please try again.');
