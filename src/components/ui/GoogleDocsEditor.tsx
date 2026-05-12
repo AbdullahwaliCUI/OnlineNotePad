@@ -103,6 +103,8 @@ const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom
 
     const IconButton = ({ onClick, isActive = false, disabled = false, icon: Icon, title }: any) => (
         <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={onClick}
             disabled={disabled}
             title={title}
@@ -191,6 +193,8 @@ const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom
             {/* Font Size */}
             <div className="flex items-center text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
                 <button 
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                         const currentSize = parseInt(editor.getAttributes('textStyle').fontSize || '11');
                         editor.chain().focus().setFontSize(`${Math.max(1, currentSize - 1)}pt`).run();
@@ -200,9 +204,13 @@ const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom
                     type="number"
                     className="w-8 h-8 text-center bg-transparent border border-transparent hover:border-[#c7c7c7] dark:hover:border-gray-600 rounded-sm outline-none font-mono"
                     value={parseInt(editor.getAttributes('textStyle').fontSize || '11')}
-                    onChange={(e) => editor.chain().focus().setFontSize(`${e.target.value}pt`).run()}
+                    onChange={(e) => {
+                        editor.chain().focus().setFontSize(`${e.target.value}pt`).run();
+                    }}
                 />
                 <button 
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
                         const currentSize = parseInt(editor.getAttributes('textStyle').fontSize || '11');
                         editor.chain().focus().setFontSize(`${currentSize + 1}pt`).run();
