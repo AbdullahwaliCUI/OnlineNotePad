@@ -2,6 +2,46 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { Extension } from '@tiptap/core';
+
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    fontSize: {
+      setFontSize: (size: string) => ReturnType;
+      unsetFontSize: () => ReturnType;
+    };
+  }
+}
+
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return { types: ['textStyle'] };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => element.style.fontSize.replace(/['"]+/g, ''),
+            renderHTML: attributes => {
+              if (!attributes.fontSize) return {};
+              return { style: `font-size: ${attributes.fontSize}` };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize: fontSize => ({ chain }) => chain().setMark('textStyle', { fontSize }).run(),
+      unsetFontSize: () => ({ chain }) => chain().setMark('textStyle', { fontSize: null }).removeEmptyTextStyle().run(),
+    };
+  },
+});
 import Placeholder from '@tiptap/extension-placeholder';
 import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
@@ -41,7 +81,7 @@ interface GoogleDocsEditorProps {
     onCancel: () => void;
 }
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom: (z: number) => void }) => {
     const { getThemeClasses } = useTheme();
     const themeClasses = getThemeClasses();
     
@@ -90,30 +130,84 @@ const MenuBar = ({ editor }: { editor: any }) => {
             
             <Divider />
             
-            {/* Zoom & Styles */}
-            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
-                100% <ChevronDown size={14} className="ml-1 opacity-70" />
+            {/* Zoom */}
+            <div className="flex items-center mx-0.5">
+                <select
+                    className="bg-transparent text-[13px] text-[#444746] dark:text-[#e8eaed] outline-none cursor-pointer hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] px-1 h-8 rounded-sm appearance-none w-[60px]"
+                    value={zoom}
+                    onChange={(e) => setZoom(parseInt(e.target.value))}
+                >
+                    <option value={50}>50%</option>
+                    <option value={75}>75%</option>
+                    <option value={100}>100%</option>
+                    <option value={125}>125%</option>
+                    <option value={150}>150%</option>
+                    <option value={200}>200%</option>
+                </select>
+                <ChevronDown size={14} className="-ml-3 pointer-events-none opacity-70" />
             </div>
             
             <Divider />
 
-            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
-                Normal text <ChevronDown size={14} className="ml-1 opacity-70" />
+            {/* Styles */}
+            <div className="flex items-center mx-0.5">
+                <select
+                    className="bg-transparent text-[13px] text-[#444746] dark:text-[#e8eaed] outline-none cursor-pointer hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] px-1 h-8 rounded-sm appearance-none w-24"
+                    value={editor.isActive('heading', { level: 1 }) ? 'h1' : editor.isActive('heading', { level: 2 }) ? 'h2' : editor.isActive('heading', { level: 3 }) ? 'h3' : 'p'}
+                    onChange={(e) => {
+                        if (e.target.value === 'p') editor.chain().focus().setParagraph().run();
+                        else editor.chain().focus().toggleHeading({ level: parseInt(e.target.value.replace('h', '')) as any }).run();
+                    }}
+                >
+                    <option value="p">Normal text</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
+                </select>
+                <ChevronDown size={14} className="-ml-4 pointer-events-none opacity-70" />
             </div>
             
             <Divider />
             
-            <div className="flex items-center px-1.5 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
-                Arial <ChevronDown size={14} className="ml-1 opacity-70" />
+            {/* Font Family */}
+            <div className="flex items-center mx-0.5">
+                <select
+                    className="bg-transparent text-[13px] text-[#444746] dark:text-[#e8eaed] outline-none cursor-pointer hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] px-1 h-8 rounded-sm appearance-none w-24"
+                    value={editor.getAttributes('textStyle').fontFamily || 'Arial'}
+                    onChange={(e) => editor.chain().focus().setFontFamily(e.target.value).run()}
+                >
+                    <option value="Arial">Arial</option>
+                    <option value="Comic Sans MS">Comic Sans</option>
+                    <option value="Courier New">Courier</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+                <ChevronDown size={14} className="-ml-4 pointer-events-none opacity-70" />
             </div>
             
             <Divider />
 
             {/* Font Size */}
             <div className="flex items-center text-[13px] text-[#444746] dark:text-[#e8eaed] mx-0.5">
-                <button className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">-</button>
-                <span className="w-8 h-8 flex items-center justify-center border border-transparent hover:border-[#c7c7c7] dark:hover:border-gray-600 rounded-sm cursor-text">11</span>
-                <button className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">+</button>
+                <button 
+                    onClick={() => {
+                        const currentSize = parseInt(editor.getAttributes('textStyle').fontSize || '11');
+                        editor.chain().focus().setFontSize(`${Math.max(1, currentSize - 1)}pt`).run();
+                    }}
+                    className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">-</button>
+                <input
+                    type="number"
+                    className="w-8 h-8 text-center bg-transparent border border-transparent hover:border-[#c7c7c7] dark:hover:border-gray-600 rounded-sm outline-none font-mono"
+                    value={parseInt(editor.getAttributes('textStyle').fontSize || '11')}
+                    onChange={(e) => editor.chain().focus().setFontSize(`${e.target.value}pt`).run()}
+                />
+                <button 
+                    onClick={() => {
+                        const currentSize = parseInt(editor.getAttributes('textStyle').fontSize || '11');
+                        editor.chain().focus().setFontSize(`${currentSize + 1}pt`).run();
+                    }}
+                    className="w-6 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm flex items-center justify-center">+</button>
             </div>
             
             <Divider />
@@ -125,12 +219,27 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <IconButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive('strike')} icon={Strikethrough} title="Strikethrough" />
             
             {/* Color & Highlight */}
-            <div className="relative group flex items-center">
-                <IconButton onClick={() => editor.chain().focus().setColor('#1a73e8').run()} isActive={editor.isActive('textStyle', { color: '#1a73e8' })} icon={Baseline} title="Text color" />
-                <div className="absolute bottom-1 w-4 h-1 bg-black dark:bg-white left-1/2 -translate-x-1/2 rounded-full pointer-events-none group-hover:bg-blue-600"></div>
+            <div className="relative flex items-center group w-8 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer justify-center overflow-hidden">
+                <Baseline size={18} strokeWidth={1.5} className="text-[#444746] dark:text-[#e8eaed] pointer-events-none absolute z-10" />
+                <div className="absolute bottom-1 w-4 h-1 left-1/2 -translate-x-1/2 pointer-events-none z-10" style={{ backgroundColor: editor.getAttributes('textStyle').color || '#000000' }}></div>
+                <input 
+                    type="color" 
+                    value={editor.getAttributes('textStyle').color || '#000000'}
+                    onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+                    className="absolute inset-0 w-[200%] h-[200%] -top-2 -left-2 opacity-0 cursor-pointer"
+                    title="Text color"
+                />
             </div>
-            <div className="relative group flex items-center">
-                <IconButton onClick={() => editor.chain().focus().toggleHighlight().run()} isActive={editor.isActive('highlight')} icon={Highlighter} title="Highlight color" />
+            <div className="relative flex items-center group w-8 h-8 hover:bg-[#e1e5ea] dark:hover:bg-[#4a5568] rounded-sm cursor-pointer justify-center overflow-hidden">
+                <Highlighter size={18} strokeWidth={1.5} className="text-[#444746] dark:text-[#e8eaed] pointer-events-none absolute z-10" />
+                <div className="absolute bottom-1 w-4 h-1 left-1/2 -translate-x-1/2 pointer-events-none z-10" style={{ backgroundColor: editor.getAttributes('highlight').color || 'transparent' }}></div>
+                <input 
+                    type="color" 
+                    value={editor.getAttributes('highlight').color || '#ffff00'}
+                    onChange={(e) => editor.chain().focus().setHighlight({ color: e.target.value }).run()}
+                    className="absolute inset-0 w-[200%] h-[200%] -top-2 -left-2 opacity-0 cursor-pointer"
+                    title="Highlight color"
+                />
             </div>
 
             <Divider />
@@ -188,6 +297,7 @@ export default function GoogleDocsEditor({
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [showWordCount, setShowWordCount] = useState(false);
     const [showShortcuts, setShowShortcuts] = useState(false);
+    const [zoom, setZoom] = useState(100);
     const menuRef = useRef<HTMLDivElement>(null);
 
     const editor = useEditor({
@@ -209,6 +319,7 @@ export default function GoogleDocsEditor({
             TableRow,
             TableHeader,
             TableCell,
+            FontSize,
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -448,7 +559,7 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* Toolbar */}
-                <MenuBar editor={editor} />
+                <MenuBar editor={editor} zoom={zoom} setZoom={setZoom} />
             </div>
 
             {/* Editor Workspace Area (Scrollable) */}
@@ -466,7 +577,11 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* The "Paper" */}
-                <div className="max-w-[850px] mx-auto bg-white shadow-xl border border-gray-200 min-h-[1056px] cursor-text print:shadow-none print:border-none print:m-0 print:p-0 print:max-w-none print:min-h-0" onClick={() => editor?.commands.focus()}>
+                <div 
+                    className="max-w-[850px] mx-auto bg-white shadow-xl border border-gray-200 min-h-[1056px] cursor-text print:shadow-none print:border-none print:m-0 print:p-0 print:max-w-none print:min-h-0 transition-transform origin-top" 
+                    style={{ transform: `scale(${zoom / 100})`, marginBottom: `${(zoom > 100 ? (zoom - 100) * 10 : 0)}px` }}
+                    onClick={() => editor?.commands.focus()}
+                >
                     {/* Visual Ruler (Mock) */}
                     <div className="h-6 border-b border-gray-200 flex items-end px-16 relative overflow-hidden opacity-50 print:hidden">
                         {Array.from({ length: 40 }).map((_, i) => (
