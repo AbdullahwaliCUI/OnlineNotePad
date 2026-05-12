@@ -308,6 +308,48 @@ export default function GoogleDocsEditor({
     const [zoom, setZoom] = useState(100);
     const menuRef = useRef<HTMLDivElement>(null);
 
+    // Margins logic
+    const rulerRef = useRef<HTMLDivElement>(null);
+    const [marginLeft, setMarginLeft] = useState(64); // equivalent to px-16
+    const [marginRight, setMarginRight] = useState(64);
+    const [isDraggingLeft, setIsDraggingLeft] = useState(false);
+    const [isDraggingRight, setIsDraggingRight] = useState(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!rulerRef.current) return;
+            const rect = rulerRef.current.getBoundingClientRect();
+            
+            if (isDraggingLeft) {
+                // Adjust left margin
+                let newLeft = e.clientX - rect.left;
+                newLeft = Math.max(20, Math.min(newLeft, 400));
+                setMarginLeft(newLeft);
+            }
+            if (isDraggingRight) {
+                // Adjust right margin
+                let newRight = rect.right - e.clientX;
+                newRight = Math.max(20, Math.min(newRight, 400));
+                setMarginRight(newRight);
+            }
+        };
+
+        const handleMouseUp = () => {
+            setIsDraggingLeft(false);
+            setIsDraggingRight(false);
+        };
+
+        if (isDraggingLeft || isDraggingRight) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDraggingLeft, isDraggingRight]);
+
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -590,24 +632,34 @@ export default function GoogleDocsEditor({
                     style={{ transform: `scale(${zoom / 100})`, marginBottom: `${(zoom > 100 ? (zoom - 100) * 10 : 0)}px` }}
                     onClick={() => editor?.commands.focus()}
                 >
-                    {/* Visual Ruler (Mock) */}
-                    <div className="h-6 border-b border-gray-200 flex items-end px-16 relative overflow-hidden opacity-50 print:hidden">
-                        {Array.from({ length: 40 }).map((_, i) => (
-                            <div key={i} className="flex-1 border-l border-gray-300 h-2" style={{ position: 'relative' }}>
-                                {i % 5 === 0 && <span className="absolute -top-4 -left-1 text-[10px] text-gray-400">{i / 5 + 1}</span>}
-                            </div>
-                        ))}
-                        {/* Margin Indicators */}
-                        <div className="absolute left-16 top-0 bottom-0 w-3 bg-blue-500/20 cursor-ew-resize">
-                            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 mx-auto"></div>
+                    {/* Visual Ruler */}
+                    <div ref={rulerRef} className="h-6 border-b border-gray-200 flex items-end relative overflow-hidden opacity-50 print:hidden select-none">
+                        <div className="absolute inset-0 flex" style={{ paddingLeft: marginLeft, paddingRight: marginRight }}>
+                            {Array.from({ length: 40 }).map((_, i) => (
+                                <div key={i} className="flex-1 border-l border-gray-300 h-2" style={{ position: 'relative' }}>
+                                    {i % 5 === 0 && <span className="absolute -top-4 -left-1 text-[10px] text-gray-400">{i / 5 + 1}</span>}
+                                </div>
+                            ))}
                         </div>
-                        <div className="absolute right-16 top-0 bottom-0 w-3 bg-blue-500/20 cursor-ew-resize">
-                            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 mx-auto"></div>
+                        {/* Margin Indicators */}
+                        <div 
+                            className="absolute top-0 bottom-0 w-4 cursor-ew-resize z-10 flex justify-center hover:bg-blue-500/10"
+                            style={{ left: marginLeft - 8 }}
+                            onMouseDown={() => setIsDraggingLeft(true)}
+                        >
+                            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 pointer-events-none"></div>
+                        </div>
+                        <div 
+                            className="absolute top-0 bottom-0 w-4 cursor-ew-resize z-10 flex justify-center hover:bg-blue-500/10"
+                            style={{ right: marginRight - 8 }}
+                            onMouseDown={() => setIsDraggingRight(true)}
+                        >
+                            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 pointer-events-none"></div>
                         </div>
                     </div>
                     
                     {/* Content Area */}
-                    <div className="px-12 sm:px-20 py-12 sm:py-16 print:p-0">
+                    <div className="py-12 sm:py-16 print:p-0" style={{ paddingLeft: marginLeft, paddingRight: marginRight }}>
                         <EditorContent editor={editor} />
                     </div>
                 </div>
