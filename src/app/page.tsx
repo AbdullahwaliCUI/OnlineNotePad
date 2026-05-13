@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import HeroSlider from '@/components/landing/HeroSlider';
 import StatsSection from '@/components/landing/StatsSection';
 import FeaturesSection from '@/components/landing/FeaturesSection';
+import UseCasesSection from '@/components/landing/UseCasesSection';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import FAQSection from '@/components/landing/FAQSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
@@ -115,6 +116,9 @@ export default function HomePage() {
       
       {/* Features Section */}
       <FeaturesSection />
+      
+      {/* Use Cases Section */}
+      <UseCasesSection />
       
       {/* How It Works Section */}
       <HowItWorksSection />
