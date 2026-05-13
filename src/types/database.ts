@@ -49,6 +49,44 @@ export interface Database {
           updated_at?: string;
         };
       };
+      contacts: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          phone: string | null;
+          email: string | null;
+          company: string | null;
+          notes: string | null;
+          custom_fields: Record<string, any>;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          phone?: string | null;
+          email?: string | null;
+          company?: string | null;
+          notes?: string | null;
+          custom_fields?: Record<string, any>;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          phone?: string | null;
+          email?: string | null;
+          company?: string | null;
+          notes?: string | null;
+          custom_fields?: Record<string, any>;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       notes: {
         Row: {
           id: string;
@@ -573,6 +611,10 @@ export interface Database {
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
 export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
+
+export type Contact = Database['public']['Tables']['contacts']['Row'];
+export type ContactInsert = Database['public']['Tables']['contacts']['Insert'];
+export type ContactUpdate = Database['public']['Tables']['contacts']['Update'];
 
 export type Note = Database['public']['Tables']['notes']['Row'];
 export type NoteInsert = Database['public']['Tables']['notes']['Insert'];

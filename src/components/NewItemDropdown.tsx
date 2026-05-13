@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Plus, FileText, Key, Link2, FileWarning, Settings, Folder } from 'lucide-react';
+import { Plus, FileText, Key, Link2, FileWarning, Settings, Folder, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NewItemDropdown() {
@@ -57,6 +57,20 @@ export default function NewItemDropdown() {
                 <FileText size={16} />
               </div>
               Standard Note
+            </Link>
+          </div>
+
+          <div className="border-t border-gray-100 dark:border-gray-700 p-2 space-y-1">
+            <h3 className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Phonebook</h3>
+            <Link
+              href="/dashboard/contacts?new=true"
+              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full text-left"
+              onClick={() => setIsOpen(false)}
+            >
+              <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-md text-emerald-600 dark:text-emerald-500">
+                <Users size={16} />
+              </div>
+              New Contact
             </Link>
           </div>
 

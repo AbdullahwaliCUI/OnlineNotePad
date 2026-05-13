@@ -31,11 +31,11 @@ export function GoogleDriveProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useGoogleLogin({
-    scope: DRIVE_SCOPE,
+    scope: `${DRIVE_SCOPE} https://www.googleapis.com/auth/contacts.readonly`,
     onSuccess: (tokenResponse) => {
       setAccessToken(tokenResponse.access_token);
       localStorage.setItem('google_drive_access_token', tokenResponse.access_token);
-      toast.success('Connected to Google Drive!');
+      toast.success('Connected to Google Services!');
       setIsConnecting(false);
     },
     onError: (error) => {
@@ -58,7 +58,7 @@ export function GoogleDriveProvider({ children }: { children: ReactNode }) {
   const disconnect = () => {
     setAccessToken(null);
     localStorage.removeItem('google_drive_access_token');
-    toast.success('Disconnected from Google Drive.');
+    toast.success('Disconnected from Google Services.');
   };
 
   return (

@@ -17,6 +17,9 @@ import type {
   NoteFilters,
   NoteSortOptions,
   PaginatedResponse,
+  Contact,
+  ContactInsert,
+  ContactUpdate,
 } from '@/types/database';
 
 // =============================================
@@ -743,5 +746,101 @@ export const statsService = {
     const totalReadingTime = data?.reduce((sum, note) => sum + (note.reading_time || 0), 0) || 0;
 
     return { totalWords, totalReadingTime };
+  },
+};
+
+// =============================================
+// CONTACT OPERATIONS
+// =============================================
+
+export const contactService = {
+  async getContacts(userId: string): Promise<Contact[]> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching contacts:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
+  async getContact(contactId: string, userId: string): Promise<Contact | null> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .eq('id', contactId)
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching contact:', error);
+      return null;
+    }
+
+    return data;
+  },
+
+  async createContact(contact: ContactInsert): Promise<Contact | null> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert(contact)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating contact:', error);
+      return null;
+    }
+
+    return data;
+  },
+
+  async createContactsBulk(contacts: ContactInsert[]): Promise<Contact[] | null> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert(contacts)
+      .select();
+
+    if (error) {
+      console.error('Error bulk creating contacts:', error);
+      return null;
+    }
+
+    return data;
+  },
+
+  async updateContact(contactId: string, updates: ContactUpdate): Promise<Contact | null> {
+    const { data, error } = await supabase
+      .from('contacts')
+      .update(updates)
+      .eq('id', contactId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating contact:', error);
+      return null;
+    }
+
+    return data;
+  },
+
+  async deleteContact(contactId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('contacts')
+      .delete()
+      .eq('id', contactId);
+
+    if (error) {
+      console.error('Error deleting contact:', error);
+      return false;
+    }
+
+    return true;
   },
 };
