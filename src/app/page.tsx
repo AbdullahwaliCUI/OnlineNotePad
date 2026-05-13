@@ -71,7 +71,7 @@ export default function HomePage() {
             "@context": "https://schema.org",
             "@type": "SoftwareApplication",
             "name": "NotepadX",
-            "description": "Voice-powered note taking app with multilingual support, beautiful themes, and real-time collaboration features.",
+            "description": "A complete digital workspace with professional word processing, live Urdu-to-English voice translation, and secure collaboration.",
             "url": "https://notepadx.vercel.app",
             "applicationCategory": "ProductivityApplication",
             "operatingSystem": "Web, iOS, Android",
@@ -89,13 +89,12 @@ export default function HomePage() {
               "worstRating": "1"
             },
             "features": [
-              "Voice input in multiple languages",
-              "Rich text editor",
+              "Live voice translation (Urdu to English)",
+              "Advanced Microsoft Word-like editor",
+              "Secure profile vault with E.164 phone validation",
               "Real-time collaboration",
-              "WhatsApp sharing",
-              "Beautiful themes",
-              "Note organization and pinning",
-              "Cross-platform synchronization"
+              "WhatsApp instant sharing",
+              "Smart organization and cross-platform sync"
             ],
             "screenshot": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
             "author": {

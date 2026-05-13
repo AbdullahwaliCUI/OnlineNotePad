@@ -7,39 +7,39 @@ import Link from 'next/link';
 const slides = [
   {
     id: 1,
-    title: "Transform Your Ideas Into Action",
-    subtitle: "The most powerful note-taking app for modern professionals",
-    description: "Create, organize, and collaborate on your notes with advanced features like voice input, rich text editing, and real-time sharing.",
-    cta: "Start Taking Notes",
+    title: "Not Just a Notepad. A Complete Workspace.",
+    subtitle: "Experience a professional-grade environment for your ideas.",
+    description: "More than just taking notes. Write, format, translate, and organize in a powerful digital workspace built for modern professionals.",
+    cta: "Get Started Free",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     gradient: "from-blue-600 to-purple-600"
   },
   {
     id: 2,
-    title: "Voice-Powered Note Taking",
-    subtitle: "Speak in Urdu, get perfect English text",
-    description: "Revolutionary voice input technology that understands multiple languages and converts them to beautifully formatted notes instantly.",
-    cta: "Try Voice Input",
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    gradient: "from-green-600 to-blue-600"
+    title: "Advanced Word-Processor Built-in",
+    subtitle: "Format, align, and design like Microsoft Word.",
+    description: "A complete WYSIWYG editor with typography controls, color formatting, text alignment, and line spacing for professional document creation.",
+    cta: "Try the Editor",
+    image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    gradient: "from-indigo-600 to-blue-600"
   },
   {
     id: 3,
-    title: "Collaborate in Real-Time",
-    subtitle: "Share and work together seamlessly",
-    description: "Share your notes instantly via WhatsApp or direct links. Collaborate with your team and keep everyone on the same page.",
-    cta: "Start Collaborating",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    gradient: "from-purple-600 to-pink-600"
+    title: "Speak in Urdu, Write in English",
+    subtitle: "Live multilingual voice translation straight into your documents.",
+    description: "Revolutionary voice input powered by Google Translate. Speak naturally in Urdu or 100+ languages and get instantly formatted English text.",
+    cta: "Test Voice Input",
+    image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    gradient: "from-green-600 to-emerald-600"
   },
   {
     id: 4,
-    title: "Beautiful & Organized",
-    subtitle: "Your notes, your way",
-    description: "Choose from multiple themes, organize with pins and archives, and enjoy a clean, distraction-free writing experience.",
-    cta: "Explore Themes",
-    image: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    gradient: "from-orange-600 to-red-600"
+    title: "Secure & Collaborative",
+    subtitle: "Your personal vault and instant sharing.",
+    description: "Keep your profile secure with E.164 phone validation, organize with smart search, and share instantly with your team via WhatsApp.",
+    cta: "Explore Features",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    gradient: "from-purple-600 to-pink-600"
   }
 ];
 

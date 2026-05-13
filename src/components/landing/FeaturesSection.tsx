@@ -6,48 +6,48 @@ import { useInView } from 'react-intersection-observer';
 const features = [
   {
     id: 1,
-    title: 'Voice-Powered Input',
-    description: 'Speak in Urdu, Hindi, or English and watch your words transform into perfectly formatted text instantly.',
+    title: 'Live Voice Translation',
+    description: 'Speak in Urdu and let our Google Translate integration instantly convert it to perfect English text within your document.',
     icon: '🎤',
     gradient: 'from-blue-500 to-cyan-500',
     image: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
   },
   {
     id: 2,
-    title: 'Rich Text Editor',
-    description: 'Create beautiful notes with advanced formatting, colors, fonts, and multimedia support.',
+    title: 'Advanced Word Processor',
+    description: 'Format like a pro with our MS Word-like editor. Enjoy typography controls, text alignment, and rich color formatting.',
     icon: '✍️',
     gradient: 'from-green-500 to-emerald-500',
     image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
   },
   {
     id: 3,
-    title: 'Smart Organization',
-    description: 'Pin important notes, archive completed ones, and find everything with powerful search.',
-    icon: '📁',
+    title: 'Secure Profile Vault',
+    description: 'Keep your identity safe with E.164 phone validation, private profile management, and explicit WhatsApp opt-ins.',
+    icon: '🛡️',
     gradient: 'from-purple-500 to-pink-500',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
   },
   {
     id: 4,
-    title: 'Instant Sharing',
-    description: 'Share your notes via WhatsApp, copy links, or collaborate with team members in real-time.',
+    title: 'Instant Collaboration',
+    description: 'Share documents via WhatsApp, copy links, and collaborate seamlessly in real-time across your workspace.',
     icon: '🔗',
     gradient: 'from-orange-500 to-red-500',
     image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
   },
   {
     id: 5,
-    title: 'Beautiful Themes',
-    description: 'Choose from 6 stunning themes including dark mode to match your style and preference.',
-    icon: '🎨',
+    title: 'Smart Organization',
+    description: 'Pin important documents, archive completed work, and find anything instantly with our powerful search system.',
+    icon: '📁',
     gradient: 'from-indigo-500 to-purple-500',
     image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
   },
   {
     id: 6,
     title: 'Cross-Platform Sync',
-    description: 'Access your notes anywhere, anytime. Perfect synchronization across all your devices.',
+    description: 'Access your digital workspace anywhere. Enjoy perfect, real-time synchronization across all your devices.',
     icon: '🔄',
     gradient: 'from-teal-500 to-blue-500',
     image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
@@ -71,7 +71,7 @@ export default function FeaturesSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Powerful Features for Modern Productivity
+            A Complete Digital Workspace Built for You
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Everything you need to capture, organize, and share your ideas effectively
