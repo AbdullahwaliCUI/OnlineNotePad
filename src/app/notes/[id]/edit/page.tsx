@@ -230,6 +230,7 @@ export default function EditNotePage() {
         onSave={handleSave}
         isSaving={isSaving}
         onCancel={handleCancel}
+        noteId={noteId}
       />
     </ProtectedRoute>
   );

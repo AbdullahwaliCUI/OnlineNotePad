@@ -68,8 +68,12 @@ import {
     FileText, X, Clock, Lock, Star, Folder, Cloud, ChevronDown
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import VoiceInput from '@/components/ui/VoiceInput';
+import { SearchAndReplace } from '@/lib/tiptap/SearchAndReplace';
+import { CommentMark } from '@/lib/tiptap/CommentMark';
+import FindReplaceModal from '@/components/ui/FindReplaceModal';
+import CommentsSidebar from '@/components/ui/CommentsSidebar';
 
 interface GoogleDocsEditorProps {
     title: string;
@@ -79,9 +83,10 @@ interface GoogleDocsEditorProps {
     onSave: () => void;
     isSaving: boolean;
     onCancel: () => void;
+    noteId?: string;
 }
 
-const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom: (z: number) => void }) => {
+const MenuBar = ({ editor, zoom, setZoom, onAddComment }: { editor: any, zoom: number, setZoom: (z: number) => void, onAddComment: () => void }) => {
     const { getThemeClasses } = useTheme();
     const themeClasses = getThemeClasses();
     
@@ -254,7 +259,7 @@ const MenuBar = ({ editor, zoom, setZoom }: { editor: any, zoom: number, setZoom
 
             {/* Insertions */}
             <IconButton onClick={setLink} isActive={editor.isActive('link')} icon={LinkIcon} title="Insert link (Ctrl+K)" />
-            <IconButton icon={MessageSquarePlus} title="Add comment (Ctrl+Alt+M)" />
+            <IconButton onClick={onAddComment} icon={MessageSquarePlus} title="Add comment (Ctrl+Alt+M)" />
             <IconButton onClick={() => {
                 const url = window.prompt('Image URL:');
                 if (url) editor.chain().focus().setImage({ src: url }).run();
@@ -296,7 +301,8 @@ export default function GoogleDocsEditor({
     onContentChange,
     onSave,
     isSaving,
-    onCancel
+    onCancel,
+    noteId
 }: GoogleDocsEditorProps) {
     const { getThemeClasses } = useTheme();
     const themeClasses = getThemeClasses();
@@ -305,6 +311,9 @@ export default function GoogleDocsEditor({
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
     const [showWordCount, setShowWordCount] = useState(false);
     const [showShortcuts, setShowShortcuts] = useState(false);
+    const [showFindReplace, setShowFindReplace] = useState(false);
+    const [showComments, setShowComments] = useState(false);
+    const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
     const [zoom, setZoom] = useState(100);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -370,6 +379,8 @@ export default function GoogleDocsEditor({
             TableHeader,
             TableCell,
             FontSize,
+            SearchAndReplace,
+            CommentMark,
         ],
         content,
         onUpdate: ({ editor }) => {
@@ -388,6 +399,39 @@ export default function GoogleDocsEditor({
             editor.commands.setContent(content);
         }
     }, [content, editor]);
+
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                setShowFindReplace(true);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'h') {
+                e.preventDefault();
+                setShowFindReplace(true);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.altKey && e.key === 'm') {
+                e.preventDefault();
+                handleAddComment();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [editor]);
+
+    const handleAddComment = useCallback(() => {
+        if (!editor || editor.state.selection.empty) {
+            alert('Please select some text to comment on.');
+            return;
+        }
+        
+        const newCommentId = crypto.randomUUID();
+        editor.chain().focus().setComment(newCommentId).run();
+        setActiveCommentId(newCommentId);
+        setShowComments(true);
+    }, [editor]);
 
     // Click outside to close menu
     useEffect(() => {
@@ -437,6 +481,8 @@ export default function GoogleDocsEditor({
         Edit: [
             { label: 'Undo', action: () => editor?.chain().focus().undo().run(), shortcut: 'Ctrl+Z' },
             { label: 'Redo', action: () => editor?.chain().focus().redo().run(), shortcut: 'Ctrl+Y' },
+            { divider: true },
+            { label: 'Find and Replace', action: () => setShowFindReplace(true), shortcut: 'Ctrl+F' },
             { divider: true },
             { label: 'Select All', action: () => editor?.chain().focus().selectAll().run(), shortcut: 'Ctrl+A' },
         ],
@@ -582,6 +628,13 @@ export default function GoogleDocsEditor({
                     {/* Right Actions: Share/Save */}
                     <div className="flex items-center gap-2 mt-1.5">
                         <div className="hidden sm:flex items-center">
+                            <button 
+                                onClick={() => setShowComments(!showComments)}
+                                className={`p-2 rounded-full transition-colors mx-1 ${showComments ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-[#444746] dark:text-[#e8eaed]'}`} 
+                                title="Comments history"
+                            >
+                                <MessageSquarePlus size={22} strokeWidth={1.5} />
+                            </button>
                             <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-[#444746] dark:text-[#e8eaed] mx-1" title="Version history">
                                 <Clock size={22} strokeWidth={1.5} />
                             </button>
@@ -609,11 +662,13 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* Toolbar */}
-                <MenuBar editor={editor} zoom={zoom} setZoom={setZoom} />
+                <MenuBar editor={editor} zoom={zoom} setZoom={setZoom} onAddComment={handleAddComment} />
             </div>
 
-            {/* Editor Workspace Area (Scrollable) */}
-            <div className={`flex-1 overflow-y-auto bg-[#f9fbfd] dark:bg-[#131314] px-2 sm:px-8 py-4 sm:py-8 relative print:p-0 print:bg-white print:overflow-visible`}>
+            {/* Main Content Area (Editor + Sidebar) */}
+            <div className="flex-1 flex overflow-hidden">
+                {/* Editor Workspace Area (Scrollable) */}
+                <div className={`flex-1 overflow-y-auto bg-[#f9fbfd] dark:bg-[#131314] px-2 sm:px-8 py-4 sm:py-8 relative print:p-0 print:bg-white print:overflow-visible`}>
                 
                 {/* Voice Input Alert */}
                 <div className="max-w-[850px] mx-auto mb-4 print:hidden">
@@ -665,8 +720,29 @@ export default function GoogleDocsEditor({
                 </div>
             </div>
 
-            {/* MODALS */}
+            {/* Comments Sidebar */}
+            <CommentsSidebar 
+                isOpen={showComments} 
+                onClose={() => setShowComments(false)} 
+                noteId={noteId}
+                activeCommentId={activeCommentId}
+                onCommentResolved={(id) => {
+                    editor?.chain().focus().unsetComment(id).run();
+                }}
+            />
+        </div>
+
+        {/* MODALS */}
             
+            <FindReplaceModal 
+                isOpen={showFindReplace}
+                onClose={() => setShowFindReplace(false)}
+                onSearch={(term) => editor?.chain().focus().setSearchTerm(term).run()}
+                onReplace={(replaceWith) => editor?.chain().focus().replaceNext(replaceWith).run()}
+                onReplaceAll={(replaceWith) => editor?.chain().focus().replaceAll(replaceWith).run()}
+                matchCount={(editor?.storage as any)?.searchAndReplace?.results?.length || 0}
+            />
+
             {/* Word Count Modal */}
             {showWordCount && (
                 <div className="fixed inset-0 bg-black/50 z-[200] flex items-center justify-center p-4">
