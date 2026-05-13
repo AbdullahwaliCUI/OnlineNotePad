@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
+import NewItemDropdown from './NewItemDropdown';
 
 interface DashboardHeaderProps {
   searchQuery: string;
@@ -69,12 +70,7 @@ export default function DashboardHeader({
           </div>
         </div>
 
-        <Link
-          href="/notes/new"
-          className={`w-full md:w-auto px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl text-center flex justify-center items-center gap-2 ${themeClasses.buttonPrimary}`}
-        >
-          <span>+</span> New Note
-        </Link>
+        <NewItemDropdown />
       </div>
 
       {/* Search Bar & View Toggle */}

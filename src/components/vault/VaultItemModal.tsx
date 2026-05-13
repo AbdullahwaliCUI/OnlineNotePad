@@ -11,11 +11,12 @@ interface VaultItemModalProps {
   onSave: (item: Partial<VaultItem>) => Promise<void>;
   item?: VaultItem | null;
   categoryId: string | null;
+  defaultType?: string;
 }
 
 const CATEGORY_OPTIONS = ['Password', 'Link', 'Note', 'API Key', 'General'];
 
-export default function VaultItemModal({ isOpen, onClose, onSave, item, categoryId }: VaultItemModalProps) {
+export default function VaultItemModal({ isOpen, onClose, onSave, item, categoryId, defaultType }: VaultItemModalProps) {
   const [itemType, setItemType] = useState('Password');
   const [title, setTitle] = useState('');
   const [entries, setEntries] = useState<VaultEntry[]>([]);
@@ -43,12 +44,12 @@ export default function VaultItemModal({ isOpen, onClose, onSave, item, category
       }
     } else {
       // Defaults for new item
-      setItemType('Password');
+      setItemType(defaultType || 'Password');
       setTitle('');
       setNotes('');
       setEntries([{ id: Math.random().toString(36).substring(2, 15), productName: '', password: '', url: '', note: '' }]);
     }
-  }, [item, isOpen]);
+  }, [item, isOpen, defaultType]);
 
   if (!isOpen) return null;
 

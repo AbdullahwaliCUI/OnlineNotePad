@@ -10,6 +10,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { noteService, searchService } from '@/lib/database';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { Note } from '@/types/database';
+import { supabase } from '@/lib/supabaseClient';
+import type { VaultItem, VaultCategory } from '@/types/vault';
+import VaultItemCard from '@/components/vault/VaultItemCard';
+import VaultItemModal from '@/components/vault/VaultItemModal';
+
+// Generic wrapper to unify dashboard items
+type DashboardItem = 
+  | { type: 'note', data: Note, date: number, pinned: boolean }
+  | { type: 'vault', data: VaultItem, date: number, pinned: boolean };
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -24,7 +33,14 @@ export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [filter, setFilter] = useState<string>('');
 
-  // Handle hydration
+  // Vault Items State
+  const [vaultItems, setVaultItems] = useState<VaultItem[]>([]);
+  const [vaultCategories, setVaultCategories] = useState<VaultCategory[]>([]);
+  const [isVaultModalOpen, setIsVaultModalOpen] = useState(false);
+  const [editingVaultItem, setEditingVaultItem] = useState<VaultItem | null>(null);
+  const [activeVaultCategoryType, setActiveVaultCategoryType] = useState<string>('Password');
+
+  // Handle hydration & URL params
   useEffect(() => {
     setMounted(true);
     
@@ -32,6 +48,16 @@ export default function DashboardPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter') || '';
     setFilter(filterParam);
+
+    // Check for "new" param (from NewItemDropdown)
+    const newParam = urlParams.get('new');
+    if (newParam) {
+      setActiveVaultCategoryType(newParam);
+      setEditingVaultItem(null);
+      setIsVaultModalOpen(true);
+      // Clean up URL
+      window.history.replaceState({}, '', '/dashboard');
+    }
   }, []);
 
   // Handle authentication and notes loading
@@ -55,12 +81,30 @@ export default function DashboardPage() {
     setError(null);
 
     try {
+      // 1. Fetch Notes
       const result = await noteService.getNotes(user.id, {}, { field: 'updated_at', direction: 'desc' });
       setNotes(result.data as unknown as Note[]);
+
+      // 2. Fetch Vault Items
+      const { data: itemData, error: itemError } = await supabase
+        .from('vault_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (!itemError && itemData) {
+        setVaultItems(itemData);
+      }
+
+      // 3. Fetch Vault Categories (needed for saving new vault items)
+      const { data: catData } = await supabase
+        .from('vault_categories')
+        .select('*');
+      if (catData) setVaultCategories(catData);
+
     } catch (error) {
-      console.error('Error loading notes:', error);
-      setError('Failed to load notes. Please try again.');
-      toast.error('Failed to load notes');
+      console.error('Error loading dashboard items:', error);
+      setError('Failed to load items. Please try again.');
+      toast.error('Failed to load items');
     } finally {
       setNotesLoading(false);
     }
@@ -70,34 +114,47 @@ export default function DashboardPage() {
     loadNotes();
   };
 
-  // Filter and sort notes - pinned notes first, then by date
-  const filteredNotes = notes
-    .filter(note => {
-      // First apply search filter
-      const matchesSearch = (note.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (note.content || '').toLowerCase().includes(searchQuery.toLowerCase());
+  // Unify and sort items
+  const combinedItems: DashboardItem[] = [
+    ...notes.map(n => ({ type: 'note' as const, data: n, date: new Date(n.updated_at).getTime(), pinned: !!n.is_pinned })),
+    ...vaultItems.map(v => ({ type: 'vault' as const, data: v, date: new Date(v.updated_at || v.created_at).getTime(), pinned: !!v.is_favorite }))
+  ];
+
+  const filteredItems = combinedItems
+    .filter(item => {
+      // Search filter
+      const title = item.type === 'note' ? item.data.title : item.data.title;
+      const content = item.type === 'note' ? item.data.content : (item.data.notes || '');
+      const matchesSearch = (title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (content || '').toLowerCase().includes(searchQuery.toLowerCase());
       
       if (!matchesSearch) return false;
       
-      // Then apply type filter
+      // Type/Category filter
       switch (filter) {
         case 'pinned':
-          return note.is_pinned;
+          return item.pinned;
         case 'archived':
-          return note.is_archived;
+          return item.type === 'note' ? item.data.is_archived : false;
         case 'all':
-          return true; // Show all notes
+          return item.type === 'note' ? !item.data.is_archived : true;
+        case 'vault':
+          return item.type === 'vault';
+        case 'notes':
+          return item.type === 'note' && !item.data.is_archived;
+        // Map other filters to vault categories if needed
         default:
-          return !note.is_archived; // Show only non-archived notes by default
+          // Default: show active notes and all vault items
+          return item.type === 'note' ? !item.data.is_archived : true;
       }
     })
     .sort((a, b) => {
-      // First sort by pinned status (pinned notes first)
-      if (a.is_pinned && !b.is_pinned) return -1;
-      if (!a.is_pinned && b.is_pinned) return 1;
+      // First sort by pinned status (pinned items first)
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
       
-      // Then sort by updated_at (newest first)
-      return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      // Then sort by date (newest first)
+      return b.date - a.date;
     });
 
   const handleDeleteNote = async (note: Note) => {
@@ -181,6 +238,73 @@ export default function DashboardPage() {
     }
   };
 
+  // Vault Actions
+  const handleSaveVaultItem = async (itemData: Partial<VaultItem>) => {
+    if (!user) return;
+    try {
+      if (itemData.id) {
+        // Update
+        const { data, error } = await supabase
+          .from('vault_items')
+          .update(itemData)
+          .eq('id', itemData.id)
+          .select()
+          .single();
+        if (error) throw error;
+        setVaultItems(vaultItems.map(item => item.id === data.id ? data : item));
+        toast.success('Item updated successfully');
+      } else {
+        // Insert
+        // Ensure category exists, else fallback
+        let categoryId = itemData.category_id;
+        if (!categoryId && vaultCategories.length > 0) {
+           categoryId = vaultCategories[0].id;
+        } else if (!categoryId) {
+           // Create default category if none exists
+           const { data: newCat } = await supabase
+             .from('vault_categories')
+             .insert([{ name: 'General', user_id: user.id }])
+             .select()
+             .single();
+           if (newCat) {
+             setVaultCategories([newCat]);
+             categoryId = newCat.id;
+           }
+        }
+
+        const { data, error } = await supabase
+          .from('vault_items')
+          .insert([{ ...itemData, category_id: categoryId, user_id: user.id }])
+          .select()
+          .single();
+        if (error) throw error;
+        setVaultItems([data, ...vaultItems]);
+        toast.success('Item saved securely');
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error('Failed to save vault item');
+      throw error;
+    }
+  };
+
+  const handleDeleteVaultItem = async (id: string) => {
+    try {
+      const { error } = await supabase.from('vault_items').delete().eq('id', id);
+      if (error) throw error;
+      setVaultItems(vaultItems.filter(item => item.id !== id));
+      toast.success('Vault item deleted');
+    } catch (error) {
+      toast.error('Failed to delete vault item');
+    }
+  };
+
+  const openVaultEditModal = (item: VaultItem) => {
+    setEditingVaultItem(item);
+    setActiveVaultCategoryType(item.item_type || 'Password');
+    setIsVaultModalOpen(true);
+  };
+
   // Show loading during hydration
   if (!mounted) {
     return (
@@ -233,23 +357,23 @@ export default function DashboardPage() {
       />
 
       <div className="mt-6">
-        {notes.length === 0 ? (
+        {combinedItems.length === 0 ? (
           <EmptyState
-            title="No notes yet"
-            description="Create your first note to get started with your digital notebook."
-            actionText="Create Note"
+            title="No items yet"
+            description="Create your first note or secure vault item to get started."
+            actionText="Create Item"
             actionHref="/notes/new"
           />
-        ) : filteredNotes.length === 0 ? (
+        ) : filteredItems.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground mb-4">
               <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className={`text-lg font-medium mb-2 ${themeClasses.primaryText}`}>No notes found</h3>
+            <h3 className={`text-lg font-medium mb-2 ${themeClasses.primaryText}`}>No items found</h3>
             <p className="text-muted-foreground mb-4">
-              No notes match your search for "{searchQuery}"
+              No items match your search for "{searchQuery}"
             </p>
             <button
               onClick={() => setSearchQuery('')}
@@ -273,30 +397,55 @@ export default function DashboardPage() {
                 ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6'
                 : `${themeClasses.cardBackground} rounded-b-xl border-x border-b ${themeClasses.cardBorder} overflow-hidden shadow-sm`
             }>
-              {filteredNotes.map((note) => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  view={viewMode}
-                  onDelete={handleDeleteNote}
-                  onShare={handleShareNote}
-                  onTogglePin={handleTogglePin}
-                  onToggleArchive={handleToggleArchive}
-                />
-              ))}
+              {filteredItems.map((item) => {
+                if (item.type === 'note') {
+                  return (
+                    <NoteCard
+                      key={`note-${item.data.id}`}
+                      note={item.data}
+                      view={viewMode}
+                      onDelete={handleDeleteNote}
+                      onShare={handleShareNote}
+                      onTogglePin={handleTogglePin}
+                      onToggleArchive={handleToggleArchive}
+                    />
+                  );
+                } else {
+                  // If we are in list mode, we might want a different rendering for VaultItems,
+                  // but for now we render VaultItemCard (which we might need to adjust for list view later)
+                  return (
+                    <VaultItemCard
+                      key={`vault-${item.data.id}`}
+                      item={item.data}
+                      onEdit={openVaultEditModal}
+                      onDelete={handleDeleteVaultItem}
+                    />
+                  );
+                }
+              })}
             </div>
           </>
         )}
 
         {/* Simple footer for filtered results */}
-        {filteredNotes.length > 0 && searchQuery && (
+        {filteredItems.length > 0 && searchQuery && (
           <div className="mt-8 pt-6 border-t border-border">
             <div className="text-center text-sm text-muted-foreground">
-              Found {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} matching "{searchQuery}"
+              Found {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} matching "{searchQuery}"
             </div>
           </div>
         )}
       </div>
+
+      {/* Unified Vault Modal */}
+      <VaultItemModal 
+        isOpen={isVaultModalOpen}
+        onClose={() => { setIsVaultModalOpen(false); setEditingVaultItem(null); }}
+        onSave={handleSaveVaultItem}
+        item={editingVaultItem}
+        categoryId={editingVaultItem?.category_id || (vaultCategories.length > 0 ? vaultCategories[0].id : null)}
+        defaultType={activeVaultCategoryType}
+      />
     </div>
   );
 }
