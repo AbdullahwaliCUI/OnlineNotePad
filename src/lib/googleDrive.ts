@@ -44,6 +44,7 @@ export async function createAppFolder(accessToken: string, folderName: string = 
       body: JSON.stringify({
         name: folderName,
         mimeType: 'application/vnd.google-apps.folder',
+        parents: ['root'],
       }),
     });
 
@@ -95,11 +96,11 @@ export async function saveNoteToDrive(
     };
 
     const multipartRequestBody =
-      delimiter +
-      'Content-Type: application/json\r\n\r\n' +
+      `--${boundary}\r\n` +
+      'Content-Type: application/json; charset=UTF-8\r\n\r\n' +
       JSON.stringify(metadata) +
       delimiter +
-      'Content-Type: text/html\r\n\r\n' +
+      'Content-Type: text/html; charset=UTF-8\r\n\r\n' +
       contentHtml +
       closeDelimiter;
 
