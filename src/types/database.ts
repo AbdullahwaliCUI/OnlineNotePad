@@ -554,6 +554,32 @@ export interface Database {
           updated_at?: string;
         };
       };
+      user_signatures: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          signature_data: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          signature_data: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          signature_data?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {
       notes_with_tags: {
@@ -653,6 +679,10 @@ export type ResearchLiterature = Database['public']['Tables']['research_literatu
 export type ResearchExperiment = Database['public']['Tables']['research_experiments']['Row'];
 export type ResearchSection = Database['public']['Tables']['research_sections']['Row'];
 export type ResearchReminder = Database['public']['Tables']['research_reminders']['Row'];
+
+export type UserSignature = Database['public']['Tables']['user_signatures']['Row'];
+export type UserSignatureInsert = Database['public']['Tables']['user_signatures']['Insert'];
+export type UserSignatureUpdate = Database['public']['Tables']['user_signatures']['Update'];
 
 // View types
 export type NoteWithTags = Database['public']['Views']['notes_with_tags']['Row'];

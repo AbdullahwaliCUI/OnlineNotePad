@@ -844,3 +844,53 @@ export const contactService = {
     return true;
   },
 };
+
+// =============================================
+// SIGNATURE OPERATIONS
+// =============================================
+
+export const signatureService = {
+  async getSignatures(userId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('user_signatures')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching signatures:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
+  async createSignature(signature: { user_id: string; name: string; signature_data: string }): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('user_signatures')
+      .insert(signature)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating signature:', error);
+      return null;
+    }
+
+    return data;
+  },
+
+  async deleteSignature(signatureId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('user_signatures')
+      .delete()
+      .eq('id', signatureId);
+
+    if (error) {
+      console.error('Error deleting signature:', error);
+      return false;
+    }
+
+    return true;
+  },
+};

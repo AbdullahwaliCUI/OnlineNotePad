@@ -65,7 +65,7 @@ import {
     AlignLeft, AlignCenter, AlignRight, AlignJustify,
     List, ListOrdered, CheckSquare,
     IndentDecrease, IndentIncrease, RemoveFormatting,
-    FileText, X, Clock, Lock, Star, Folder, Cloud, ChevronDown
+    FileText, X, Clock, Lock, Star, Folder, Cloud, ChevronDown, PenTool
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useEffect, useRef, useState, useCallback } from 'react';
@@ -74,6 +74,7 @@ import { SearchAndReplace } from '@/lib/tiptap/SearchAndReplace';
 import { CommentMark } from '@/lib/tiptap/CommentMark';
 import FindReplaceModal from '@/components/ui/FindReplaceModal';
 import CommentsSidebar from '@/components/ui/CommentsSidebar';
+import SignatureSelectorModal from '@/components/ui/SignatureSelectorModal';
 
 interface GoogleDocsEditorProps {
     title: string;
@@ -86,7 +87,7 @@ interface GoogleDocsEditorProps {
     noteId?: string;
 }
 
-const MenuBar = ({ editor, zoom, setZoom, onAddComment }: { editor: any, zoom: number, setZoom: (z: number) => void, onAddComment: () => void }) => {
+const MenuBar = ({ editor, zoom, setZoom, onAddComment, onInsertSignature }: { editor: any, zoom: number, setZoom: (z: number) => void, onAddComment: () => void, onInsertSignature: () => void }) => {
     const { getThemeClasses } = useTheme();
     const themeClasses = getThemeClasses();
     
@@ -264,6 +265,7 @@ const MenuBar = ({ editor, zoom, setZoom, onAddComment }: { editor: any, zoom: n
                 const url = window.prompt('Image URL:');
                 if (url) editor.chain().focus().setImage({ src: url }).run();
             }} icon={ImageIcon} title="Insert image" />
+            <IconButton onClick={onInsertSignature} icon={PenTool} title="Insert signature" />
 
             <Divider />
 
@@ -313,6 +315,7 @@ export default function GoogleDocsEditor({
     const [showShortcuts, setShowShortcuts] = useState(false);
     const [showFindReplace, setShowFindReplace] = useState(false);
     const [showComments, setShowComments] = useState(false);
+    const [showSignatureModal, setShowSignatureModal] = useState(false);
     const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
     const [zoom, setZoom] = useState(100);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -662,7 +665,7 @@ export default function GoogleDocsEditor({
                 </div>
 
                 {/* Toolbar */}
-                <MenuBar editor={editor} zoom={zoom} setZoom={setZoom} onAddComment={handleAddComment} />
+                <MenuBar editor={editor} zoom={zoom} setZoom={setZoom} onAddComment={handleAddComment} onInsertSignature={() => setShowSignatureModal(true)} />
             </div>
 
             {/* Main Content Area (Editor + Sidebar) */}
@@ -741,6 +744,15 @@ export default function GoogleDocsEditor({
                 onReplace={(replaceWith) => editor?.chain().focus().replaceNext(replaceWith).run()}
                 onReplaceAll={(replaceWith) => editor?.chain().focus().replaceAll(replaceWith).run()}
                 matchCount={(editor?.storage as any)?.searchAndReplace?.results?.length || 0}
+            />
+
+            <SignatureSelectorModal
+                isOpen={showSignatureModal}
+                onClose={() => setShowSignatureModal(false)}
+                onSelect={(signatureData) => {
+                    editor?.chain().focus().setImage({ src: signatureData }).run();
+                    setShowSignatureModal(false);
+                }}
             />
 
             {/* Word Count Modal */}

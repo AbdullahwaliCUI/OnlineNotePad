@@ -16,9 +16,6 @@ declare module '@tiptap/core' {
       clearSearch: () => ReturnType;
     };
   }
-  interface Editor {
-    storage: Record<string, any>;
-  }
 }
 
 export interface SearchAndReplaceStorage {
