@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import EmptyState from '@/components/ui/EmptyState';
 import DashboardHeader from '@/components/DashboardHeader';
@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const { getThemeClasses } = useTheme();
   const themeClasses = getThemeClasses();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,25 +41,29 @@ export default function DashboardPage() {
   const [editingVaultItem, setEditingVaultItem] = useState<VaultItem | null>(null);
   const [activeVaultCategoryType, setActiveVaultCategoryType] = useState<string>('Password');
 
-  // Handle hydration & URL params
+  // Handle hydration
   useEffect(() => {
     setMounted(true);
     
-    // Get filter from URL params
+    // Get filter from URL params initially
     const urlParams = new URLSearchParams(window.location.search);
     const filterParam = urlParams.get('filter') || '';
     setFilter(filterParam);
+  }, []);
 
-    // Check for "new" param (from NewItemDropdown)
-    const newParam = urlParams.get('new');
+  // Watch for 'new' param changes (from NewItemDropdown)
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const newParam = searchParams.get('new');
     if (newParam) {
       setActiveVaultCategoryType(newParam);
       setEditingVaultItem(null);
       setIsVaultModalOpen(true);
-      // Clean up URL
-      window.history.replaceState({}, '', '/dashboard');
+      // Clean up URL without triggering navigation
+      window.history.replaceState({}, '', window.location.pathname);
     }
-  }, []);
+  }, [searchParams, mounted]);
 
   // Handle authentication and notes loading
   useEffect(() => {
