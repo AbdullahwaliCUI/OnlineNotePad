@@ -16,6 +16,9 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSave }: Signa
   
   const [activeTab, setActiveTab] = useState<'draw' | 'type' | 'upload'>('draw');
   const [signatureName, setSignatureName] = useState('My Signature');
+  const [signatureColor, setSignatureColor] = useState('#000000');
+  const signatureColors = ['#000000', '#2563eb', '#dc2626', '#16a34a']; // Black, Blue, Red, Green
+
   
   // Draw State
   const sigPadRef = useRef<SignatureCanvas>(null);
@@ -55,14 +58,14 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSave }: Signa
         document.fonts.ready.then(() => {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.font = `48px "${selectedFont}", cursive`;
-          ctx.fillStyle = '#000000';
+          ctx.fillStyle = signatureColor;
           ctx.textBaseline = 'middle';
           ctx.textAlign = 'center';
           ctx.fillText(typedName, canvas.width / 2, canvas.height / 2);
         });
       }
     }
-  }, [typedName, selectedFont, activeTab]);
+  }, [typedName, selectedFont, activeTab, signatureColor]);
 
   if (!isOpen) return null;
 
@@ -156,31 +159,50 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSave }: Signa
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
-            <button
-              onClick={() => setActiveTab('draw')}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'draw' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <PenTool size={16} /> Draw
-            </button>
-            <button
-              onClick={() => setActiveTab('type')}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'type' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Type size={16} /> Type
-            </button>
-            <button
-              onClick={() => setActiveTab('upload')}
-              className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'upload' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Upload size={16} /> Upload
-            </button>
+          <div className="flex justify-between items-end border-b border-gray-200 dark:border-gray-700 mb-6">
+            <div className="flex">
+              <button
+                onClick={() => setActiveTab('draw')}
+                className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'draw' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <PenTool size={16} /> Draw
+              </button>
+              <button
+                onClick={() => setActiveTab('type')}
+                className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'type' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Type size={16} /> Type
+              </button>
+              <button
+                onClick={() => setActiveTab('upload')}
+                className={`flex items-center gap-2 px-4 py-2 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'upload' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Upload size={16} /> Upload
+              </button>
+            </div>
+            
+            {/* Color Picker */}
+            {(activeTab === 'draw' || activeTab === 'type') && (
+              <div className="flex gap-2 pb-2 pr-2">
+                {signatureColors.map(color => (
+                  <button
+                    key={color}
+                    onClick={() => setSignatureColor(color)}
+                    className={`w-6 h-6 rounded-full border-2 transition-transform ${
+                      signatureColor === color ? 'border-gray-400 dark:border-gray-300 scale-110 shadow-sm' : 'border-transparent hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    title={`Select color`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Tab Content */}
@@ -189,7 +211,7 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSave }: Signa
             {activeTab === 'draw' && (
               <SignatureCanvas 
                 ref={sigPadRef} 
-                penColor="black"
+                penColor={signatureColor}
                 canvasProps={{ className: 'w-full h-full cursor-crosshair' }} 
               />
             )}
@@ -223,7 +245,7 @@ export default function SignatureCreatorModal({ isOpen, onClose, onSave }: Signa
                     className="max-w-full hidden"
                   />
                   {typedName ? (
-                     <div style={{ fontFamily: `"${selectedFont}", cursive`, fontSize: '48px', color: 'black' }} className="text-center w-full break-words">
+                     <div style={{ fontFamily: `"${selectedFont}", cursive`, fontSize: '48px', color: signatureColor }} className="text-center w-full break-words">
                         {typedName}
                      </div>
                   ) : (
