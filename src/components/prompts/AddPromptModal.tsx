@@ -22,6 +22,7 @@ export default function AddPromptModal({ isOpen, onClose, onSave, initialData }:
   const [tags, setTags] = useState('');
   const [variables, setVariables] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
   const [promptTexts, setPromptTexts] = useState<string[]>(['']);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -33,6 +34,7 @@ export default function AddPromptModal({ isOpen, onClose, onSave, initialData }:
         setTags(initialData.tags?.join(', ') || '');
         setVariables(initialData.template_variables?.join(', ') || '');
         setIsFavorite(initialData.is_favorite);
+        setIsPublic(initialData.is_public || false);
         
         if (initialData.prompt_texts && initialData.prompt_texts.length > 0) {
           // sort texts
@@ -48,6 +50,7 @@ export default function AddPromptModal({ isOpen, onClose, onSave, initialData }:
         setTags('');
         setVariables('');
         setIsFavorite(false);
+        setIsPublic(false);
         setPromptTexts(['']);
       }
     }
@@ -100,6 +103,7 @@ export default function AddPromptModal({ isOpen, onClose, onSave, initialData }:
         tags: parseCommaSeparated(tags),
         template_variables: parseCommaSeparated(variables),
         is_favorite: isFavorite,
+        is_public: isPublic,
       };
 
       await onSave(promptData, validTexts);
@@ -190,15 +194,28 @@ export default function AddPromptModal({ isOpen, onClose, onSave, initialData }:
           </div>
 
           {/* Favorite */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isFavorite}
-              onChange={(e) => setIsFavorite(e.target.checked)}
-              className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
-            />
-            <span className={`text-sm ${themeClasses.primaryText}`}>Mark as favorite</span>
-          </label>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isFavorite}
+                onChange={(e) => setIsFavorite(e.target.checked)}
+                className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+              />
+              <span className={`text-sm ${themeClasses.primaryText}`}>Mark as favorite</span>
+            </label>
+
+            {/* Public */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+              <span className={`text-sm ${themeClasses.primaryText}`}>Make public (Share with community)</span>
+            </label>
+          </div>
 
           <hr className={`border ${themeClasses.cardBorder}`} />
 

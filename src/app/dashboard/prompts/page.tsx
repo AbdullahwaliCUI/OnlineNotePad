@@ -286,6 +286,12 @@ export default function PromptsPage() {
                         {prompt.is_favorite ? 'Favorited' : 'Favorite'}
                       </button>
 
+                      {prompt.is_public && (
+                        <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
+                          Public
+                        </span>
+                      )}
+
                       <span className="text-xs text-gray-500">
                         {prompt.prompt_texts?.length || 0} prompt texts · Used {prompt.usage_count || 0} times
                       </span>

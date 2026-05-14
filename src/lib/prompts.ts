@@ -2,6 +2,26 @@ import { supabase } from './supabaseClient';
 import type { Prompt, PromptInsert, PromptUpdate, PromptText, PromptTextInsert, PromptWithTexts } from '@/types/database';
 
 export const promptsService = {
+  // Fetch all public prompts along with their authors
+  async getPublicPrompts(): Promise<(PromptWithTexts & { profiles?: { full_name: string | null } })[]> {
+    const { data, error } = await supabase
+      .from('prompts')
+      .select(`
+        *,
+        prompt_texts (*),
+        profiles!inner(full_name)
+      `)
+      .eq('is_public', true)
+      .order('updated_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching public prompts:', error);
+      return [];
+    }
+
+    return data || [];
+  },
+
   // Fetch all prompts with their associated texts for a user
   async getPrompts(userId: string): Promise<PromptWithTexts[]> {
     const { data, error } = await supabase

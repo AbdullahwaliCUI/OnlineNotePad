@@ -11,6 +11,7 @@ import UseCasesSection from '@/components/landing/UseCasesSection';
 import HowItWorksSection from '@/components/landing/HowItWorksSection';
 import FAQSection from '@/components/landing/FAQSection';
 import TestimonialsSection from '@/components/landing/TestimonialsSection';
+import CommunityPromptsSection from '@/components/landing/CommunityPromptsSection';
 import Footer from '@/components/landing/Footer';
 
 // Note: Metadata export is not supported in client components
@@ -120,6 +121,9 @@ export default function HomePage() {
       {/* Use Cases Section */}
       <UseCasesSection />
       
+      {/* Community Prompts Section */}
+      <CommunityPromptsSection />
+
       {/* How It Works Section */}
       <HowItWorksSection />
       

@@ -345,6 +345,7 @@ export interface Database {
           tags: string[];
           template_variables: string[];
           is_favorite: boolean;
+          is_public: boolean;
           usage_count: number;
           created_at: string;
           updated_at: string;
@@ -357,6 +358,7 @@ export interface Database {
           tags?: string[];
           template_variables?: string[];
           is_favorite?: boolean;
+          is_public?: boolean;
           usage_count?: number;
           created_at?: string;
           updated_at?: string;
@@ -369,6 +371,7 @@ export interface Database {
           tags?: string[];
           template_variables?: string[];
           is_favorite?: boolean;
+          is_public?: boolean;
           usage_count?: number;
           created_at?: string;
           updated_at?: string;
