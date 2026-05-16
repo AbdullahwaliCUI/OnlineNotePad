@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import DashboardLayout from '@/components/DashboardLayout';
 import { PenTool, Plus, Trash2, Download, Copy, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -108,10 +106,9 @@ export default function SignaturesPage() {
   };
 
   return (
-    <ProtectedRoute>
-      <DashboardLayout>
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
+    <>
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -204,13 +201,12 @@ export default function SignaturesPage() {
             </div>
           )}
         </div>
-      </DashboardLayout>
 
       <SignatureCreatorModal 
         isOpen={showCreator} 
         onClose={() => setShowCreator(false)} 
         onSave={handleSaveNewSignature} 
       />
-    </ProtectedRoute>
+    </>
   );
 }
