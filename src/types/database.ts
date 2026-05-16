@@ -403,6 +403,35 @@ export interface Database {
           updated_at?: string;
         };
       };
+      research_notes: {
+        Row: {
+          id: string;
+          user_id: string;
+          project_id: string | null;
+          title: string;
+          content: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          project_id?: string | null;
+          title: string;
+          content: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          project_id?: string | null;
+          title?: string;
+          content?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       research_projects: {
         Row: {
           id: string;
@@ -677,6 +706,7 @@ export type PromptText = Database['public']['Tables']['prompt_texts']['Row'];
 export type PromptTextInsert = Database['public']['Tables']['prompt_texts']['Insert'];
 export type PromptTextUpdate = Database['public']['Tables']['prompt_texts']['Update'];
 
+export type ResearchNote = Database['public']['Tables']['research_notes']['Row'];
 export type ResearchProject = Database['public']['Tables']['research_projects']['Row'];
 export type ResearchLiterature = Database['public']['Tables']['research_literature']['Row'];
 export type ResearchExperiment = Database['public']['Tables']['research_experiments']['Row'];
